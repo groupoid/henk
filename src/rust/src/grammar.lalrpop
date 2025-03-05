@@ -1,0 +1,23 @@
+use crate::ast::Henk;
+grammar;
+
+// Copyright (c) Groupoid Infinity 2024 Henk CoC-88
+
+// AUT = U | ( V : AUT ) AUT | AUT AUT
+//     | V | [ V : AUT ] AUT | ( AUT )
+
+Name:   String = { r"[a-zA-Z_][a-zA-Z_\d]*" => <>.to_string() };
+Variable: Henk = { <n:Name> => Henk::Variable(n) };
+Universe: Henk = { <n:r"\*[\d]+"> => Henk::Universe(i64::from_str_radix(&n[1..],10).unwrap()),
+                   <n:r"\*"> => Henk::Universe(0) };
+
+Lambda:   Henk = { "(" <v:Name> ":" <t:Expr> ")" <e:Expr1> => Henk::Lambda(v,Box::new(t),Box::new(e)) };
+Forall:   Henk = { "[" <v:Name> ":" <t:Expr> "]" <e:Expr1> => Henk::Forall(v,Box::new(t),Box::new(e)) };
+
+// LR(1) Parsing Scheme
+
+Expr1:    Henk = { Lambda, Forall, Expr2 };
+Expr2:    Henk = { <l:Expr2> <r:Expr3> => Henk::App(Box::new(l),Box::new(r)), Expr3 };
+Expr3:    Henk = { Variable, Universe, <l:"("> <e:Expr1> <r:")"> => e };
+
+pub Expr: Henk = { Expr1 };
