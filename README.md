@@ -103,18 +103,18 @@ Lambda Calculus: Its Syntax and Semantics, 1992, p. 568), which type upholds by 
 
 In repository `henk` you may find the following parts of core:
 
-* [Parser](https://github.com/groupoid/henk/blob/main/src/om_parse.erl)
-* [Typechecker](https://github.com/groupoid/henk/blob/main/src/om_type.erl)
-* [Eraser](https://github.com/groupoid/henk/blob/main/src/om_erase.erl)
-* [Code Extractor](https://github.com/groupoid/henk/blob/main/src/om_extract.erl)
+* [Parser](https://github.com/groupoid/henk/blob/main/src/elixir/src/om_parse.erl)
+* [Typechecker](https://github.com/groupoid/henk/blob/main/src/elixir/src/om_type.erl)
+* [Eraser](https://github.com/groupoid/henk/blob/main/src/elixir/src/om_erase.erl)
+* [Code Extractor](https://github.com/groupoid/henk/blob/main/src/elixir/src/om_extract.erl)
 
 Henk ships with different "modes" (spaces of types with own encodings), or "preludes", which
 you may find in `lib` directory. They are selectable with `om:mode("normal")`.
 
-#### [normal](https://github.com/groupoid/henk/tree/main/lib/normal)
+#### [normal](https://github.com/groupoid/henk/tree/blob/main/src/elixir/priv/Morte)
 
 ```sh
-henk.groupoid.space/lib/normal/
+henk.groupoid.space/src/elixir/priv/Morte
   ├── Bool
   ├── Cmd
   ├── Eq
