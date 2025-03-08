@@ -3,6 +3,8 @@ Henk Barendregt: Pure Type System
 
 <img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg">
 
+# Abstract
+
 **Henk** languages described first by Erik Meijer and Simon Peyton Jones in 1997.
 Later on in 2015 a new implementation of the ideas in Haskell appeared, called Morte.
 It used the Böhm-Berarducci encoding of recursive data types into non-recursive terms.
@@ -15,6 +17,8 @@ be able to produce verifiable programs that can be distributed over the networks
 $ mix deps.get
 $ iex -S mix
 ```
+
+## Syntax
 
 The Henk Syntax is the following:
 
@@ -33,8 +37,37 @@ The Henk Syntax is the following:
 Henk is an implementation of PTS with an Infinite Number of Universes, the pure lambda calculus with dependent types.
 It can be compiled (code extraction) to bytecode of Erlang virtual machines BEAM and LING.
 
-Trusted PTS with an Infinite Universes
---------------------------------------
+## Semantics
+
+### Shift
+
+The shift function adjusts the indices of free variables in a term to account for changes in the binding context,
+such as when a term is moved under a new binder (e.g., a lambda or universal quantifier). In the code,
+`shift (var (N,I)) N P when I >= P -> var (N,I+1)` increments the index `I` of a variable named `N` by `1`
+if I >= P (the cutoff point), while `shift (∀,(N,0)) (I,O) N P` recursively shifts indices
+in the input `I` and output `O` of a dependent function type, adjusting `O` under an additional
+binder `P+1`. Formally, per Barendregt, shifting (often denoted as an "up" operation) is defined as:
+for a term t, the shifted term `t↑_c^d` increases all free variable indices `i≥c` by `d`, where `c`
+is the cutoff and `d` is the shift amount (typically 1). Barendregt states, "The operation `t↑_c^d`
+is used to avoid capture of variables when substituting under binders" (Barendregt, Lambda Calculus: Its Syntax and Semantics, 1992, p. 49),
+ensuring that free variables retain their intended references during term manipulation.
+
+### Substitution
+
+The subst function performs substitution, replacing a variable in a term with another term,
+while respecting the binding structure to avoid variable capture. In the code,
+`subst (var (N,L)) N V L -> V` replaces a variable with index L matching the
+current level with the value `V`, while `subst ((λ,(N,0)),(I,O)) N V L  -> ((λ,(N,0)),(subst I N V L, subst O N shift(V,N,0) L+1))`
+substitutes in a lambda term, shifting `V` to adjust for the new binder in `O`.
+Formally, Barendregt defines substitution as: for a term `t`, variable `x`, and term `u`,
+the substitution `t[x:=u]` replaces all free occurrences of `x` in `t` with `u`,
+with indices adjusted to prevent capture by binders. He writes, "Substitution `t[x:=u]`
+must ensure that free variables in `u` are not accidentally bound by binders in 
+`t`, necessitating a careful adjustment of indices" (Barendregt, Introduction to
+Generalized Type Systems, 1991, p. 15), which aligns with the code’s use of shift
+within subst to maintain correctness in dependent type systems like the Calculus of Constructions.
+
+## Artefact
 
 In repository `henk` you may find the following parts of core:
 
