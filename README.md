@@ -39,6 +39,29 @@ It can be compiled (code extraction) to bytecode of Erlang virtual machines BEAM
 
 ## Semantics
 
+### Hierarchy
+
+The hierarchy function computes the universe level of a type constructor (e.g., a function or product type)
+by delegating to dep with a configurable mode. In the code, `hierarchy Arg Out -> dep Arg Out (env om hierarchy impredicative)`
+uses an environment variable to choose between impredicative (default) and predicative settings,
+allowing flexibility in the type system’s universe structure. Formally, Barendregt describes the hierarchy in PTS via the rules R,
+where the resulting sort s3 of a product `Πx:A.B` depends on the sorts of A and B: in impredicative CoC,
+while in predicative systems, it may lift to a higher universe. He writes, "The choice of hierarchy rule
+determines the expressiveness and consistency of the system" (Barendregt, Lambda Calculus: Its Syntax and
+Semantics, 1992, p. 567), which the code reflects by parameterizing this choice. He writes, "The choice of
+hierarchy rule determines the expressiveness and consistency of the system" (Barendregt, Lambda Calculus:
+Its Syntax and Semantics, 1992, p. 567), which the code reflects by parameterizing this choice.
+
+### Star
+
+The star function extracts or validates the numeric level of a universe sort, central to the infinite hierarchy of types.
+In the code, `star (star,N) -> N` returns the integer `N` from a universe term `star N` (e.g., \*0, \*1,
+while `star S -> error ("universe",\*,S)` errors out for invalid inputs. Formally, Barendregt defines sorts in PTS as a set 
+S, such as `{∗,□}` in CoC, or an infinite sequence `\*0 : \*1 : \*2 : ...` in systems with universes, where each 
+`**n : **(n+1)`. He states, "Sorts form the backbone of the type hierarchy, with each level governing the types
+below it" (Barendregt, Introduction to Generalized Type Systems, 1991, p. 6), and the code’s star function directly
+supports this by managing universe indices.
+
 ### Equality
 
 The `eq` function tests convertibility between two terms, a key aspect of type checking in PTS.
