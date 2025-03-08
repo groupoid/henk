@@ -1,7 +1,7 @@
 Henk Barendregt: Pure Type System
 ---------------------------------
 
-<img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg">
+<img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg" height=400>
 
 # Abstract
 
