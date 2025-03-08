@@ -39,6 +39,17 @@ It can be compiled (code extraction) to bytecode of Erlang virtual machines BEAM
 
 ## Semantics
 
+### Equality
+
+The `eq` function tests convertibility between two terms, a key aspect of type checking in PTS.
+It checks dependent products for equality by comparing domains and codomains with substitution,
+while `eq (app (F1,A)) (app (F2,A2)) -> eq(F1, F2), eq(A1, A2)` handles applications.
+Formally, Barendregt defines equality as beta-convertibility: 
+`M =_β N` if `M` and `N` reduce to the same normal form. He writes, "Equality in typed
+lambda calculi relies on convertibility, ensuring types align under reduction" (Barendregt,
+Introduction to Generalized Type Systems, 1991, p. 17), which eq implements via structural
+and substitution-based comparison.
+
 ### Shift
 
 The shift function adjusts the indices of free variables in a term to account for changes in the binding context,
@@ -66,6 +77,27 @@ must ensure that free variables in `u` are not accidentally bound by binders in
 `t`, necessitating a careful adjustment of indices" (Barendregt, Introduction to
 Generalized Type Systems, 1991, p. 15), which aligns with the code’s use of shift
 within subst to maintain correctness in dependent type systems like the Calculus of Constructions.
+
+### Normalization
+
+The norm function computes the normal form of a term, performing beta reduction and structural
+normalization. In the code, `norm (app (F,A)) -> case norm(F) of ((λ,(N,0)),(O,O)) -> norm(subst(O,N,A))`
+reduces applications by substituting into lambdas, while `norm (→,(I,O)) -> ((∀,(_,0)),(norm(I),norm(O)))`
+rewrites function types as dependent products. Formally, Barendregt defines normalization as reducing a
+term to its normal form via beta reduction, where `(λx.M)N→M[x:=N]`, ensuring strong normalization
+in systems like CoC. He states, "Normalization guarantees that every typable term has a unique
+normal form, critical for consistency" (Barendregt, Lambda Calculus: Its Syntax and Semantics, 1992, p. 62),
+which norm achieves through recursive reduction.
+
+### Type Inference
+
+The type function infers or checks the type of a term in a given context, enforcing the PTS typing rules.
+In the code, `type (star N) _ -> star (N+1)` assigns each universe its successor, `type ((∀,(N,0)),(I,O)) D -> star hierarchy(star(type(I,D)), star(type(O,[{N,norm(I)}|D])))`
+types dependent products, and `type (app (F,A)) D` handles applications by matching function
+types and substituting. Formally, Barendregt defines typing in PTS via judgments `Γ ⊢ M : A`,
+governed by rules like `Γ⊢Πx:A.B:s3 if Γ⊢A:s1 /\ Γ,x:A⊢B:s2` for products. He notes, "The typing
+relation ensures that every term inhabits a sort or type, preserving the hierarchy" (Barendregt,
+Lambda Calculus: Its Syntax and Semantics, 1992, p. 568), which type upholds by recursively computing types within the context.
 
 ## Artefact
 
