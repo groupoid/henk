@@ -1,5 +1,5 @@
-Henk: Pure Type System
-----------------------
+Henk Barendregt: Pure Type System
+---------------------------------
 
 <img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg">
 
