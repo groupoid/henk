@@ -57,7 +57,7 @@ and infer ctx t = let res = match t with
     | Universe i -> Universe (i + 1)
     | Pi (x, a, b) -> Universe (max (universe (infer ctx a)) (universe (infer ((x,a)::ctx) b)))
     | Lam (x, a, b) -> let _ = infer ctx a in Pi (x, a, infer ((x,a)::ctx) b)
-    | App (f, a) -> match infer ctx f with | Pi (x, a, b) -> subst x a b | t -> raise (TypeError "Requires a Pi type.")
+    | App (f, a) -> match infer ctx f with | Pi (x, _, b) -> subst x a b | t -> raise (TypeError "Requires a Pi type.")
     in normalize ctx res
 
 (* Test Suite *)
