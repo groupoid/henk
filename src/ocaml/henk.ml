@@ -45,13 +45,6 @@ let rec subst_many m t =
 
 let subst x s t = subst_many [(x, s)] t
 
-let eta_expand t typ =
-  match typ with
-  | Pi (x, a, b) ->
-      let x' = fresh_var (free_vars t) x in
-      Lam (x', a, App (t, Var x'))
-  | _ -> t
-
 let is_lam = function | Lam _ -> true | _ -> false
 
 let rec equal ctx t1 t2 =
@@ -68,6 +61,7 @@ and equal' ctx t1 t2 =
     | Lam (x, d, b), t when not (is_lam t) -> let x_var = Var x in equal' ctx b (App (t, x_var)) && (match infer ctx t with | Pi (y, a, b') -> equal' ctx d a | _ -> false)
     | t, Lam (x, d, b) when not (is_lam t) -> let x_var = Var x in equal' ctx (App (t, x_var)) b && (match infer ctx t with | Pi (y, a, b') -> equal' ctx a d | _ -> false)
     | App (f, arg), App (f', arg') -> equal' ctx f f' && equal' ctx arg arg'
+    | _ -> t1 = t2
 
 and reduce ctx t =
     match t with
@@ -121,9 +115,8 @@ let succ =
     Lam ("Zero", Var "Nat",
     App (Var "Succ", App (App (App (Var "pred", Var "Nat"), Var "Succ"), Var "Zero"))))))
 
-
 let list_type =
-    Pi ("List", Universe 1,
+    Pi ("List", Universe 0,
     Pi ("Cons", Pi ("head", nat_type, Pi ("tail", Var "List", Var "List")),
     Pi ("Nil", Var "List", Var "List")))
 
@@ -176,6 +169,7 @@ let cons head tail =
 let list_one_two = cons one (cons two nil)
 
 let beta_test = let lam = Lam ("x", Universe 0, Var "x") in let app = App (lam, Var "y") in (app, Var "y")
+let eta_expand t typ = match typ with | Pi (x, a, b) -> let x' = fresh_var (free_vars t) x in Lam (x', a, App (t, Var x')) | _ -> t
 let eta_test ctx f f_type = let eta_expanded = eta_expand f f_type in (f, eta_expanded)
 
 let run_type_test name term expected_type =
@@ -202,15 +196,15 @@ let run_equality_test ctx name (t1, t2) =
     (string_of_term t2)
     (if result then "PASS" else "FAIL")
 
+let beta = (App (Lam ("x", Universe 0, Var "x"), Var "y"), Var "y")
+let eta  = (Lam ("x", Universe 0, App (Var "f", Var "x")), Var "f")
+
 let () =
-  let ctx = [("s", succ)] in
+  let ctx = [("s", succ);("f", Pi ("x", Universe 0, Universe 0))] in
   run_type_test "Nat" nat_type (Universe 1);
   run_type_test "Zero" zero nat_type;
   run_type_test "Succ" succ (Pi ("pred", nat_type, nat_type));
   run_type_test "Sum" sum (Pi ("xs", list_type, nat_type));
-  run_equality_test ctx "Beta" beta_test;
-  let ctx = [("f", Pi ("x", Universe 0, Universe 0))] in
-  let t1 = normalize ctx (Lam ("x", Universe 0, App (Var "f", Var "x"))) in
-  let t2 = normalize ctx (Var "f") in
-  run_equality_test ctx "Eta (Succ)" (eta_test ctx t1 t2)
-  
+  run_equality_test ctx "Beta" beta;
+  run_equality_test ctx "Eta" eta;
+
