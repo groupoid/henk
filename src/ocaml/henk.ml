@@ -1,4 +1,4 @@
-(* Henk: CoC 1988 with infinite hierarchy of impredicative universes *)
+(* Henk: CoC 1988 with infinite hierarchy of predicative universes *)
 
 type term =
   | Var of string
@@ -33,15 +33,12 @@ let rec string_of_term = function
     | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
     | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
 
-let rec equal ctx t1 t2 =
-    let t1' = normalize ctx t1 in
-    let t2' = normalize ctx t2 in
-    match t1', t2' with
-    | Lam (x, d, b), t when not (is_lam t) -> (match infer ctx t1' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
-    | t, Lam (x, d, b) when not (is_lam t) -> (match infer ctx t2' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
-    | _ -> equal' ctx t1' t2'
+let check_universe ty =
+    match ty with
+    | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); i
+    | ty -> raise (TypeError (Printf.sprintf "Expected a universe, got: %s" (string_of_term ty)))
 
-and equal' ctx t1 t2 =
+let rec equal' ctx t1 t2 =
     match t1, t2 with
     | Var x, Var y -> x = y
     | Universe i, Universe j -> i <= j
@@ -51,6 +48,14 @@ and equal' ctx t1 t2 =
     | t, Lam (x, d, b) when not (is_lam t) -> equal' ctx (App (t, Var x)) b
     | App (f, arg), App (f', arg') -> equal' ctx f f' && equal' ctx arg arg'
     | _ -> t1 = t2
+
+let rec equal ctx t1 t2 =
+    let t1' = normalize ctx t1 in
+    let t2' = normalize ctx t2 in
+    match t1', t2' with
+    | Lam (x, d, b), t when not (is_lam t) -> (match infer ctx t1' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
+    | t, Lam (x, d, b) when not (is_lam t) -> (match infer ctx t2' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
+    | _ -> equal' ctx t1' t2'
 
 and reduce ctx t =
     match t with
@@ -63,16 +68,11 @@ and normalize ctx t =
     let t' = reduce ctx t in
     if equal' ctx t t' then t else normalize ctx t'
 
-and check_universe ctx t =
-    match infer ctx t with
-    | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); i
-    | ty -> raise (TypeError (Printf.sprintf "Expected a universe, got: %s" (string_of_term ty)))
-
 and infer ctx t =
     let res = match t with
     | Var x -> lookup_var ctx x
     | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); Universe (i + 1)
-    | Pi (x, a, b) -> let i = check_universe ctx a in let ctx' = (x,a)::ctx in let j = check_universe ctx' b in Universe (max i j)
+    | Pi (x, a, b) -> let i = check_universe (infer ctx a) in let ctx' = (x,a)::ctx in let j = check_universe (infer ctx' b) in Universe (max i j)
     | Lam (x, domain, body) -> let _ = infer ctx domain in let body_ty = infer ((x,domain)::ctx) body in Pi (x, domain, body_ty)
     | App (f, arg) -> match infer ctx f with | Pi (x, a, b) -> subst x arg b | ty -> raise (TypeError "Application requires a Pi type.")
     in normalize ctx res
