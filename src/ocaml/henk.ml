@@ -1,10 +1,8 @@
 (* Henk: CoC 1988 with infinite hierarchy of impredicative universes *)
 
-type universe = int
-
 type term =
   | Var of string
-  | Universe of universe
+  | Universe of int
   | Pi of string * term * term   (* ∀ (x : a), b *)
   | Lam of string * term * term  (* λ (x : a), b *)
   | App of term * term
@@ -19,20 +17,6 @@ let rec string_of_term = function
     | Pi (x, a, b) -> "∀ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term b
     | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
     | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
-
-let fresh_var used_vars base =
-    let rec find_fresh n =
-        let candidate = base ^ string_of_int n in if List.mem candidate used_vars then find_fresh (n + 1) else candidate
-    in find_fresh 0
-
-let rec free_vars = function
-    | Var x -> [x]
-    | Universe _ -> []
-    | Pi (x, a, b) -> free_vars a @ List.filter ((<>) x) (free_vars b)
-    | Lam (x, a, t) -> free_vars a @ List.filter ((<>) x) (free_vars t)
-    | App (t1, t2) -> free_vars t1 @ free_vars t2
-
-let add_var ctx x ty = (x, ty) :: ctx
 
 let rec subst_many m t =
     match t with
@@ -55,8 +39,8 @@ and equal' ctx t1 t2 =
     match t1, t2 with
     | Var x, Var y -> x = y
     | Universe i, Universe j -> i <= j
-    | Pi (x, a, b), Pi (y, a', b') -> equal' ctx a a' && equal' (add_var ctx x a) b (subst y (Var x) b')
-    | Lam (x, d, b), Lam (y, d', b') -> equal' ctx d d' && equal' (add_var ctx x d) b (subst y (Var x) b')
+    | Pi (x, a, b), Pi (y, a', b') -> equal' ctx a a' && equal' ((x,a) :: ctx) b (subst y (Var x) b')
+    | Lam (x, d, b), Lam (y, d', b') -> equal' ctx d d' && equal' ((x,d) :: ctx) b (subst y (Var x) b')
     | Lam (x, d, b), t when not (is_lam t) -> let x_var = Var x in equal' ctx b (App (t, x_var)) && (match infer ctx t with | Pi (y, a, b') -> equal' ctx d a | _ -> false)
     | t, Lam (x, d, b) when not (is_lam t) -> let x_var = Var x in equal' ctx (App (t, x_var)) b && (match infer ctx t with | Pi (y, a, b') -> equal' ctx a d | _ -> false)
     | App (f, arg), App (f', arg') -> equal' ctx f f' && equal' ctx arg arg'
@@ -82,12 +66,9 @@ and infer ctx t =
     let res = match t with
     | Var x -> lookup_var ctx x
     | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); Universe (i + 1)
-    | Pi (x, a, b) -> let i = check_universe ctx a in let ctx' = add_var ctx x a in let j = check_universe ctx' b in Universe (max i j)
-    | Lam (x, domain, body) -> 
-        infer ctx domain;
-        let ctx' = add_var ctx x domain in let body_ty = infer ctx' body in 
-        Pi (x, domain, body_ty)
-    | App (f, arg) -> (match infer ctx f with | Pi (x, a, b) -> infer ctx arg; subst x arg b | ty -> Printf.printf "App failed: inferred %s" (string_of_term ty); raise (TypeError "Application requires a Pi type"))
+    | Pi (x, a, b) -> let i = check_universe ctx a in let ctx' = (x,a)::ctx in let j = check_universe ctx' b in Universe (max i j)
+    | Lam (x, domain, body) -> let _ = infer ctx domain in let body_ty = infer ((x,domain)::ctx) body in Pi (x, domain, body_ty)
+    | App (f, arg) -> match infer ctx f with | Pi (x, a, b) -> subst x arg b | ty -> raise (TypeError "Application requires a Pi type.")
     in normalize ctx res
 
 and lookup_var ctx x =
@@ -156,10 +137,6 @@ let cons head tail =
 
 let list_one_two = cons one (cons two nil)
 
-let beta_test = let lam = Lam ("x", Universe 0, Var "x") in let app = App (lam, Var "y") in (app, Var "y")
-let eta_expand t typ = match typ with | Pi (x, a, b) -> let x' = fresh_var (free_vars t) x in Lam (x', a, App (t, Var x')) | _ -> t
-let eta_test ctx f f_type = let eta_expanded = eta_expand f f_type in (f, eta_expanded)
-
 let run_type_test name term expected_type =
     let ctx = [] in
     try let inferred = infer ctx term in
@@ -175,7 +152,6 @@ let run_type_test name term expected_type =
 
 let run_equality_test ctx name (t1, t2) =
     let result = equal ctx t1 t2 in
-    let _ = Printf.printf "OK 2\n" in
     Printf.printf "Equality Test %s:\n- Term1: %s\n- Term2: %s\n- Result: %s\n\n"
       name
       (string_of_term t1)
