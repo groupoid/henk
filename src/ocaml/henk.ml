@@ -40,7 +40,7 @@ let rec equal ctx t1 t2 = match t1, t2 with
     | Lam (x, d, b), t -> equal ctx b (App (t, Var x))
     | t, Lam (x, d, b) -> equal ctx (App (t, Var x)) b
     | App (f, arg), App (f', arg') -> equal ctx f f' && equal ctx arg arg'
-    | _ -> t1 = t2
+    | _ -> false
 
 and reduce ctx t = match t with
     | App (Lam (x, domain, body), arg) -> subst x arg body
