@@ -25,7 +25,7 @@ let rec subst x s = function
     | Var y -> if x = y then s else Var y
     | Pi (y, a, b) when x <> y -> Pi (y, subst x s a, subst x s b)
     | Lam (y, a, b) when x <> y -> Lam (y, subst x s a, subst x s b)
-    | App (f, arg) -> App (subst x s f, subst x s arg)
+    | App (f, a) -> App (subst x s f, subst x s a)
     | t -> t
 
 let rec lookup x = function
