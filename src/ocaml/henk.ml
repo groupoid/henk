@@ -14,24 +14,23 @@ type context = (string * term) list
 exception TypeError of string
 
 let rec string_of_term = function
-  | Var x -> x
-  | Universe u -> "U_" ^ string_of_int u
-  | Pi (x, a, b) -> "∀ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term b
-  | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
-  | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
+    | Var x -> x
+    | Universe u -> "U_" ^ string_of_int u
+    | Pi (x, a, b) -> "∀ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term b
+    | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
+    | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
 
 let fresh_var used_vars base =
-  let rec find_fresh n =
-    let candidate = base ^ string_of_int n in
-    if List.mem candidate used_vars then find_fresh (n + 1) else candidate
-  in find_fresh 0
+    let rec find_fresh n =
+        let candidate = base ^ string_of_int n in if List.mem candidate used_vars then find_fresh (n + 1) else candidate
+    in find_fresh 0
 
 let rec free_vars = function
-  | Var x -> [x]
-  | Universe _ -> []
-  | Pi (x, a, b) -> free_vars a @ List.filter ((<>) x) (free_vars b)
-  | Lam (x, a, t) -> free_vars a @ List.filter ((<>) x) (free_vars t)
-  | App (t1, t2) -> free_vars t1 @ free_vars t2
+    | Var x -> [x]
+    | Universe _ -> []
+    | Pi (x, a, b) -> free_vars a @ List.filter ((<>) x) (free_vars b)
+    | Lam (x, a, t) -> free_vars a @ List.filter ((<>) x) (free_vars t)
+    | App (t1, t2) -> free_vars t1 @ free_vars t2
 
 let add_var ctx x ty = (x, ty) :: ctx
 
@@ -121,50 +120,39 @@ let list_type =
     Pi ("Nil", Var "List", Var "List")))
 
 let sum =
-  Lam ("xs", list_type,
+    Lam ("xs", list_type,
     App (App (App (Var "xs", nat_type),
-              Lam ("head", nat_type,
-                Lam ("tail", nat_type,
-                  Lam ("Nat", Universe 0,
-                    Lam ("Succ", Pi ("n", Var "Nat", Var "Nat"),
-                      Lam ("Zero", Var "Nat",
-                        App (App (App (Var "head", Var "Nat"),
-                                  App (App (Var "tail", Var "Nat"), Var "Succ")),
-                             Var "Zero"))))))),
-         zero))
+    Lam ("head", nat_type,
+    Lam ("tail", nat_type,
+    Lam ("Nat", Universe 0,
+    Lam ("Succ", Pi ("n", Var "Nat", Var "Nat"),
+    Lam ("Zero", Var "Nat",
+    App (App (App (Var "head", Var "Nat"), App (App (Var "tail", Var "Nat"), Var "Succ")),
+    Var "Zero"))))))), zero))
 
 let one =
-  Lam ("Nat", Universe 0,
+    Lam ("Nat", Universe 0,
     Lam ("Succ", Pi ("n", Var "Nat", Var "Nat"),
-      Lam ("Zero", Var "Nat",
-        App (Var "Succ", Var "Zero"))))
+    Lam ("Zero", Var "Nat",
+    App (Var "Succ", Var "Zero"))))
 
 let two =
-  Lam ("Nat", Universe 0,
+    Lam ("Nat", Universe 0,
     Lam ("Succ", Pi ("n", Var "Nat", Var "Nat"),
-      Lam ("Zero", Var "Nat",
-        App (Var "Succ",
-          App (Var "Succ", Var "Zero")))))
-
-let three =
-  Lam ("Nat", Universe 0,
-    Lam ("Succ", Pi ("n", Var "Nat", Var "Nat"),
-      Lam ("Zero", Var "Nat",
-        App (Var "Succ",
-          App (Var "Succ",
-            App (Var "Succ", Var "Zero"))))))
+    Lam ("Zero", Var "Nat",
+    App (Var "Succ",
+    App (Var "Succ", Var "Zero")))))
 
 let nil =
-  Lam ("List", Universe 1,
+    Lam ("List", Universe 1,
     Lam ("Cons", Pi ("head", nat_type, Pi ("tail", Var "List", Var "List")),
-      Lam ("Nil", Var "List",
-        Var "Nil")))
+    Lam ("Nil", Var "List",
+    Var "Nil")))
 
 let cons head tail =
-  Lam ("List", Universe 1,
+    Lam ("List", Universe 1,
     Lam ("Cons", Pi ("head", nat_type, Pi ("tail", Var "List", Var "List")),
-      Lam ("Nil", Var "List",
-        App (App (Var "Cons", head), tail))))
+    Lam ("Nil", Var "List", App (App (Var "Cons", head), tail))))
 
 let list_one_two = cons one (cons two nil)
 
@@ -173,38 +161,36 @@ let eta_expand t typ = match typ with | Pi (x, a, b) -> let x' = fresh_var (free
 let eta_test ctx f f_type = let eta_expanded = eta_expand f f_type in (f, eta_expanded)
 
 let run_type_test name term expected_type =
-  let ctx = [] in
-  try
-    let inferred = infer ctx term in
-    let norm_inferred = normalize ctx inferred in
-    let norm_expected = normalize ctx expected_type in
-    Printf.printf "Test %s:\n- Term: %s\n- Inferred: %s\n- Expected: %s\n- Result: %s\n\n"
-      name
-      (string_of_term term)
-      (string_of_term norm_inferred)
-      (string_of_term norm_expected)
-      (if equal [] norm_inferred norm_expected then "PASS" else "FAIL")
-  with
-  | Failure msg -> Printf.printf "Universe Test %s: Failed with error: %s\n\n" name msg
+    let ctx = [] in
+    try let inferred = infer ctx term in
+        let norm_inferred = normalize ctx inferred in
+        let norm_expected = normalize ctx expected_type in
+        Printf.printf "Test %s:\n- Term: %s\n- Inferred: %s\n- Expected: %s\n- Result: %s\n\n"
+          name
+          (string_of_term term)
+          (string_of_term norm_inferred)
+          (string_of_term norm_expected)
+          (if equal [] norm_inferred norm_expected then "PASS" else "FAIL")
+    with | Failure msg -> Printf.printf "Universe Test %s: Failed with error: %s\n\n" name msg
 
 let run_equality_test ctx name (t1, t2) =
-  let result = equal ctx t1 t2 in
-  let _ = Printf.printf "OK 2\n" in
-  Printf.printf "Equality Test %s:\n- Term1: %s\n- Term2: %s\n- Result: %s\n\n"
-    name
-    (string_of_term t1)
-    (string_of_term t2)
-    (if result then "PASS" else "FAIL")
+    let result = equal ctx t1 t2 in
+    let _ = Printf.printf "OK 2\n" in
+    Printf.printf "Equality Test %s:\n- Term1: %s\n- Term2: %s\n- Result: %s\n\n"
+      name
+      (string_of_term t1)
+      (string_of_term t2)
+      (if result then "PASS" else "FAIL")
 
 let beta = (App (Lam ("x", Universe 0, Var "x"), Var "y"), Var "y")
 let eta  = (Lam ("x", Universe 0, App (Var "f", Var "x")), Var "f")
 
 let () =
-  let ctx = [("s", succ);("f", Pi ("x", Universe 0, Universe 0))] in
-  run_type_test "Nat" nat_type (Universe 1);
-  run_type_test "Zero" zero nat_type;
-  run_type_test "Succ" succ (Pi ("pred", nat_type, nat_type));
-  run_type_test "Sum" sum (Pi ("xs", list_type, nat_type));
-  run_equality_test ctx "Beta" beta;
-  run_equality_test ctx "Eta" eta;
+    let ctx = [("s", succ);("f", Pi ("x", Universe 0, Universe 0))] in
+    run_type_test "Nat" nat_type (Universe 1);
+    run_type_test "Zero" zero nat_type;
+    run_type_test "Succ" succ (Pi ("pred", nat_type, nat_type));
+    run_type_test "Sum" sum (Pi ("xs", list_type, nat_type));
+    run_equality_test ctx "Beta" beta;
+    run_equality_test ctx "Eta" eta;
 
