@@ -33,21 +33,26 @@ let rec string_of_term = function
     | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
     | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
 
-let rec equal' ctx t1 t2 =
+let rec equal ctx t1 t2 =
+    let t1' = normalize ctx t1 in
+    let t2' = normalize ctx t2 in
+    let t1_ty = infer ctx t1' in
+    let t2_ty = infer ctx t2' in
+    match t1', t2' with
+    | Lam (x, d, b), t when not (is_lam t) -> (match t2_ty with | Pi _ -> equal' ctx t1' t2' | _ -> false)
+    | t, Lam (x, d, b) when not (is_lam t) -> (match t1_ty with | Pi _ -> equal' ctx t1' t2' | _ -> false)
+    | _ -> equal' ctx t1' t2'
+
+and equal' ctx t1 t2 =
     match t1, t2 with
     | Var x, Var y -> x = y
     | Universe i, Universe j -> i <= j
     | Pi (x, a, b), Pi (y, a', b') -> equal' ctx a a' && equal' ((x,a) :: ctx) b (subst y (Var x) b')
     | Lam (x, d, b), Lam (y, d', b') -> equal' ctx d d' && equal' ((x,d) :: ctx) b (subst y (Var x) b')
-    | Lam (x, d, b), t when not (is_lam t) -> let x_var = Var x in equal' ctx b (App (t, x_var)) && (match infer ctx t with | Pi (y, a, b') -> equal' ctx d a | _ -> false)
-    | t, Lam (x, d, b) when not (is_lam t) -> let x_var = Var x in equal' ctx (App (t, x_var)) b && (match infer ctx t with | Pi (y, a, b') -> equal' ctx a d | _ -> false)
+    | Lam (x, d, b), t when not (is_lam t) -> equal' ctx b (App (t, Var x))
+    | t, Lam (x, d, b) when not (is_lam t) -> equal' ctx (App (t, Var x)) b
     | App (f, arg), App (f', arg') -> equal' ctx f f' && equal' ctx arg arg'
     | _ -> t1 = t2
-
-and equal ctx t1 t2 =
-    let t1' = normalize ctx t1 in
-    let t2' = normalize ctx t2 in
-    equal' ctx t1' t2'
 
 and reduce ctx t =
     match t with
@@ -156,15 +161,32 @@ let run_equality_test ctx name (t1, t2) =
       (string_of_term t2)
       (if result then "PASS" else "FAIL")
 
-let beta = (App (Lam ("x", Universe 0, Var "x"), Var "y"), Var "y")
-let eta  = (Lam ("x", Universe 0, App (Var "f", Var "x")), Var "f")
+
+let beta           = (App (Lam ("x", Universe 0, Var "x"), Var "y"), Var "y")
+let eta            = (Lam ("x", Universe 0, App (Var "f", Var "x")), Var "f")
+let eta_domain     = (Lam ("x", Universe 1, App (Var "f", Var "x")), Var "f")
+let invalid_eta    = (Lam ("x", Universe 0, Universe 0), Universe 0)
+let invalid_eta_v  = (Lam ("x", Universe 0, Var "u"), Var "u")
+let eta_subtle     = (Lam ("x", Universe 0, Var "u"), Var "u")
+let tricky_eta     = (Lam ("x", Universe 0, App (Var "f", Var "u")), Var "u")
+let invalid_tricky = (Lam ("x", Universe 0, App (Var "id", Var "u")), Var "u")
+let multi_beta     = (App (App (Lam ("x", Universe 0, Lam ("y", Universe 0, Var "x")), Var "u"), Var "y"), Var "u")
+let predicative    = Pi ("x", Universe 0, Universe 0)
+let neutral_eta    = (Lam ("x", Universe 0, App (Var "f", Var "u")), App (Var "f", Var "u"))
 
 let () =
-    let ctx = [("s", succ);("f", Pi ("x", Universe 0, Universe 0))] in
+    let ctx = [("s", succ);("f", Pi ("x", Universe 0, Universe 0)); ("u", Universe 0); ("y", Universe 0); ("id", Pi ("x", Universe 0, Var "x"))] in
     run_type_test "Nat" nat_type (Universe 1);
     run_type_test "Zero" zero nat_type;
     run_type_test "Succ" succ (Pi ("pred", nat_type, nat_type));
     run_type_test "Sum" sum (Pi ("xs", list_type, nat_type));
     run_equality_test ctx "Beta" beta;
     run_equality_test ctx "Eta" eta;
-
+    run_equality_test ctx "Invalid Eta" invalid_eta;
+    run_equality_test ctx "Invalid Eta Var" invalid_eta_v;
+    run_equality_test ctx "Tricky Eta" tricky_eta;
+    run_equality_test ctx "Invalid Tricky Eta" invalid_tricky;
+    run_equality_test ctx "Multi Beta" multi_beta;
+    run_equality_test ctx "Eta Domain" eta_domain;
+    run_type_test "CoC with Predicative Hierarchy" predicative (Universe 1);
+    run_equality_test ctx "Neutral Eta" neutral_eta;
