@@ -131,10 +131,7 @@ let list_one_two = cons one (cons two nil)
 let rec test_equal ctx t1 t2 =
     let t1' = normalize ctx t1 in
     let t2' = normalize ctx t2 in
-    match t1', t2' with
-    | Lam (x, d, b), t -> (match infer ctx t1' with | Pi _ -> equal ctx t1' t2' | _ -> false)
-    | t, Lam (x, d, b) -> (match infer ctx t2' with | Pi _ -> equal ctx t1' t2' | _ -> false)
-    | _ -> equal ctx t1' t2'
+    equal ctx t1' t2'
 
 let run_type_test name term expected_type =
     let ctx = [] in
