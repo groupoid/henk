@@ -1,15 +1,25 @@
 (* Henk: CoC 1988 with infinite hierarchy of predicative universes *)
 
 type term =
-  | Var of string
-  | Universe of int
-  | Pi of string * term * term   (* ∀ (x : a), b *)
-  | Lam of string * term * term  (* λ (x : a), b *)
-  | App of term * term
+    | Var of string
+    | Universe of int
+    | Pi of string * term * term   (* ∀ (x : a), b *)
+    | Lam of string * term * term  (* λ (x : a), b *)
+    | App of term * term
+
+let rec string_of_term = function
+    | Var x -> x
+    | Universe u -> "U_" ^ string_of_int u
+    | Pi (x, a, b) -> "∀ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term b
+    | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
+    | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
 
 type context = (string * term) list
-
 exception TypeError of string
+
+let universe = function
+    | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); i
+    | ty -> raise (TypeError (Printf.sprintf "Expected a universe, got: %s" (string_of_term ty)))
 
 let rec subst x s = function
     | Var y -> if x = y then s else Var y
@@ -52,18 +62,6 @@ and infer ctx t =
     | Lam (x, domain, body) -> let _ = infer ctx domain in Pi (x, domain, infer ((x,domain)::ctx) body)
     | App (f, arg) -> match infer ctx f with | Pi (x, a, b) -> subst x arg b | ty -> raise (TypeError "Application requires a Pi type.")
     in normalize ctx res
-
-let universe ty =
-    match ty with
-    | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); i
-    | ty -> raise (TypeError (Printf.sprintf "Expected a universe, got: %s" (string_of_term ty)))
-
-let rec string_of_term = function
-    | Var x -> x
-    | Universe u -> "U_" ^ string_of_int u
-    | Pi (x, a, b) -> "∀ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term b
-    | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
-    | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
 
 (* Test Suite *)
 
