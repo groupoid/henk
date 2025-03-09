@@ -43,7 +43,7 @@ let rec equal ctx t1 t2 = match t1, t2 with
     | _ -> false
 
 and reduce ctx t = match t with
-    | App (Lam (x, _, b), a) -> let _ = infer ctx a in subst x a b
+    | App (Lam (x, _, b), a) -> subst x a b
     | App (Pi (x, _, b), a) -> subst x a b
     | App (f, a) -> App (reduce ctx f, reduce ctx a)
     | _ -> t
