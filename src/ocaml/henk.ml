@@ -63,7 +63,7 @@ and infer ctx t =
     | Var x -> lookup_var ctx x
     | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); Universe (i + 1)
     | Pi (x, a, b) -> let i = check_universe (infer ctx a) in let ctx' = (x,a)::ctx in let j = check_universe (infer ctx' b) in Universe (max i j)
-    | Lam (x, domain, body) -> let _ = infer ctx domain in let body_ty = infer ((x,domain)::ctx) body in Pi (x, domain, body_ty)
+    | Lam (x, domain, body) -> let _ = infer ctx domain in Pi (x, domain, infer ((x,domain)::ctx) body)
     | App (f, arg) -> match infer ctx f with | Pi (x, a, b) -> subst x arg b | ty -> raise (TypeError "Application requires a Pi type.")
     in normalize ctx res
 
