@@ -18,13 +18,13 @@ type context = (string * term) list
 exception TypeError of string
 
 let universe = function
-    | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); i
-    | ty -> raise (TypeError (Printf.sprintf "Expected a universe, got: %s" (string_of_term ty)))
+    | Universe i -> i
+    | ty -> raise (TypeError ("Expected a universe"))
 
 let rec subst x s = function
     | Var y -> if x = y then s else Var y
     | Pi (y, a, b) when x <> y -> Pi (y, subst x s a, subst x s b)
-    | Lam (y, d, b) when x <> y -> Lam (y, subst x s d, subst x s b)
+    | Lam (y, a, b) when x <> y -> Lam (y, subst x s a, subst x s b)
     | App (f, arg) -> App (subst x s f, subst x s arg)
     | t -> t
 
@@ -36,16 +36,16 @@ let rec equal ctx t1 t2 = match t1, t2 with
     | Var x, Var y -> x = y
     | Universe i, Universe j -> i <= j
     | Pi (x, a, b), Pi (y, a', b')
-    | Lam (x,a,b), Lam (y,a',b') -> equal ctx a a' && equal ((x,a) :: ctx) b (subst y (Var x) b')
-    | Lam (x, d, b), t -> equal ctx b (App (t, Var x))
-    | t, Lam (x, d, b) -> equal ctx (App (t, Var x)) b
+    | Lam (x,a, b), Lam (y, a', b') -> equal ctx a a' && equal ((x,a) :: ctx) b (subst y (Var x) b')
+    | Lam (x, _, b), t -> equal ctx b (App (t, Var x))
+    | t, Lam (x, _, b) -> equal ctx (App (t, Var x)) b
     | App (f, arg), App (f', arg') -> equal ctx f f' && equal ctx arg arg'
     | _ -> false
 
 and reduce ctx t = match t with
     | App (Lam (x, domain, body), arg) -> subst x arg body
     | App (Pi (x, a, b), arg) -> subst x arg b
-    | App (f, arg) -> let f' = reduce ctx f in let arg' = reduce ctx arg in App (f', arg')
+    | App (f, a) -> App (reduce ctx f, reduce ctx a)
     | _ -> t
 
 and normalize ctx t =
@@ -54,10 +54,10 @@ and normalize ctx t =
 
 and infer ctx t = let res = match t with
     | Var x -> lookup x ctx
-    | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); Universe (i + 1)
+    | Universe i -> Universe (i + 1)
     | Pi (x, a, b) -> Universe (max (universe (infer ctx a)) (universe (infer ((x,a)::ctx) b)))
-    | Lam (x, domain, body) -> let _ = infer ctx domain in Pi (x, domain, infer ((x,domain)::ctx) body)
-    | App (f, arg) -> match infer ctx f with | Pi (x, a, b) -> subst x arg b | ty -> raise (TypeError "Application requires a Pi type.")
+    | Lam (x, a, b) -> let _ = infer ctx a in Pi (x, a, infer ((x,a)::ctx) b)
+    | App (f, a) -> match infer ctx f with | Pi (x, a, b) -> subst x a b | t -> raise (TypeError "Requires a Pi type.")
     in normalize ctx res
 
 (* Test Suite *)
