@@ -32,19 +32,17 @@ let rec lookup x = function
     | [] -> failwith ("Unbound variable: " ^ x)
     | (y, typ) :: rest -> if x = y then typ else lookup x rest
 
-let rec equal ctx t1 t2 =
-    match t1, t2 with
+let rec equal ctx t1 t2 = match t1, t2 with
     | Var x, Var y -> x = y
     | Universe i, Universe j -> i <= j
-    | Pi (x, a, b), Pi (y, a', b') -> equal ctx a a' && equal ((x,a) :: ctx) b (subst y (Var x) b')
-    | Lam (x, d, b), Lam (y, d', b') -> equal ctx d d' && equal ((x,d) :: ctx) b (subst y (Var x) b')
+    | Pi (x, a, b), Pi (y, a', b')
+    | Lam (x,a,b), Lam (y,a',b') -> equal ctx a a' && equal ((x,a) :: ctx) b (subst y (Var x) b')
     | Lam (x, d, b), t -> equal ctx b (App (t, Var x))
     | t, Lam (x, d, b) -> equal ctx (App (t, Var x)) b
     | App (f, arg), App (f', arg') -> equal ctx f f' && equal ctx arg arg'
     | _ -> t1 = t2
 
-and reduce ctx t =
-    match t with
+and reduce ctx t = match t with
     | App (Lam (x, domain, body), arg) -> subst x arg body
     | App (Pi (x, a, b), arg) -> subst x arg b
     | App (f, arg) -> let f' = reduce ctx f in let arg' = reduce ctx arg in App (f', arg')
@@ -54,8 +52,7 @@ and normalize ctx t =
     let t' = reduce ctx t in
     if equal ctx t t' then t else normalize ctx t'
 
-and infer ctx t =
-    let res = match t with
+and infer ctx t = let res = match t with
     | Var x -> lookup x ctx
     | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); Universe (i + 1)
     | Pi (x, a, b) -> Universe (max (universe (infer ctx a)) (universe (infer ((x,a)::ctx) b)))
