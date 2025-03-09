@@ -11,6 +11,21 @@ type context = (string * term) list
 
 exception TypeError of string
 
+let subst x s t = let rec subst_many m t =
+    match t with
+    | Var x -> (try List.assoc x m with Not_found -> t)
+    | Pi (x, a, b) -> let m' = List.filter (fun (y, _) -> y <> x) m in Pi (x, subst_many m a, subst_many m' b)
+    | Lam (x, d, b) -> let m' = List.filter (fun (y, _) -> y <> x) m in Lam (x, subst_many m d, subst_many m' b)
+    | App (f, arg) -> App (subst_many m f, subst_many m arg)
+    | _ -> t in subst_many [(x, s)] t
+
+let rec lookup_var ctx x =
+    match ctx with
+    | [] -> failwith ("Unbound variable: " ^ x)
+    | (y, typ) :: rest -> if x = y then typ else lookup_var rest x
+
+let is_lam = function | Lam _ -> true | _ -> false
+
 let rec string_of_term = function
     | Var x -> x
     | Universe u -> "U_" ^ string_of_int u
@@ -18,24 +33,7 @@ let rec string_of_term = function
     | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
     | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
 
-let rec subst_many m t =
-    match t with
-    | Var x -> (try List.assoc x m with Not_found -> t)
-    | Pi (x, a, b) -> let m' = List.filter (fun (y, _) -> y <> x) m in Pi (x, subst_many m a, subst_many m' b)
-    | Lam (x, d, b) -> let m' = List.filter (fun (y, _) -> y <> x) m in Lam (x, subst_many m d, subst_many m' b)
-    | App (f, arg) -> App (subst_many m f, subst_many m arg)
-    | _ -> t
-
-let subst x s t = subst_many [(x, s)] t
-
-let is_lam = function | Lam _ -> true | _ -> false
-
-let rec equal ctx t1 t2 =
-  let t1' = normalize ctx t1 in
-  let t2' = normalize ctx t2 in
-  equal' ctx t1' t2'
-
-and equal' ctx t1 t2 =
+let rec equal' ctx t1 t2 =
     match t1, t2 with
     | Var x, Var y -> x = y
     | Universe i, Universe j -> i <= j
@@ -45,6 +43,11 @@ and equal' ctx t1 t2 =
     | t, Lam (x, d, b) when not (is_lam t) -> let x_var = Var x in equal' ctx (App (t, x_var)) b && (match infer ctx t with | Pi (y, a, b') -> equal' ctx a d | _ -> false)
     | App (f, arg), App (f', arg') -> equal' ctx f f' && equal' ctx arg arg'
     | _ -> t1 = t2
+
+and equal ctx t1 t2 =
+    let t1' = normalize ctx t1 in
+    let t2' = normalize ctx t2 in
+    equal' ctx t1' t2'
 
 and reduce ctx t =
     match t with
@@ -70,11 +73,6 @@ and infer ctx t =
     | Lam (x, domain, body) -> let _ = infer ctx domain in let body_ty = infer ((x,domain)::ctx) body in Pi (x, domain, body_ty)
     | App (f, arg) -> match infer ctx f with | Pi (x, a, b) -> subst x arg b | ty -> raise (TypeError "Application requires a Pi type.")
     in normalize ctx res
-
-and lookup_var ctx x =
-    match ctx with
-    | [] -> failwith ("Unbound variable: " ^ x)
-    | (y, typ) :: rest -> if x = y then typ else lookup_var rest x
 
 (* Test Suite *)
 
