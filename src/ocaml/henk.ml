@@ -18,22 +18,9 @@ let rec subst x s = function
     | App (f, arg) -> App (subst x s f, subst x s arg)
     | t -> t
 
-let rec lookup_var ctx x =
-    match ctx with
+let rec lookup x = function
     | [] -> failwith ("Unbound variable: " ^ x)
-    | (y, typ) :: rest -> if x = y then typ else lookup_var rest x
-
-let rec string_of_term = function
-    | Var x -> x
-    | Universe u -> "U_" ^ string_of_int u
-    | Pi (x, a, b) -> "∀ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term b
-    | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
-    | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
-
-let check_universe ty =
-    match ty with
-    | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); i
-    | ty -> raise (TypeError (Printf.sprintf "Expected a universe, got: %s" (string_of_term ty)))
+    | (y, typ) :: rest -> if x = y then typ else lookup x rest
 
 let rec equal ctx t1 t2 =
     match t1, t2 with
@@ -59,12 +46,24 @@ and normalize ctx t =
 
 and infer ctx t =
     let res = match t with
-    | Var x -> lookup_var ctx x
+    | Var x -> lookup x ctx
     | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); Universe (i + 1)
-    | Pi (x, a, b) -> Universe (max (check_universe (infer ctx a)) (check_universe (infer ((x,a)::ctx) b)))
+    | Pi (x, a, b) -> Universe (max (universe (infer ctx a)) (universe (infer ((x,a)::ctx) b)))
     | Lam (x, domain, body) -> let _ = infer ctx domain in Pi (x, domain, infer ((x,domain)::ctx) body)
     | App (f, arg) -> match infer ctx f with | Pi (x, a, b) -> subst x arg b | ty -> raise (TypeError "Application requires a Pi type.")
     in normalize ctx res
+
+let universe ty =
+    match ty with
+    | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); i
+    | ty -> raise (TypeError (Printf.sprintf "Expected a universe, got: %s" (string_of_term ty)))
+
+let rec string_of_term = function
+    | Var x -> x
+    | Universe u -> "U_" ^ string_of_int u
+    | Pi (x, a, b) -> "∀ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term b
+    | Lam (x, a, t) -> "λ (" ^ x ^ " : " ^ string_of_term a ^ "), " ^ string_of_term t
+    | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
 
 (* Test Suite *)
 
