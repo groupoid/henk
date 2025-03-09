@@ -29,22 +29,22 @@ let rec subst x s = function
     | t -> t
 
 let rec lookup x = function
-    | [] -> failwith ("Unbound variable: " ^ x)
+    | [] -> raise (TypeError ("Unbound variable: " ^ x))
     | (y, typ) :: rest -> if x = y then typ else lookup x rest
 
 let rec equal ctx t1 t2 = match t1, t2 with
     | Var x, Var y -> x = y
     | Universe i, Universe j -> i <= j
     | Pi (x, a, b), Pi (y, a', b')
-    | Lam (x,a, b), Lam (y, a', b') -> equal ctx a a' && equal ((x,a) :: ctx) b (subst y (Var x) b')
+    | Lam (x, a, b), Lam (y, a', b') -> equal ctx a a' && equal ((x,a) :: ctx) b (subst y (Var x) b')
     | Lam (x, _, b), t -> equal ctx b (App (t, Var x))
     | t, Lam (x, _, b) -> equal ctx (App (t, Var x)) b
-    | App (f, arg), App (f', arg') -> equal ctx f f' && equal ctx arg arg'
+    | App (f, a), App (f', a') -> equal ctx f f' && equal ctx a a'
     | _ -> false
 
 and reduce ctx t = match t with
-    | App (Lam (x, domain, body), arg) -> subst x arg body
-    | App (Pi (x, a, b), arg) -> subst x arg b
+    | App (Lam (x, _, b), a) -> let _ = infer ctx a in subst x a b
+    | App (Pi (x, _, b), a) -> subst x a b
     | App (f, a) -> App (reduce ctx f, reduce ctx a)
     | _ -> t
 
