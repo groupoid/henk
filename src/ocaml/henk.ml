@@ -36,24 +36,16 @@ let check_universe ty =
     | Universe i -> if i < 0 then raise (TypeError "Negative universe level"); i
     | ty -> raise (TypeError (Printf.sprintf "Expected a universe, got: %s" (string_of_term ty)))
 
-let rec equal' ctx t1 t2 =
+let rec equal ctx t1 t2 =
     match t1, t2 with
     | Var x, Var y -> x = y
     | Universe i, Universe j -> i <= j
-    | Pi (x, a, b), Pi (y, a', b') -> equal' ctx a a' && equal' ((x,a) :: ctx) b (subst y (Var x) b')
-    | Lam (x, d, b), Lam (y, d', b') -> equal' ctx d d' && equal' ((x,d) :: ctx) b (subst y (Var x) b')
-    | Lam (x, d, b), t -> equal' ctx b (App (t, Var x))
-    | t, Lam (x, d, b) -> equal' ctx (App (t, Var x)) b
-    | App (f, arg), App (f', arg') -> equal' ctx f f' && equal' ctx arg arg'
+    | Pi (x, a, b), Pi (y, a', b') -> equal ctx a a' && equal ((x,a) :: ctx) b (subst y (Var x) b')
+    | Lam (x, d, b), Lam (y, d', b') -> equal ctx d d' && equal ((x,d) :: ctx) b (subst y (Var x) b')
+    | Lam (x, d, b), t -> equal ctx b (App (t, Var x))
+    | t, Lam (x, d, b) -> equal ctx (App (t, Var x)) b
+    | App (f, arg), App (f', arg') -> equal ctx f f' && equal ctx arg arg'
     | _ -> t1 = t2
-
-let rec equal ctx t1 t2 =
-    let t1' = normalize ctx t1 in
-    let t2' = normalize ctx t2 in
-    match t1', t2' with
-    | Lam (x, d, b), t -> (match infer ctx t1' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
-    | t, Lam (x, d, b) -> (match infer ctx t2' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
-    | _ -> equal' ctx t1' t2'
 
 and reduce ctx t =
     match t with
@@ -64,7 +56,7 @@ and reduce ctx t =
 
 and normalize ctx t =
     let t' = reduce ctx t in
-    if equal' ctx t t' then t else normalize ctx t'
+    if equal ctx t t' then t else normalize ctx t'
 
 and infer ctx t =
     let res = match t with
@@ -136,6 +128,14 @@ let cons head tail =
 
 let list_one_two = cons one (cons two nil)
 
+let rec test_equal ctx t1 t2 =
+    let t1' = normalize ctx t1 in
+    let t2' = normalize ctx t2 in
+    match t1', t2' with
+    | Lam (x, d, b), t -> (match infer ctx t1' with | Pi _ -> equal ctx t1' t2' | _ -> false)
+    | t, Lam (x, d, b) -> (match infer ctx t2' with | Pi _ -> equal ctx t1' t2' | _ -> false)
+    | _ -> equal ctx t1' t2'
+
 let run_type_test name term expected_type =
     let ctx = [] in
     try let inferred = infer ctx term in
@@ -146,11 +146,11 @@ let run_type_test name term expected_type =
           (string_of_term term)
           (string_of_term norm_inferred)
           (string_of_term norm_expected)
-          (if equal [] norm_inferred norm_expected then "PASS" else "FAIL")
+          (if test_equal [] norm_inferred norm_expected then "PASS" else "FAIL")
     with | Failure msg -> Printf.printf "Universe Test %s: Failed with error: %s\n\n" name msg
 
 let run_equality_test ctx name (t1, t2) =
-    let result = equal ctx t1 t2 in
+    let result = test_equal ctx t1 t2 in
     Printf.printf "Equality Test %s:\n- Term1: %s\n- Term2: %s\n- Result: %s\n\n"
       name
       (string_of_term t1)
