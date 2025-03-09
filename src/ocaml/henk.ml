@@ -11,13 +11,12 @@ type context = (string * term) list
 
 exception TypeError of string
 
-let subst x s t = let rec subst_many m t =
-    match t with
-    | Var x -> (try List.assoc x m with Not_found -> t)
-    | Pi (x, a, b) -> let m' = List.filter (fun (y, _) -> y <> x) m in Pi (x, subst_many m a, subst_many m' b)
-    | Lam (x, d, b) -> let m' = List.filter (fun (y, _) -> y <> x) m in Lam (x, subst_many m d, subst_many m' b)
-    | App (f, arg) -> App (subst_many m f, subst_many m arg)
-    | _ -> t in subst_many [(x, s)] t
+let rec subst x s = function
+    | Var y -> if x = y then s else Var y
+    | Pi (y, a, b) when x <> y -> Pi (y, subst x s a, subst x s b)
+    | Lam (y, d, b) when x <> y -> Lam (y, subst x s d, subst x s b)
+    | App (f, arg) -> App (subst x s f, subst x s arg)
+    | t -> t
 
 let rec lookup_var ctx x =
     match ctx with
