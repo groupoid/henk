@@ -24,8 +24,6 @@ let rec lookup_var ctx x =
     | [] -> failwith ("Unbound variable: " ^ x)
     | (y, typ) :: rest -> if x = y then typ else lookup_var rest x
 
-let is_lam = function | Lam _ -> true | _ -> false
-
 let rec string_of_term = function
     | Var x -> x
     | Universe u -> "U_" ^ string_of_int u
@@ -44,8 +42,8 @@ let rec equal' ctx t1 t2 =
     | Universe i, Universe j -> i <= j
     | Pi (x, a, b), Pi (y, a', b') -> equal' ctx a a' && equal' ((x,a) :: ctx) b (subst y (Var x) b')
     | Lam (x, d, b), Lam (y, d', b') -> equal' ctx d d' && equal' ((x,d) :: ctx) b (subst y (Var x) b')
-    | Lam (x, d, b), t when not (is_lam t) -> equal' ctx b (App (t, Var x))
-    | t, Lam (x, d, b) when not (is_lam t) -> equal' ctx (App (t, Var x)) b
+    | Lam (x, d, b), t -> equal' ctx b (App (t, Var x))
+    | t, Lam (x, d, b) -> equal' ctx (App (t, Var x)) b
     | App (f, arg), App (f', arg') -> equal' ctx f f' && equal' ctx arg arg'
     | _ -> t1 = t2
 
@@ -53,8 +51,8 @@ let rec equal ctx t1 t2 =
     let t1' = normalize ctx t1 in
     let t2' = normalize ctx t2 in
     match t1', t2' with
-    | Lam (x, d, b), t when not (is_lam t) -> (match infer ctx t1' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
-    | t, Lam (x, d, b) when not (is_lam t) -> (match infer ctx t2' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
+    | Lam (x, d, b), t -> (match infer ctx t1' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
+    | t, Lam (x, d, b) -> (match infer ctx t2' with | Pi _ -> equal' ctx t1' t2' | _ -> false)
     | _ -> equal' ctx t1' t2'
 
 and reduce ctx t =
