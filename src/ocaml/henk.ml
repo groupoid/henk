@@ -15,11 +15,10 @@ let rec string_of_term = function
     | App (t1, t2) -> "(" ^ string_of_term t1 ^ " " ^ string_of_term t2 ^ ")"
 
 type context = (string * term) list
-exception TypeError of string
 
 let universe = function
     | Universe i -> i
-    | ty -> raise (TypeError ("Expected a universe"))
+    | _ -> raise (Failure ("Expected a universe"))
 
 let rec subst x s = function
     | Var y -> if x = y then s else Var y
@@ -29,7 +28,7 @@ let rec subst x s = function
     | t -> t
 
 let rec lookup x = function
-    | [] -> raise (TypeError ("Unbound variable: " ^ x))
+    | [] -> raise (Failure ("Unbound variable: " ^ x))
     | (y, typ) :: rest -> if x = y then typ else lookup x rest
 
 let rec equal ctx t1 t2 = match t1, t2 with
@@ -57,7 +56,7 @@ and infer ctx t = let res = match t with
     | Universe i -> Universe (i + 1)
     | Pi (x, a, b) -> Universe (max (universe (infer ctx a)) (universe (infer ((x,a)::ctx) b)))
     | Lam (x, a, b) -> let _ = infer ctx a in Pi (x, a, infer ((x,a)::ctx) b)
-    | App (f, a) -> match infer ctx f with | Pi (x, _, b) -> subst x a b | t -> raise (TypeError "Requires a Pi type.")
+    | App (f, a) -> match infer ctx f with | Pi (x, _, b) -> subst x a b | t -> raise (Failure "Requires a Pi type.")
     in normalize ctx res
 
 (* Test Suite *)
