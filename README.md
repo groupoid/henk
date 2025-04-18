@@ -185,7 +185,7 @@ PTS
 * <a href="https://www.cse.chalmers.se/~coquand/v1.pdf">Some remarks about Dependent Type Theory</a> [Thierry Coquand]
 * <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/1997/01/henk.pdf">Henk: a typed intermediate language</a> [Erik Meijer, Simon Peyton Jones]
 * <a href="https://www.haskellforall.com/2014/09/morte-intermediate-language-for-super.html">Morte: an intermediate language for super-optimizing functional programs </a> [Gabriella Gonzalez]
-* <a href="https://henk.groupoid.space/doc/pts.pdf">Henk: Pure Type System for Erlang</a> [Maksym Sokhatskyi]
+* <a href="https://henk.groupoid.space/doc/henk.pdf">Henk: Pure Type System for Erlang</a> [Maksym Sokhatskyi]
 * <a href="https://henk.groupoid.space/doc/pts_ua.pdf">Система доведення теорем з однiєю аксiомою</a> [Maksym Sokhatskyi]
 
 Credits
