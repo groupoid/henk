@@ -4,7 +4,7 @@
   "description": "Henk: Pure CoC Type System",
   "main": "",
   "scripts": {
-    "start": "node-sass ../anders/styles -o ./ && pug -O ./framework.js ./ ",
+    "start": "node-sass ../anders/styles -o ./ && pug -O ./framework.js index.pug",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

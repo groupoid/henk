@@ -3,40 +3,38 @@ include header
 html
     head
         meta(property='og:title'       content='HENK')
-        meta(property='og:description' content='CoC Pure Type System')
+        meta(property='og:description' content='Чиста система типів CoC')
         meta(property='og:url'         content='https://henk.groupoid.space/')
 
 block title
     title HENK
 
-
 block content
-    +header('', 'Pure Type System', 'The minimal language with universal quantifier and infinity number of universes for consistent typechecking and normalization')
+    +header('', 'Henk', 'Мінімальна мова з квантором узагальнення та нескінченною кількістю універсумів для послідовних обчислень в локальних декартово-замкнених категоріях')
     article.main
         .exe
             section
-                h1 Abstract
-            aside Namdak Tönpa
-                time DATE: 10 OCT 2016
+                h1 Анотація
+            aside Намдак Тонпа
+                time ДАТА: 10 ЖОВТНЯ 2016
             section
-                p.
-                    The <b>PTS<sup>&infin;</sup></b> programming language is a higher-order dependently typed lambda calculus,
-                    an extension of Calculus of Constructions (Coquand, Huet) with the
-                    predicative/impredicative hierarchy of indexed universes.
+                +tex.
+                    Мова програмування $\mathbf{Henk}$ — це залежно типізоване лямбда-числення вищого порядку,
+                    розширення Калькулю Конструкцій (Кокан, Юе) з ієрархією предикативних/непредикативних універсумів.
 
         .semantics
             section
-                h2#nat Universes
+                h2#nat Універсуми
                 p.
-                    The infinite hierarchy of universes allows to
-                    avoid paradoxes (Girard, Russel, Hurkens) in type theory (Martin-Löf).
+                    Нескінченна ієрархія універсумів дозволяє уникати парадоксів (Жирара, Рассела, Гуркенса)
+                    у теорії типів (Мартіна-Льофа).
                 code.
                     U₀ : U₁ : U₂ : U₃ : …
 
-                    U₀ — propositions
-                    U₁ — values and sets
-                    U₂ — types
-                    U₃ — sorts
+                    U₀ — пропозиції
+                    U₁ — значення та множини
+                    U₂ — типи
+                    U₃ — сорти
                 br
                 +tex(true).
                     $$
@@ -48,22 +46,19 @@ block content
                       \end{equation}
                     $$
 
-                h2#axioms Predicative Universes
+                h2#axioms Предикативні універсуми
                 p.
-                    All terms obey the <b>A</b> ranking inside the sequence of <b>S</b> universes,
-                    and the complexity <b>R</b> of the dependent term is equal to a maximum of
-                    the term's complexity and its dependency.
-                    The universes system is completely described by the following
-                    PTS notation (due to Barendregt):
+                    Усі терми підкоряються рейтингу <b>A</b> у послідовності універсумів <b>S</b>,
+                    а складність <b>R</b> залежного терму дорівнює максимуму складності терму та його залежності.
+                    Система універсумів повністю описується наступною нотацією PTS (за Барендрегтом):
                 code.
                     S    (n : nat) = U n
-                    A₁ (n m : nat) = U n : U m where m > n — cumulative
-                    R₁ (m n : nat) = U m ⟶ U n : U (max m n) — predicative
+                    A₁ (n m : nat) = U n : U m де m > n — кумулятивні
+                    R₁ (m n : nat) = U m ⟶ U n : U (max m n) — предикативні
                 br.
                 p.
-                    Note that predicative universes are incompatible with Church lambda term encoding.
-                    You can switch between predicative and impredicative uninverses using typecheker parameter.
-
+                    Зверніть увагу, що предикативні універсуми несумісні з кодуванням лямбда-термів за Чьорчем.
+                    Ви можете перемикатися між предикативними та непредикативними універсумами за допомогою параметра перевірки типів.
                 +tex(true).
                     $$
                     \begin{equation}
@@ -73,7 +68,6 @@ block content
                     {Type_i : Type_{j}}
                     \end{equation}
                     $$
-
                 +tex(true).
                     $$
                     \begin{equation}
@@ -84,15 +78,14 @@ block content
                     \end{equation}
                     $$
 
-                h2#axioms Impredicative Universes
+                h2#axioms Непредикативні універсуми
                 p.
-                    Propositional contractible bottom space is the only
-                    available extension to predicative hierarchy that does not lead to inconsistency.
-                    However, there is another option to have infinite
-                    impredicative hierarchy.
+                    Пропозиційний контрактний нижній простір — єдине доступне розширення предикативної ієрархії,
+                    яке не призводить до неконсистентності. Однак є інший варіант із нескінченною
+                    непредикативною ієрархією.
                 code.
-                    A₂   (n : nat) = U n : U (n + 1) — non-cumulative
-                    R₂ (m n : nat) = U m ⟶ U n : U n — impredicative
+                    A₂   (n : nat) = U n : U (n + 1) — некумулятивні
+                    R₂ (m n : nat) = U m ⟶ U n : U n — непредикативні
                 br.
                 +tex(true).
                     $$
@@ -113,11 +106,11 @@ block content
                     \end{equation}
                     $$
 
-                h2#ast Single Axiom Language
+                h2#ast Мова з єдиною аксіомою
                 p.
-                    This language is called one axiom language (or pure) as eliminator
-                    and introduction adjoint functors inferred from type formation rule.
-                    The only computation rule of Pi type is called beta-reduction.
+                    Ця мова називається мовою з єдиною аксіомою (або чистою), оскільки елімінатор
+                    та введення спряжених функторів виводяться з правила формування типів.
+                    Єдиним правилом обчислення для типу Пі є бета-редукція.
                 code.
                     Pi (A: U) (B: A -> U): U = (x: A) -> B x
                     lambda (A: U) (B: A -> U) (b: Pi A B): Pi A B = \ (x: A) -> b x
@@ -133,7 +126,7 @@ block content
                     \end{equation}
                 +tex(true).
                     \begin{equation}
-                    \tag{$\lambda$-intro}
+                    \tag{$\Pi$-intro}
                     \dfrac
                     {x:A \vdash b : B}
                     {\lambda\ (x:A) \rightarrow b : \Pi\ (x: A) \rightarrow B }
@@ -142,7 +135,7 @@ block content
                 +tex(true).
                     $$
                     \begin{equation}
-                    \tag{$App$-elim}
+                    \tag{$\Pi$-application}
                     \dfrac
                     {f: (\Pi\ (x:A) \rightarrow B)\ \ \ a: A}
                     {f\ a : B\ [a/x]}
@@ -151,136 +144,99 @@ block content
                 +tex(true).
                     $$
                     \begin{equation}
-                    \tag{$\beta$-comp}
+                    \tag{$\beta$-rule}
                     \dfrac
                     {x:A \vdash b: B\ \ \ a:A}
                     {(\lambda\ (x:A) \rightarrow b)\ a = b\ [a/x] : B\ [a/x]}
                     \end{equation}
                     $$
-                p.
-                    This language could be embedded in itself and used
-                    as Logical Framework for the Pi type:
-                code.
-                    PTS (A: U): U
-                        = (intro:  (A -> U) -> U)
-                        * (lambda: (B: A -> U) -> pi A B -> intro B)
-                        * (app:    (B: A -> U) -> intro B -> pi A B)
-                        * ((B: A -> U) (f: pi A B) -> (a: A)
-                       -> Path (B a) ((app B (lambda B f)) a) (f a))
                 br.
 
-                h1#impl Implementation
-                h2#ast Syntax
-                p.
-                    The terms of PTS<sup>&infin;</sup> consist of <b>nat</b> indexed stars, variables, applications,
-                    abstractions, and universal quantifications. This language is called Calculus
-                    of Construction and exists in various syntaxes.
-                    PTS<sup>&infin;</sup> supports <b>Morte's</b> syntax.
+                h2#ast Синтаксис
+                +tex.
+                    Терми $\mathbf{Henk}$ складаються з <b>nat</b>-індексованих зірок, змінних, застосувань,
+                    абстракцій та універсальних кванторів. Ця мова називається Калькулем Конструкцій
+                    і існує в різних синтаксисах.
                 code.
-                    <>  = #option
-                    I   = #identifier
-                    U   = * < #number >
+                    <>  = #опція
+                    I   = #ідентифікатор
+                    U   = * < #число >
                     PTS = U | I | PTS → PTS | ∀ ( I : PTS ) → PTS
                         | PTS PTS | ( PTS ) | λ ( I : PTS ) → PTS
                 p.
-                    Equivalent HOAS tree encoding for parsed terms is following:
+                    Еквівалентне кодування дерева HOAS для розпарсених термінів:
                 code.
-                    data pts (lang: U)
-                       = star (n: nat)
-                       | var (x: name) (l: nat)
-                       | pi (x: name) (l: nat) (f: lang)
-                       | lambda  (x: name) (l: nat) (f: lang)
-                       | app (f a: lang)
-
-                    data PTS
-                       = pure (_: pts PTS)
+                    type term =
+                        | Var of string
+                        | Universe of int
+                        | Pi of string * term * term   (* ∀ (x : a), b *)
+                        | Lam of string * term * term  (* λ (x : a), b *)
+                        | App of term * term
                 br.
 
-                h2 Universes
+                h2 Універсуми
                 code.
-                    star (:star,N) -> N
-                    star _         -> (:error, "*")
+                    let universe = function
+                        | Universe i -> i
+                        | _ -> raise (Failure ("Expected a universe"))
+                br.
 
-                h2 Functions
+                h2 Підстановка
                 code.
-                    func ((:forall,),(I,O)) -> true
-                    func T                  -> (:error,(:forall,T))
+                    let rec subst x s = function
+                        | Var y -> if x = y then s else Var y
+                        | Pi (y, a, b) when x <> y -> Pi (y, subst x s a, subst x s b)
+                        | Lam (y, a, b) when x <> y -> Lam (y, subst x s a, subst x s b)
+                        | App (f, a) -> App (subst x s f, subst x s a)
+                        | t -> t
+                br.
 
-                h2 Variables
+                h2 Рівність
                 code.
-                    var N B       -> var N B (proplists:is_defined N B)
-                    var N B true  -> true
-                    var N B false -> (:error,("free var",N,proplists:get_keys(B)))
+                    let rec equal ctx t1 t2 = match t1, t2 with
+                        | Var x, Var y -> x = y
+                        | Universe i, Universe j -> i <= j
+                        | Pi (x, a, b), Pi (y, a', b')
+                        | Lam (x, a, b), Lam (y, a', b') -> equal ctx a a' && equal ((x,a) :: ctx) b (subst y (Var x) b')
+                        | Lam (x, _, b), t -> equal ctx b (App (t, Var x))
+                        | t, Lam (x, _, b) -> equal ctx (App (t, Var x)) b
+                        | App (f, a), App (f', a') -> equal ctx f f' && equal ctx a a'
+                        | _ -> false
+                br.
 
-                h2 Shift
+                h2 Редукція
                 code.
-                    sh (:var,(N,I)),N,P) when I>=P  -> (:var,(N,I+1))
-                    sh ((:forall,(N,0)),(I,O)),N,P) -> ((:forall,(N,0)),sh I N P,sh O N P+1)
-                    sh ((:lambda,(N,0)),(I,O)),N,P) -> ((:lambda,(N,0)),sh I N P,sh O N P+1)
-                    sh (Q,(L,R),N,P)                -> (Q,sh L N P,sh R N P)
-                    sh (T,N,P)                      -> T
+                    and reduce ctx t = match t with
+                        | App (Lam (x, _, b), a) -> subst x a b
+                        | App (Pi (x, _, b), a) -> subst x a b
+                        | App (f, a) -> App (reduce ctx f, reduce ctx a)
+                        | _ -> t
+                br.
 
-                h2 Substitution
+                h2 Нормалізація
                 code.
-                    sub Term Name Value               -> sub Term Name Value 0
-                    sub (:arrow,         (I,O)) N V L -> (:arrow,         sub I N V L,sub O N V L);
-                    sub ((:forall,(N,0)),(I,O)) N V L -> ((:forall,(N,0)),sub I N V L,sub O N(sh V N 0)L+1)
-                    sub ((:forall,(F,X)),(I,O)) N V L -> ((:forall,(F,X)),sub I N V L,sub O N(sh V F 0)L)
-                    sub ((:lambda,(N,0)),(I,O)) N V L -> ((:lambda,(N,0)),sub I N V L,sub O N(sh V N 0)L+1)
-                    sub ((:lambda,(F,X)),(I,O)) N V L -> ((:lambda,(F,X)),sub I N V L,sub O N(sh V F 0)L)
-                    sub (:app,           (F,A)) N V L -> (:app,sub F N V L,sub A N V L)
-                    sub (:var,           (N,L)) N V L -> V
-                    sub (:var,           (N,I)) N V L when I>L -> (:var,(N,I-1))
-                    sub T                       _ _ _ -> T.
+                    and normalize ctx t =
+                        let t' = reduce ctx t in
+                        if equal ctx t t' then t else normalize ctx t'
+                br.
 
-                h2 Normalization
+                h2 Перевірка типів
                 code.
-                    norm :none                   -> :none
-                    norm :any                    -> :any
-                    norm (:app,(F,A))            -> case norm F of
-                                                    ((:lambda,(N,0)),(I,O)) -> norm (sub O N A)
-                                                                         NF -> (:app,(NF,norm A)) end
-                    norm (:remote,N)             -> cache (norm N [])
-                    norm (:arrow,         (I,O)) -> ((:forall,("_",0)),  (norm I,norm O))
-                    norm ((:forall,(N,0)),(I,O)) -> ((:forall,(N,0)),    (norm I,norm O))
-                    norm ((:lambda,(N,0)),(I,O)) -> ((:lambda,(N,0)),    (norm I,norm O))
-                    norm T                       -> T
-
-                h2 Definitional Equality
-                code.
-                    eq ((:forall,("_",0)), X) (:arrow,Y)     -> eq X Y
-                    eq (:app,(F1,A1))         (:app,(F2,A2)) -> let true = eq F1 F2 in eq A1 A2
-                    eq (:star,N)              (:star,N)      -> true
-                    eq (:var,(N,I))           (:var,(N,I))   -> true
-                    eq (:remote,N)            (:remote,N)    -> true
-                    eq ((:farall,(N1,0)),(I1,O1))
-                       ((:forall,(N2,0)),(I2,O2)) ->
-                       let true = eq I1 I2 in eq O1 (sub (sh O2 N1 0) N2 (:var,(N1,0)) 0)
-                    eq ((:lambda,(N1,0)),(I1,O1))
-                       ((:lambda,(N2,0)),(I2,O2)) ->
-                       let true = eq I1 I2 in eq O1 (sub (sh O2 N1 0) N2 (:var,(N1,0)) 0)
-                    eq (A,B)                      -> (:error,(:eq,A,B))
-
-                h2 Type Checker
-                code.
-                    type (:star,N)               _ -> (:star,N+1)
-                    type (:var,(N,I))            D -> let true = var N D in keyget N D I
-                    type (:remote,N)             D -> cache type N D
-                    type (:arrow,(I,O))          D -> (:star,h(star(type I D)),star(type O D))
-                    type ((:forall,(N,0)),(I,O)) D -> (:star,h(star(type I D)),star(type O [(N,norm I)|D]))
-                    type ((:lambda,(N,0)),(I,O)) D -> let star (type I D),
-                                                      NI = norm I in ((:forall,(N,0)),(NI,type O [(N,NI)|D])))
-                    type (:app,(F,A))            D -> let T = type(F,D),
-                                                      true = func T,
-                                                      ((:forall,(N,0)),(I,O)) = T,
-                                                      Q = type A D,
-                                                      true = eq I Q in norm (sub O N A)
+                    and infer ctx t = let res = match t with
+                        | Var x -> lookup x ctx
+                        | Universe i -> Universe (i + 1)
+                        | Pi (x, a, b) -> Universe (max (universe (infer ctx a)) (universe (infer ((x,a)::ctx) b)))
+                        | Lam (x, a, b) -> let _ = infer ctx a in Pi (x, a, infer ((x,a)::ctx) b)
+                        | App (f, a) -> match infer ctx f with | Pi (x, _, b) -> subst x a b | t -> raise (Failure "Requires a Pi type.")
+                        in normalize ctx res
+                br.
 
             section
-                h1 USAGE
+                h1 Використання
 
-                h2#normal Normalization (by Evaluation)
-                p Terms in PTS<sup>&infin;</sup> language.
+                h2#normal Нормалізація
+                +tex.
+                    Терми в мові $\mathbf{Henk}$.
                 code.
                     $ om show List/Cons
 
@@ -288,12 +244,12 @@ block content
                     → λ (Head: A)
                     → λ (Tail:
                         ∀ (List: *)
-                    → ∀ (Cons:
-                        ∀ (Head: A)
-                        → ∀ (Tail: List)
+                        → ∀ (Cons:
+                            ∀ (Head: A)
+                            → ∀ (Tail: List)
+                            → List)
+                        → ∀ (Nil: List)
                         → List)
-                    → ∀ (Nil: List)
-                    → List)
                     → λ (List: *)
                     → λ (Cons:
                         ∀ (Head: A)
@@ -301,19 +257,17 @@ block content
                     → List)
                     → λ (Nil: List)
                     → Cons Head (Tail List Cons Nil)
+                br.
 
-                h2#erased Type Erasure
-                p.
-                    The untyped lambda language O is the simplest language used in
-                    PTS<sup>&infin;</sup> to generate backend programs. This O is used as the output of type erasure.
+                h2#erased Стирання типів
+                +tex.
+                    Нетипізована лямбда-мова O — найпростіша мова, що використовується в
+                    $\mathbf{Henk}$ для генерації програм бекенду. Ця O використовується як результат стирання типів.
                 code.
                     I = #identifier
                     O = I | ( O ) | O O | λ I -> O
-                br.
-                code.
-                    Inductive O := Var: nat → O | App: O → O → O | Lambda: nat → O → O → O
                 p.
-                    Terms in untyped lambda pure language.
+                    Терми в чистій нетипізованій лямбда-мові.
                 code.
                     $ om print fst erase a "#List/Cons"
                     ( λ Head
@@ -322,17 +276,12 @@ block content
                     → ( λ Nil
                     → ((Cons Head) ((Tail Cons) Nil))))))
                     ok
-                h2#syntax Extraction
-                p.
-                    Erlang extracted code O-BEAM. For other targets you may want to read about
-                    lazy continuation-passing style <a href='../lang/cps/'>O-CPS</a> interpreter (Rust).
-                code.
-                    'Cons'() -> fun (Head) -> fun (Tail) -> fun (Cons) -> fun (Nil) ->
-                        ((Cons(Head))((Tail(Cons))(Nil))) end end end end.
+                br.
+
             section
-                h1 Bibliography
+                h1 Бібліографія
                 p.
-                    [1]. <a href="https://github.com/groupoid/groupoid.space/blob/master/articles/pts/pts.pdf">Addendum I: Pure Type System for Erlang</a><br>
-                    [2]. <a href="https://www.cse.chalmers.se/~coquand/v1.pdf">Some remarks about Dependent Type Theory</a><br>
+                    [1]. <a href="https://github.com/groupoid/groupoid.space/blob/master/articles/pts/pts.pdf">Додаток I: Чиста система типів для OCaml</a><br>
+                    [2]. <a href="https://www.cse.chalmers.se/~coquand/v1.pdf">Деякі зауваження про залежну теорію типів</a><br>
 
 include footer
