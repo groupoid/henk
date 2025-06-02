@@ -1,6 +1,8 @@
 Henk Barendregt: Pure Type System
 ---------------------------------
 
+This photo provided exclusively for **Henk** type checker.
+
 <img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg" height=400>
 
 # Abstract
