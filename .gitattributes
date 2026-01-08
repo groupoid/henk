@@ -1,5 +1,6 @@
 Makefile linguist-detectable=false
 *.html linguist-detectable=false
+*.css linguist-detectable=false
 *.js linguist-detectable=false
 *.pug linguist-detectable=false
 *.erl linguist-detectable=false
