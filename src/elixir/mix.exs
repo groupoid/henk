@@ -10,7 +10,7 @@ defmodule Henk.Mixfile do
     ]
   end
   def package do
-    [ files: ["lib", "src", "priv", "mix.exs", "CNAME", "LICENSE"],
+    [ files: ["lib", "priv", "mix.exs", "LICENSE"],
       maintainers: ["Namdak Tonpa"],
       licenses: ["ISC"],
       links: %{"GitHub" => "https://github.com/groupoid/henk"}
