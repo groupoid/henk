@@ -1,0 +1,14 @@
+-- Henk Prelude
+
+module Prelude where
+
+data Empty =
+
+data Unit = tt
+
+data Bool = False | True
+
+data Nat = Zero | Succ Nat
+
+id x = x
+

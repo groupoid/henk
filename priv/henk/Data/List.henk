@@ -1,0 +1,6 @@
+-- List datatype for Frank
+
+module Data.List where
+
+data List A = Nil | Cons A (List A)
+

@@ -1,0 +1,5 @@
+-- Finite sets for Frank
+
+module Data.Fin where
+
+data Fin N = FZero N | FSucc N (Fin N)

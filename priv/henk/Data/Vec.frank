@@ -1,0 +1,5 @@
+-- Vectors (indexed lists) for Frank
+
+module Data.Vec where
+
+data Vec A N = VNil | VCons A (Vec A N)

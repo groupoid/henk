@@ -1,0 +1,19 @@
+-- Boolean datatype for Frank
+
+module Data.Bool where
+
+data Bool = False | True
+
+not b = case b of
+    False -> True
+    True  -> False
+
+and a b = case a of
+    True  -> b
+    False -> False
+
+or a b = case a of
+    True  -> True
+    False -> b
+
+otherwise = True

@@ -1,0 +1,5 @@
+-- W-types (well-founded trees) for Frank
+
+module Data.W where
+
+data W A B = Sup (x:A) (f:B x -> W A B)
