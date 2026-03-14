@@ -1,0 +1,5 @@
+     (T: *)
+→    (a: T)
+→    (b: T)
+→   [equ: T → Prop.@.main] 
+→ equ a → equ b

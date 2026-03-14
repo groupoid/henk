@@ -1,0 +1,6 @@
+    (str      : IO.data.main             ) 
+→   (IO       : *                    ) 
+→   (GetLine_ : (IO.data.main → IO) → IO ) 
+→   (PutLine_ : IO.data.main → IO → IO   ) 
+→   (Pure_    : Unit.@.main → IO         ) 
+→ PutLine_ str (Pure_ Unit.Make.main     )

@@ -1,0 +1,1 @@
+ (m : *)  →  (monoid : Monoid.@.main  m)  → monoid ( (List : *)  →  (Cons :  [head : m]  →  [tail : List]  → List)  →  (Nil : List)  → Nil)

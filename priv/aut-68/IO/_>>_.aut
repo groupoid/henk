@@ -1,0 +1,3 @@
+     (m : IO.@.main Unit.@.main) 
+->   (n : IO.@.main Unit.@.main) 
+->  IO._>>=_.main Unit.@.main Unit.@.main m ( (_x : Unit.@.main)  -> n)

@@ -1,0 +1,3 @@
+    [p: Prop.@.main] 
+→   [q: Prop.@.main] 
+→ p → (q → p)

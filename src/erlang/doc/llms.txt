@@ -1,9 +1,0 @@
-# henk v1.0.0 - Table of Contents
-
-Groupoid Infinity Henk Programming Language
-
-## Modules
-
-- [AUTOMATH](AUTOMATH.md): 50 years of Pure Type Systems
-- [Henk](Henk.md)
-

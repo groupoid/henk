@@ -1,0 +1,4 @@
+    (T: *) 
+→   (a: T) 
+→   (Equ:   [a: T]  → Prop.@.main) 
+→ Prop.id.main (Equ a)

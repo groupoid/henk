@@ -1,0 +1,9 @@
+-- Sigma/Intro
+     (A: *) 
+->   (P: A -> *) 
+->   (x: A) 
+->   (y: P x) 
+->   (Exists: *) 
+->   (Intro:  [x: A]  -> P x -> Exists) 
+-> Intro x y
+

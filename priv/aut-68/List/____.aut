@@ -1,0 +1,7 @@
+    (a : *) 
+→   (as1 : List.@.main  a) 
+→   (as2 : List.@.main  a) 
+→   (List : *) 
+→   (Cons : a → List → List) 
+→   (Nil : List) 
+→ as1 List Cons (as2 List Cons Nil)

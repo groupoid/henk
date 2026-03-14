@@ -1,0 +1,1 @@
+ (b1 : Bool.@.main )  →  (b2 : Bool.@.main )  → b1 Bool.@.main  b2 Bool.False.main 

@@ -1,0 +1,4 @@
+-- List/match.test
+List.match.main Nat.@.main (List.Nil.main Nat.@.main)
+            Nat.@.main Nat.Two.main Nat.Five.main
+

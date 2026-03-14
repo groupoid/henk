@@ -1,0 +1,4 @@
+ (m : * → *)  →  (a : *)  →  (b : *)  →  (monad : Monad.@.main  m)  →  (n : m a)  →  (f : a → m b)  →
+monad b ( (Cmd : *)  →  (Bind :  [b : *]  → m b → (b → Cmd) → Cmd)  →  (Pure : b → Cmd)  →
+Bind a n ( (x : a)  → Bind b (f x) Pure))
+

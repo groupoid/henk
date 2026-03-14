@@ -1,0 +1,3 @@
+    (a: *) 
+→   (delay: Unit.@.main → a) 
+→ Lazy.@.main a

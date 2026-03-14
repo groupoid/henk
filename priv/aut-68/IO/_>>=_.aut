@@ -1,0 +1,19 @@
+ (a : *)  →  (b : *)  →  (m :  [IO : *]  →  [GetLine_ : (IO.data.main → IO) → IO]  →  [PutLine_ :
+IO.data.main  → IO → IO]  →  [Pure_ : a → IO]  → IO)  →  (f : a →  [IO : *]  →  [GetLine_ : (IO.data.main
+→ IO) → IO]  →  [PutLine_ : IO.data.main  → IO → IO]  →  [Pure_ : b → IO]  → IO)  → m ( [IO : *]  →
+ [GetLine_ : (IO.data.main  → IO) → IO]  →  [PutLine_ : IO.data.main  → IO → IO]  →  [Pure_ : b → IO]  → IO)
+( (_x : IO.data.main  →  [IO : *]  →  [GetLine_ : (IO.data.main  → IO) → IO]  →  [PutLine_ : IO.data.main  → IO → IO]  →
+ [Pure_ : b → IO]  → IO)  →  (IO : *)  →  (GetLine_ : (IO.data.main  → IO) → IO)  →  (PutLine_ : IO.data.main  → IO → IO) 
+→  (Pure_ : b → IO)  → GetLine_ ( (_x : IO.data.main )  → _x₁ _x IO GetLine_ PutLine_ Pure_))
+( (_x : IO.data.main )  →  (_x :  [IO : *]  →  [GetLine_ : (IO.data.main  → IO) → IO]  →  [PutLine_ :
+IO.data.main  → IO → IO]  →  [Pure_ : b → IO]  → IO)  →  (IO : *)  →  (GetLine_ : (IO.data.main  → IO)
+→ IO)  →  (PutLine_ : IO.data.main  → IO → IO)  →  (Pure_ : b → IO)  → PutLine_ _x₁ (_x IO GetLine_ PutLine_ Pure_))
+( (r : a)  → f r ( [IO : *]  →  [GetLine_ : (IO.data.main  → IO) → IO]  →  [PutLine_ : IO.data.main  → IO → IO]  →
+ [Pure_ : b → IO]  → IO) ( (_x : IO.data.main  →  [IO : *]  →  [GetLine_ : (IO.data.main  → IO) → IO]  →
+ [PutLine_ : IO.data.main  → IO → IO]  →  [Pure_ : b → IO]  → IO)  →  (IO : *)  →  (GetLine_ : (IO.data.main  → IO) → IO) 
+→  (PutLine_ : IO.data.main  → IO → IO)  →  (Pure_ : b → IO)  → GetLine_ ( (_x : IO.data.main ) 
+→ _x₁ _x IO GetLine_ PutLine_ Pure_)) ( (_x : IO.data.main )  →  (_x :  [IO : *]  →
+ [GetLine_ : (IO.data.main  → IO) → IO]  →  [PutLine_ : IO.data.main  → IO → IO]  →  [Pure_ : b → IO]  → IO)  →  (IO : *) 
+→  (GetLine_ : (IO.data.main  → IO) → IO)  →  (PutLine_ : IO.data.main  → IO → IO)  →  (Pure_ : b → IO)  → PutLine_
+_x₁ (_x IO GetLine_ PutLine_ Pure_)) ( (_x : b)  →  (IO : *)  →  (GetLine_ : (IO.data.main  → IO) → IO)  →
+ (PutLine_ : IO.data.main  → IO → IO)  →  (Pure_ : b → IO)  → Pure_ _x))

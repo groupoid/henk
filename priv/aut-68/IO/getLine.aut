@@ -1,0 +1,4 @@
+    (FIO : *) 
+→   (GetLine_ : (IO.data.main → FIO) → FIO) 
+→   (PutLine_ : IO.data.main → FIO → FIO) 
+→ GetLine_

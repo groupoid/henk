@@ -1,0 +1,14 @@
+
+    (a : *) 
+→   (xs:   [List : *] 
+       →   (Cons :   (head :  [List : *] 
+                 →   (Cons :  [head : a] 
+                 →   [tail : List]  → List)
+       →   [Nil : List]  → List)
+→   [tail : List]  → List)
+→   [Nil : List]  → List) 
+→ xs (  [List : *] 
+    →   (Cons :   [head : a]  →
+                  [tail : List]  → List)
+  →  [Nil : List]  → List)
+  ( (xs :  [List : *]  →  (Cons :  [head : a]  →  [tail : List]  → List) →  [Nil : List]  → List)  → xs ( [List : *]  →  (Cons :  [head : a]  →  [tail : List]  → List) →  [Nil : List]  → List) ( (head : a)  →  (tail :  [List : *]  →  (Cons :  [head : a]  →  [tail : List]  → List) →  [Nil : List]  → List)  →  (List : *)  →  (Cons :  [head : a]  →  [tail : List]  → List)  →  (Nil : List)  → Cons head (tail List Cons Nil))) ( (List : *)  →  (Cons :  [head : a]  →  [tail : List]  → List)  →  (Nil : List)  → Nil)

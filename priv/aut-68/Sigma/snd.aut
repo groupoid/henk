@@ -1,0 +1,6 @@
+-- Sigma/snd
+     (A: *) 
+->   (B: A -> *) 
+->   (n: A) 
+->   (S: Sigma.@.main A B n) 
+-> S (B n) (  (_: A)  ->  (y: B n)  -> y )

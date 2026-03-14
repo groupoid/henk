@@ -1,0 +1,5 @@
+  [P : Bool.@.main → Prop.@.main]  
+->   [a : Bool.@.main] 
+-> P Bool.True.main 
+→ P Bool.False.main 
+→ P a

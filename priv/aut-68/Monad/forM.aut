@@ -1,0 +1,1 @@
+ (m : * → *)  →  (a : *)  →  (b : *)  →  (as : List.@.main  a)  →  (f : a → m b)  → Monad.sequence.main  m b (List.map.main  a (m b) f as)

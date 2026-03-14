@@ -1,0 +1,1 @@
+ (Prod0 : *)  →  (Make : Prod0)  → Make

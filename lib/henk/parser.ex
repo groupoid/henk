@@ -291,6 +291,7 @@ defmodule Henk.Parser do
 
   defp parse_expr_atom([{:ident, _, _, name} | rest]), do: {:ok, %AST.Var{name: name}, rest}
   defp parse_expr_atom([{:number, _, _, val} | rest]), do: {:ok, %AST.Universe{level: val}, rest}
+  defp parse_expr_atom([{:universe, _, _, val} | rest]), do: {:ok, %AST.Universe{level: val}, rest}
   defp parse_expr_atom([{:string, _, _, val} | rest]), do: {:ok, %AST.String{value: val}, rest}
 
   defp parse_expr_atom([{:case, _, _} | rest]) do

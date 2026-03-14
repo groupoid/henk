@@ -1,3 +1,0 @@
---- List/Cons AUT-68
-(A: *) (Head: A) (Tail: [List: *] [Cons: A -> List -> List] [Nil: List] List)
-(List: *) (Cons: A -> List -> List) (Nil: List) Cons Head (Tail List Cons Nil)

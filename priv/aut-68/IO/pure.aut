@@ -1,0 +1,7 @@
+    (a : *) 
+→   (_x : a) 
+→   (IO : *) 
+→   (GetLine_ : (IO.data.main → IO) → IO) 
+→   (PutLine_ : IO.data.main → IO → IO) 
+→   (Pure_ : a → IO) 
+→ Pure_ _x

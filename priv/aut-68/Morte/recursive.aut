@@ -1,0 +1,7 @@
+IO.replicateM.main
+    (   -- 99 is too slow, so comment +90 out
+        --Nat.___.main (Nat.___.main Nat.Nine.main Nat.Ten.main)
+        Nat.Five.main)
+    (IO._>>=_.main IO.data.main Unit.@.main
+        IO.getLine.main
+        IO.putLine.main)

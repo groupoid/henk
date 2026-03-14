@@ -1,0 +1,3 @@
+    (a: *) 
+→   (force: Unit.@.main → a) 
+→ a

@@ -1,0 +1,8 @@
+     (r : *) 
+->   (s : *) 
+->   (vr : r) 
+->   (x : *) 
+->   (PutLine_ : IOI.data.main -> s -> x) 
+->   (GetLine_ : (IOI.data.main -> s) -> x) 
+->   (Return_ : r -> x) 
+->  Return_ vr

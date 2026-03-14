@@ -1,0 +1,8 @@
+-- IOI/F
+     (a : *) 
+->   (State : *) 
+->   [IOF : *] 
+->   [PutLine_ : IOI.data.main -> State -> IOF] 
+->   [GetLine_ : (IOI.data.main -> State) -> IOF] 
+->   [Pure_ : a -> IOF] 
+-> IOF

@@ -5,33 +5,60 @@ defmodule Mix.Tasks.Henk.Repl do
 
   @shortdoc "Henk interactive REPL"
 
-  def run(_) do
+  def run(args) do
+    {opts, _, _} = OptionParser.parse(args, switches: [syntax: :string])
+    syntax_arg = Keyword.get(opts, :syntax, "miranda")
+    syntax = case syntax_arg do
+      "aut-68" -> :aut68
+      "aut68"  -> :aut68
+      "morte"  -> :morte
+      "miranda" -> :miranda
+      "henk" -> :miranda
+      _ -> :miranda
+    end
+
     IO.puts(
-      "🧊 Henk Programming Language version 0.3.11 [Miranda Syntax]\n" <>
+      "🧊 Henk Programming Language version 0.3.11 [#{syntax_arg} syntax]\n" <>
         "Copyright (c) 2015-2026 Groupoid Infinity\n" <>
         "https://groupoid.github.io/henk/\n"
     )
 
-    # Compile and load all .henk modules into both typechecker env AND Erlang VM.
-    # priv/henk first (stdlib, in dependency order), then test/henk (demos).
-    priv_paths = Path.wildcard("priv/henk/*.henk") ++ Path.wildcard("priv/henk/**/*.henk")
-    test_paths = Path.wildcard("test/henk/*.henk") ++ Path.wildcard("test/henk/**/*.henk")
+    # Add ebin subfolders to code path
+    :code.add_pathz(~c"ebin/miranda")
+    :code.add_pathz(~c"ebin/aut-68")
+    :code.add_pathz(~c"ebin/morte")
+
+    # Compile and load all modules
+    priv_paths = Path.wildcard("priv/henk/**/*.henk") ++
+                 Path.wildcard("priv/aut-68/**/*.aut") ++
+                 Path.wildcard("priv/morte/**/*") |> Enum.reject(&File.dir?/1)
+    
+    test_paths = Path.wildcard("test/henk/**/*.henk")
     all_paths = priv_paths ++ test_paths
 
     env =
       Enum.reduce(all_paths, %Typechecker.Env{}, fn path, acc_env ->
-        mod_name = path_to_mod_name(path)
-        src = File.read!(path)
+        # Detect syntax from path
+        file_syntax = cond do
+          Path.extname(path) == ".aut" -> :aut68
+          String.contains?(path, "priv/morte") -> :morte
+          true -> :miranda
+        end
+
+        # Derive module name from path
+        mod_name = derive_module_name(path)
 
         # Load into typechecker env
         acc_env =
-          case Henk.Compiler.load_module_to_env(mod_name, acc_env) do
+          case Henk.Compiler.load_module_to_env(mod_name, acc_env, syntax: file_syntax) do
             {:ok, new_env} -> new_env
             _ -> acc_env
           end
 
-        # Compile and beam-load into Erlang VM
-        case Henk.Compiler.compile_module(src, typecheck: false) do
+        # Compile and beam-load into Erlang VM if not matching the REPL's main syntax
+        # (Usually we want everything available)
+        src = File.read!(path)
+        case Henk.Compiler.compile_module(src, typecheck: false, syntax: file_syntax, module_name: mod_name) do
           {:ok, mod, bin} -> Henk.Compiler.load_module(mod, bin)
           _ -> :skip
         end
@@ -39,65 +66,89 @@ defmodule Mix.Tasks.Henk.Repl do
         acc_env
       end)
 
-    loop(env)
+    loop(env, syntax, syntax_arg)
+  end
+
+  defp derive_module_name(file) do
+    module_name = cond do
+      String.contains?(file, "priv/henk") ->
+        file |> Path.relative_to("priv/henk") |> Path.rootname() |> String.replace("/", ".")
+      String.contains?(file, "priv/aut-68") ->
+        file |> Path.relative_to("priv/aut-68") |> Path.rootname() |> String.replace("/", ".")
+      String.contains?(file, "priv/morte") ->
+        file |> Path.relative_to("priv/morte") |> String.replace("/", ".")
+      String.contains?(file, "test/henk") ->
+        file |> Path.relative_to("test/henk") |> Path.rootname() |> String.replace("/", ".")
+      true ->
+        "Main"
+    end
+
+    # Normalize: remove trailing @ or dot
+    module_name = module_name 
+      |> String.replace_trailing(".@", "") 
+      |> String.replace_trailing("@", "")
+      |> String.replace_trailing(".", "")
+    if module_name == "", do: "Main", else: module_name
   end
 
   # ── REPL loop ──────────────────────────────────────────────────────────────
 
-  defp loop(env) do
-    input = IO.gets("henk> ")
+  defp loop(env, syntax, syntax_name) do
+    prompt = "#{syntax_name}> "
+    input = IO.gets(prompt)
 
     case input do
-      nil ->
-        :ok
+      nil -> :ok
+      ":q\n" -> :ok
+      "\n" -> loop(env, syntax, syntax_name)
 
-      ":q\n" ->
-        :ok
-
-      "\n" ->
-        loop(env)
+      ":syntax " <> rest ->
+        name = String.trim(rest)
+        new_syntax = case name do
+          "aut-68" -> :aut68
+          "aut68"  -> :aut68
+          "morte"  -> :morte
+          "miranda" -> :miranda
+          "henk"    -> :miranda
+          _ -> syntax
+        end
+        # Keep the user's name if valid, else use internal
+        final_name = if new_syntax == syntax and name not in ["aut-68", "aut68", "morte", "miranda", "henk"], do: syntax_name, else: name
+        IO.puts("Switched to #{new_syntax} syntax.")
+        loop(env, new_syntax, final_name)
 
       "import " <> rest ->
         mod_name = String.trim(rest)
-
         case Henk.Compiler.load_module_to_env(mod_name, env) do
           {:ok, new_env} ->
             IO.puts("Loaded #{mod_name}.")
-            loop(new_env)
-
+            loop(new_env, syntax, syntax_name)
           {:error, err} ->
             IO.puts("Error: #{inspect(err)}")
-            loop(env)
+            loop(env, syntax, syntax_name)
         end
 
       "run_io " <> rest ->
         run_program(String.trim(rest), :io, env)
-        loop(env)
+        loop(env, syntax, syntax_name)
 
       "run_ioi " <> rest ->
         run_program(String.trim(rest), :ioi, env)
-        loop(env)
+        loop(env, syntax, syntax_name)
 
       _ ->
-        case eval(input, env) do
+        case eval(input, env, syntax) do
+          :stop -> :ok
           {:ok, result} ->
             IO.puts("= #{AST.to_string(result)}")
-            loop(env)
+            loop(env, syntax, syntax_name)
 
           {:error, err} ->
             IO.puts("Error: #{inspect(err)}")
-            loop(env)
+            loop(env, syntax, syntax_name)
         end
     end
   end
-
-  # ── run_io / run_ioi ───────────────────────────────────────────────────────
-  #
-  # run_program "Test.Recursive.main" :io env
-  #   → compiles Test.Recursive, loads beam, calls IO.run_io().(Test.Recursive.main())
-  #
-  # run_program "Test.Corecursive.corecursive" :ioi env
-  #   → compiles Test.Corecursive, loads beam, calls IOI.run_ioi().(Test.Corecursive.corecursive())
 
   defp run_program(qualified, mode, _env) do
     with {:ok, mod_atom, func_atom} <- split_qualified(qualified),
@@ -107,7 +158,6 @@ defmodule Mix.Tasks.Henk.Repl do
         :io ->
           runner = apply(:"Control.IO", :run_io, [])
           runner.(value)
-
         :ioi ->
           runner = apply(:"Control.IOI", :run_ioi, [])
           runner.(value)
@@ -119,14 +169,10 @@ defmodule Mix.Tasks.Henk.Repl do
     e -> IO.puts("runtime error: #{Exception.message(e)}")
   end
 
-  # Parse "Test.Recursive.main" → {:ok, :"Test.Recursive", :main}
   defp split_qualified(qualified) do
     parts = String.split(qualified, ".")
-
     case parts do
-      [_] ->
-        {:error, :qualify_as_Module_dot_function}
-
+      [_] -> {:error, :qualify_as_Module_dot_function}
       _ ->
         {mod_parts, [func_part]} = Enum.split(parts, length(parts) - 1)
         mod_name = Enum.join(mod_parts, ".")
@@ -134,58 +180,60 @@ defmodule Mix.Tasks.Henk.Repl do
     end
   end
 
-  # Compile and beam-load a module if not already in the VM
   defp ensure_beam_loaded(mod_atom) do
     if :code.is_loaded(mod_atom) != false do
       :ok
     else
       mod_name = Atom.to_string(mod_atom)
-
       case Henk.Compiler.find_module_path(mod_name) do
         {:ok, path} ->
           src = File.read!(path)
-
-          case Henk.Compiler.compile_module(src, typecheck: false) do
+          # Detect syntax from path for on-demand loading
+          syntax = cond do
+            Path.extname(path) == ".aut" -> :aut68
+            String.contains?(path, "priv/morte") -> :morte
+            true -> :miranda
+          end
+          case Henk.Compiler.compile_module(src, typecheck: false, syntax: syntax, module_name: mod_name) do
             {:ok, mod, bin} ->
               Henk.Compiler.load_module(mod, bin)
               :ok
-
             {:error, err} ->
               {:error, {:compile, err}}
           end
-
         nil ->
           {:error, {:not_found, mod_name}}
       end
     end
   end
 
-  # ── Expression evaluator ───────────────────────────────────────────────────
-
-  defp eval(input, env) do
+  defp eval(:eof, _, _), do: :stop
+  defp eval(input, env, syntax) do
     input = String.trim(input)
-
     if input == "" do
       {:error, :empty_input}
     else
-      with {:ok, tokens} <- Lexer.lex(input),
-           resolved <- Layout.resolve(tokens),
-           {:ok, expr, _} <- Parser.parse_expression(resolved) do
-        desugared = Desugar.desugar_expr(expr, env)
-        {:ok, Typechecker.normalize(env, desugared)}
-      else
-        err -> {:error, err}
+      case syntax do
+        :miranda ->
+          with {:ok, tokens} <- Lexer.lex(input),
+               resolved <- Layout.resolve(tokens),
+               {:ok, expr, _} <- Parser.parse_expression(resolved) do
+            desugared = Desugar.desugar_expr(expr, env)
+            {:ok, Typechecker.normalize(env, desugared)}
+          end
+        :aut68 ->
+          with {:ok, tokens} <- Henk.Lexer.AUT68.lex(input),
+               {:ok, expr, _} <- Henk.Parser.AUT68.parse(tokens) do
+            desugared = Desugar.desugar_expr(expr, env)
+            {:ok, Typechecker.normalize(env, desugared)}
+          end
+        :morte ->
+          with {:ok, tokens} <- Henk.Lexer.Morte.lex(input),
+               {:ok, expr, _} <- Henk.Parser.Morte.parse(tokens) do
+            desugared = Desugar.desugar_expr(expr, env)
+            {:ok, Typechecker.normalize(env, desugared)}
+          end
       end
     end
-  end
-
-  # ── Helpers ────────────────────────────────────────────────────────────────
-
-  defp path_to_mod_name(path) do
-    Path.split(path)
-    |> Enum.drop_while(&(&1 != "henk"))
-    |> Enum.drop(1)
-    |> List.update_at(-1, &Path.rootname/1)
-    |> Enum.join(".")
   end
 end

@@ -79,15 +79,16 @@ defmodule Henk.Typechecker do
         %AST.Pi{name: x, domain: domain, codomain: infer(env2, body)}
 
       %AST.App{func: f, arg: arg} ->
-        case infer(env, f) do
+        f_ty = infer(env, f)
+        case normalize(env, f_ty) do
           %AST.Pi{name: x, domain: _a, codomain: b} ->
             subst(x, arg, b)
 
           %AST.Var{name: "Any"} ->
             %AST.Var{name: "Any"}
 
-          _ ->
-            {:error, :application_requires_pi}
+          other_ty ->
+            {:error, {:application_requires_pi, f, other_ty}}
         end
 
       _ ->
@@ -98,11 +99,14 @@ defmodule Henk.Typechecker do
   def check(%Env{} = _env, _t, %AST.Var{name: "Any"}), do: :ok
 
   def check(%Env{} = env, t, ty) do
-    inferred = infer(env, t)
-    if inferred == %AST.Var{name: "Any"} or equal?(env, inferred, ty) do
-      :ok
-    else
-      {:error, {:type_mismatch, inferred, ty}}
+    case infer(env, t) do
+      {:error, _} = err -> err
+      inferred ->
+        if inferred == %AST.Var{name: "Any"} or equal?(env, inferred, ty) do
+          :ok
+        else
+          {:error, {:type_mismatch, t, inferred, ty}}
+        end
     end
   end
 

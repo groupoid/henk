@@ -50,9 +50,23 @@ defmodule Henk.Codegen do
       true ->
         mod_str = Atom.to_string(mod)
         case Map.get(env.name_to_mod, name) do
-          nil     -> {:call, 1, {:atom, 1, String.to_atom(name)}, []}
-          ^mod_str -> {:call, 1, {:atom, 1, String.to_atom(name)}, []}
-          m       -> {:call, 1, {:remote, 1, {:atom, 1, String.to_atom(m)}, {:atom, 1, String.to_atom(name)}}, []}
+          nil ->
+            # Not found in env, maybe it's a local call or built-in
+            {:call, 1, {:atom, 1, String.to_atom(name)}, []}
+
+          ^mod_str ->
+            # Local call: strip module prefix if present
+            local_name = if String.starts_with?(name, mod_str <> "."),
+              do: String.slice(name, (String.length(mod_str) + 1)..-1//1),
+              else: name
+            {:call, 1, {:atom, 1, String.to_atom(local_name)}, []}
+
+          m ->
+            # Remote call: split if name is qualified
+            remote_func = if String.starts_with?(name, m <> "."),
+              do: String.slice(name, (String.length(m) + 1)..-1//1),
+              else: name
+            {:call, 1, {:remote, 1, {:atom, 1, String.to_atom(m)}, {:atom, 1, String.to_atom(remote_func)}}, []}
         end
     end
   end
@@ -72,29 +86,39 @@ defmodule Henk.Codegen do
   end
 
   # App where the func is a foreign: collect all args and emit multi-arg remote call
-  defp generate_expr(%AST.App{func: f, arg: arg}, loc, env, mod) do
-    {base_func, collected_args} = collect_foreign_app(f, [arg], env)
-    case base_func do
-      %AST.Var{name: name} when is_map_key(env.foreign_defs, name) ->
-        {erl_mod, erl_func} = env.foreign_defs[name]
-        args_code = Enum.map(collected_args, &generate_expr(&1, loc, env, mod))
-        {:call, 1,
-         {:remote, 1, {:atom, 1, String.to_atom(erl_mod)}, {:atom, 1, String.to_atom(erl_func)}},
-         args_code}
+  defp generate_expr(%AST.App{func: f, arg: arg} = app, loc, env, mod) do
+    if depth(app) > 100 do
+      {decls, final_app} = flatten_app(app)
+      generate_expr(%AST.Let{decls: decls, body: final_app}, loc, env, mod)
+    else
+      {base_func, collected_args} = collect_foreign_app(f, [arg], env)
 
-      _ ->
-        {:call, 1, generate_expr(f, loc, env, mod), [generate_expr(arg, loc, env, mod)]}
+      case base_func do
+        %AST.Var{name: name} when is_map_key(env.foreign_defs, name) ->
+          {erl_mod, erl_func} = env.foreign_defs[name]
+          args_code = Enum.map(collected_args, &generate_expr(&1, loc, env, mod))
+
+          {:call, 1,
+           {:remote, 1, {:atom, 1, String.to_atom(erl_mod)}, {:atom, 1, String.to_atom(erl_func)}},
+           args_code}
+
+        _ ->
+          {:call, 1, generate_expr(f, loc, env, mod), [generate_expr(arg, loc, env, mod)]}
+      end
     end
   end
 
   # Let: desugar to App(Lam) or handle natively as block
   defp generate_expr(%AST.Let{decls: decls, body: body}, loc, env, mod) do
     # Native Erlang block: begin X1 = E1, ... Body end
-    exprs =
-      Enum.map(decls, fn {name, expr} ->
-        {:match, 1, {:var, 1, erl_var(name)}, generate_expr(expr, loc, env, mod)}
-      end) ++ [generate_expr(body, loc, env, mod)]
+    {exprs, final_loc} =
+      Enum.reduce(decls, {[], loc}, fn {name, expr}, {acc_exprs, acc_loc} ->
+        erl_v = {:var, 1, erl_var(name)}
+        match = {:match, 1, erl_v, generate_expr(expr, acc_loc, env, mod)}
+        {[match | acc_exprs], MapSet.put(acc_loc, name)}
+      end)
 
+    exprs = Enum.reverse(exprs) ++ [generate_expr(body, final_loc, env, mod)]
     {:block, 1, exprs}
   end
 
@@ -109,6 +133,36 @@ defmodule Henk.Codegen do
     {:atom, 1, :undefined}
     |> tap(fn _ -> IO.warn("Codegen: unhandled term #{inspect(other, limit: 5)}", []) end)
   end
+
+  # ── Helpers ───────────────────────────────────────────────────────────────
+
+  defp depth(%AST.App{func: f, arg: a}), do: 1 + max(depth(f), depth(a))
+  defp depth(%AST.Lam{body: b}), do: 1 + depth(b)
+  defp depth(%AST.Pi{codomain: c}), do: 1 + depth(c)
+  defp depth(%AST.Let{body: b}), do: 1 + depth(b)
+  defp depth(_), do: 1
+
+  # Flatten f (g (h x)) -> [V1 = h x, V2 = g V1, V3 = f V2], V3
+  defp flatten_app(app) do
+    {decls, final_var, _count} = do_flatten_app(app, [], 0)
+    {Enum.reverse(decls), final_var}
+  end
+
+  defp do_flatten_app(%AST.App{func: f, arg: a}, acc_decls, count) do
+    # In CoC, we usually have f applied to arg.
+    # We flatten the right leaning tree: Succ (Succ (Succ Zero))
+    {acc_decls, f_var, count} = ensure_flat(f, acc_decls, count)
+    {acc_decls, a_var, count} = ensure_flat(a, acc_decls, count)
+    
+    unique_name = "_tmp_#{count}"
+    new_app = %AST.App{func: f_var, arg: a_var}
+    {[{unique_name, new_app} | acc_decls], %AST.Var{name: unique_name}, count + 1}
+  end
+
+  defp ensure_flat(%AST.App{} = app, acc_decls, count) do
+    do_flatten_app(app, acc_decls, count)
+  end
+  defp ensure_flat(other, acc_decls, count), do: {acc_decls, other, count}
 
   # Collect left-spine App arguments for multi-arg foreign calls
   defp collect_foreign_app(%AST.App{func: f, arg: a}, acc, env) do

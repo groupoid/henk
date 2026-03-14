@@ -1,4 +1,0 @@
-AUTOMATH.md
-Henk.md
-api-reference.md
-llms.txt

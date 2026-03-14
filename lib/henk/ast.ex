@@ -168,4 +168,48 @@ defmodule Henk.AST do
   def arrow(a, b), do: %Pi{name: "_", domain: a, codomain: b}
   def universe(i), do: %Universe{level: i}
   def any(), do: %Var{name: "Any"}
+
+  def extract_vars(term), do: extract_vars(term, MapSet.new())
+
+  defp extract_vars(%Var{name: n}, acc), do: MapSet.put(acc, n)
+  defp extract_vars(%App{func: f, arg: a}, acc) do
+    acc = extract_vars(f, acc)
+    extract_vars(a, acc)
+  end
+  defp extract_vars(%Lam{domain: d, body: b}, acc) do
+    acc = extract_vars(d, acc)
+    extract_vars(b, acc)
+  end
+  defp extract_vars(%Pi{domain: d, codomain: c}, acc) do
+    acc = extract_vars(d, acc)
+    extract_vars(c, acc)
+  end
+  defp extract_vars(%Let{decls: decls, body: b}, acc) do
+    acc = Enum.reduce(decls, acc, fn {_, e}, a -> extract_vars(e, a) end)
+    extract_vars(b, acc)
+  end
+  defp extract_vars(%Case{expr: e, branches: bs}, acc) do
+    acc = extract_vars(e, acc)
+    Enum.reduce(bs, acc, fn {_, b}, a -> extract_vars(b, a) end)
+  end
+  defp extract_vars(%Module{declarations: decls}, acc) do
+    Enum.reduce(decls, acc, fn
+      %DeclValue{expr: e}, a -> extract_vars(e, a)
+      %DeclTypeSignature{type: t}, a -> extract_vars(t, a)
+      %DeclData{params: ps, constructors: cs}, a ->
+        a = Enum.reduce(ps, a, fn 
+          {_, k}, a2 -> extract_vars(k, a2)
+          n, a2 when is_binary(n) -> a2
+          _, a2 -> a2
+        end)
+        Enum.reduce(cs, a, fn 
+          {_, ts}, a2 -> Enum.reduce(ts, a2, &extract_vars/2)
+          _, a2 -> a2
+        end)
+      _, a -> a
+    end)
+  end
+
+  defp extract_vars(name, acc) when is_binary(name), do: MapSet.put(acc, name)
+  defp extract_vars(_, acc), do: acc
 end

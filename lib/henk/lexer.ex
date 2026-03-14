@@ -54,6 +54,10 @@ defmodule Henk.Lexer do
   defp lex([?-, ?> | rest], line, col, acc),
     do: lex(rest, line, col + 2, [{:arrow, line, col} | acc])
 
+  # UTF-8 Arrow → (8594)
+  defp lex([8594 | rest], line, col, acc),
+    do: lex(rest, line, col + 1, [{:arrow, line, col} | acc])
+
   defp lex([?\\ | rest], line, col, acc),
     do: lex(rest, line, col + 1, [{:backslash, line, col} | acc])
 
@@ -63,6 +67,7 @@ defmodule Henk.Lexer do
     num = List.to_integer(num_chars)
     lex(rest2, line, col + length(num_chars), [{:number, line, col, num} | acc])
   end
+
 
   # Identifiers and Keywords
   defp lex([c | rest], line, col, acc)
@@ -87,6 +92,7 @@ defmodule Henk.Lexer do
       _ -> lex(rest2, line, col + String.length(ident), [{:ident, line, col, ident} | acc])
     end
   end
+
 
   # Operators
   defp lex([c | rest], line, col, acc)
@@ -124,7 +130,7 @@ defmodule Henk.Lexer do
 
   defp take_ident([c | rest])
        when (c >= ?a and c <= ?z) or (c >= ?A and c <= ?Z) or (c >= ?0 and c <= ?9) or c == ?_ or
-              c == ?' do
+              c == ?' or (c >= 8320 and c <= 8329) or c == ?. do
     {rest_ident, rest2} = take_ident(rest)
     {[c | rest_ident], rest2}
   end

@@ -1,0 +1,19 @@
+ (r : *₁) 
+->  IOI.MkIO.main
+    r
+    (Maybe.@.main IOI.data.main)
+    (Maybe.Nothing.main IOI.data.main)
+    (    (m : Maybe.@.main IOI.data.main) 
+    ->  Maybe.maybe.main
+            IOI.data.main
+            m
+            (IOI.F.main r (Maybe.@.main IOI.data.main))
+            ( (str : IOI.data.main)  ->
+                IOI.putLine.main
+                    r
+                    (Maybe.@.main IOI.data.main)
+                    str
+                    (Maybe.Nothing.main IOI.data.main)
+            )
+            (IOI.getLine.main r (Maybe.@.main IOI.data.main) (Maybe.Just.main IOI.data.main))
+    )

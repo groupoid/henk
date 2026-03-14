@@ -1,0 +1,1 @@
+ (a : *)  →  (eqA : Eq.main  a)  →  (p1 : Mon.@.main  a)  →  (p2 : Mon.@.main a)  → p1 Bool.@.main  ( (_1 : a)  → p2 Bool.@.main  (eqA _1))

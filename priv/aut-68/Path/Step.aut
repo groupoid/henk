@@ -1,0 +1,1 @@
+ (f : * → * → *)  →  (a : *)  →  (b : *)  →  (c : *)  →  (head : f a b)  →  (tail : Path.@.main  f b c)  →  (Path :  [a : *]  →  [c : *]  → *)  →  (Step :  [a : *]  →  [b : *]  →  [c : *]  →  [head : f a b]  →  [tail : Path b c]  → Path a c)  →  (End :  [a : *]  → Path a a)  → Step a b c head (tail Path Step End)

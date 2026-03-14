@@ -1,0 +1,7 @@
+-- Vector/Nil
+     (A: *) 
+->   (Vector: Nat.@.main -> * -> *) 
+->   (Cons:   [m: Nat.@.main ]  ->   [b: *]  -> b -> Vector m b -> Vector (Nat.Succ.main m) b) 
+->   (Nil:   [b: *]  -> Vector Nat.Zero.main b) 
+-> Nil
+
