@@ -103,6 +103,35 @@ defmodule Henk.Parser do
     end
   end
 
+  # foreign name :: Type = erl_mod erl_func
+  defp parse_decl([{:foreign, _, _} | rest]) do
+    case rest do
+      [{:ident, _, _, name} | rest1] ->
+        # Skip optional `:: Type` annotation (type info only, not used at runtime)
+        rest2 =
+          case rest1 do
+            [{:operator, _, _, "::"} | after_op] ->
+              # Skip everything until `=`
+              Enum.drop_while(after_op, fn t -> elem(t, 0) != := end)
+            _ ->
+              rest1
+          end
+
+        case rest2 do
+          [{:=, _, _}, {:ident, _, _, erl_mod}, {:ident, _, _, erl_func} | rest3] ->
+            {:ok,
+             %AST.DeclForeign{name: name, type: nil, erl_mod: erl_mod, erl_func: erl_func},
+             rest3}
+
+          _ ->
+            {:error, :invalid_foreign_decl, Enum.take(rest2, 5)}
+        end
+
+      _ ->
+        {:error, :invalid_foreign_name}
+    end
+  end
+
   defp parse_decl([{:ident, _, _, name} | rest]) do
     case parse_binders(rest, []) do
       {:ok, binders, [{:=, _, _} | rest2]} ->
@@ -293,6 +322,59 @@ defmodule Henk.Parser do
 
       _ ->
         {:error, :invalid_lambda}
+    end
+  end
+
+  defp parse_expr_atom([{:let, _, _} | rest]) do
+    # Layout may insert a v_left_brace after `let`; skip it
+    rest1 = Enum.drop_while(rest, fn t -> elem(t, 0) in [:v_left_brace, :v_semicolon] end)
+
+    case parse_let_bindings(rest1, []) do
+      {:ok, _bindings, []} ->
+        {:error, :let_missing_in}
+
+      {:ok, bindings, tokens} ->
+        # After bindings, skip virtual right brace then expect `in`
+        tokens2 = Enum.drop_while(tokens, fn t -> elem(t, 0) in [:v_right_brace, :v_semicolon] end)
+
+        case tokens2 do
+          [{:in, _, _} | rest2] ->
+            case parse_expr(rest2) do
+              {:ok, body, rest3} -> {:ok, %AST.Let{decls: bindings, body: body}, rest3}
+              err -> err
+            end
+
+          _ ->
+            {:error, :let_missing_in_keyword}
+        end
+
+      _ ->
+        {:error, :invalid_let}
+    end
+  end
+
+  defp parse_let_bindings(tokens, acc) do
+    # Skip any virtual separators
+    tokens1 = Enum.drop_while(tokens, fn t -> elem(t, 0) in [:v_semicolon, :v_left_brace] end)
+
+    case tokens1 do
+      [{:ident, _, _, name}, {:=, _, _} | rest] ->
+        case parse_expr(rest) do
+          {:ok, expr, rest2} ->
+            bindings = [{name, expr} | acc]
+            # Skip virtual/real semicolons between bindings
+            rest3 = case rest2 do
+              [{:semicolon, _, _} | r]   -> r
+              [{:v_semicolon, _, _} | r] -> r
+              r -> r
+            end
+            parse_let_bindings(rest3, bindings)
+
+          err -> err
+        end
+
+      _ ->
+        {:ok, Enum.reverse(acc), tokens1}
     end
   end
 

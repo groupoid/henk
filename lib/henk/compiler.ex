@@ -59,6 +59,12 @@ defmodule Henk.Compiler do
         ty = Henk.Typechecker.infer(acc, e)
         %{acc | defs: Map.put(acc.defs, n, e), ctx: [{n, ty} | acc.ctx]}
 
+      %AST.DeclForeign{name: n}, acc ->
+        # Foreign names are resolved by Erlang at runtime; store Any as a
+        # placeholder so the typechecker doesn't see unbound variables.
+        any = %AST.Var{name: "Any"}
+        %{acc | defs: Map.put(acc.defs, n, any), ctx: [{n, any} | acc.ctx]}
+
       _, acc ->
         acc
     end)
@@ -109,6 +115,13 @@ defmodule Henk.Compiler do
                   defs: Map.put(acc.defs, n, e),
                   name_to_mod: Map.put(acc.name_to_mod, n, mod_name),
                   ctx: [{n, ty} | acc.ctx]}
+
+              %AST.DeclForeign{name: n}, acc ->
+                any = %AST.Var{name: "Any"}
+                %{acc |
+                  defs: Map.put(acc.defs, n, any),
+                  name_to_mod: Map.put(acc.name_to_mod, n, mod_name),
+                  ctx: [{n, any} | acc.ctx]}
 
               _, acc -> acc
             end)

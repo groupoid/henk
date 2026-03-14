@@ -6,6 +6,7 @@ defmodule Henk.MixProject do
       app: :henk,
       version: "0.3.10",
       description: "The Henk Programming Language",
+      erlc_paths: ["src/ffi"],
       deps: deps(),
       package: package()
     ]
