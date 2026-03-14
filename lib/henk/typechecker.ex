@@ -18,6 +18,7 @@ defmodule Henk.Typechecker do
               defs: %{},
               name_to_mod: %{},
               type_constrs: %{},
+              foreign_defs: %{},        # %{name => {erl_mod, erl_func}}
               in_progress: MapSet.new(),
               deadline: nil
   end

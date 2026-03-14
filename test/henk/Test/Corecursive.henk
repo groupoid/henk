@@ -6,13 +6,13 @@
 --   Nothing  → GetLine (read input, wrap in Just)
 --   Just str → PutLine str (output it, reset to Nothing)
 --
--- Run from Erlang:  henk_io:run_ioi(fun 'Test.Corecursive':corecursive/0()).
+-- Run from REPL:  run_ioi Test.Corecursive.corecursive
 
 module Test.Corecursive where
 
 import Prelude
 import Data.Maybe
-import IOI
+import Control.IOI
 
 -- State transition: Maybe Data → F r (Maybe Data)
 corecursive_step m =

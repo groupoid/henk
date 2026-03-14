@@ -2,7 +2,7 @@
 
 module Test.IO where
 
-import IO
+import Control.IO
 
 -- A single echo step
 echo_once = io_bind io_get_line (\s -> io_put_line s)

@@ -26,12 +26,7 @@ defmodule Henk.Codegen do
     [{:function, 1, String.to_atom(name), 0, [clause]}]
   end
 
-  defp generate_decl(%AST.DeclForeign{name: name, erl_mod: emod, erl_func: efunc}, _env, _mod) do
-    # Arity-1 foreign call wrapper
-    arg = {:var, 1, :X1}
-    call = {:call, 1, {:remote, 1, {:atom, 1, String.to_atom(emod)}, {:atom, 1, String.to_atom(efunc)}}, [arg]}
-    [{:function, 1, String.to_atom(name), 1, [{:clause, 1, [arg], [], [call]}]}]
-  end
+  defp generate_decl(%AST.DeclForeign{}, _env, _mod), do: []  # emitted inline via foreign_defs
 
   defp generate_decl(_decl, _env, _mod), do: []
 
@@ -45,15 +40,19 @@ defmodule Henk.Codegen do
       MapSet.member?(local_vars, name) ->
         {:var, 1, erl_var(name)}
 
+      # Foreign FFI: emit direct 0-arg remote call (args collected by App case below)
+      Map.has_key?(env.foreign_defs, name) ->
+        {erl_mod, erl_func} = env.foreign_defs[name]
+        {:call, 1,
+         {:remote, 1, {:atom, 1, String.to_atom(erl_mod)}, {:atom, 1, String.to_atom(erl_func)}},
+         []}
+
       true ->
         mod_str = Atom.to_string(mod)
         case Map.get(env.name_to_mod, name) do
-          nil ->
-            {:call, 1, {:atom, 1, String.to_atom(name)}, []}
-          ^mod_str ->
-            {:call, 1, {:atom, 1, String.to_atom(name)}, []}
-          m ->
-            {:call, 1, {:remote, 1, {:atom, 1, String.to_atom(m)}, {:atom, 1, String.to_atom(name)}}, []}
+          nil     -> {:call, 1, {:atom, 1, String.to_atom(name)}, []}
+          ^mod_str -> {:call, 1, {:atom, 1, String.to_atom(name)}, []}
+          m       -> {:call, 1, {:remote, 1, {:atom, 1, String.to_atom(m)}, {:atom, 1, String.to_atom(name)}}, []}
         end
     end
   end
@@ -68,9 +67,27 @@ defmodule Henk.Codegen do
     {:fun, 1, {:clauses, [{:clause, 1, [erl_x], [], [generate_expr(body, new_loc, env, mod)]}]}}
   end
 
+  # App where the func is a foreign: collect all args and emit multi-arg remote call
   defp generate_expr(%AST.App{func: f, arg: arg}, loc, env, mod) do
-    {:call, 1, generate_expr(f, loc, env, mod), [generate_expr(arg, loc, env, mod)]}
+    {base_func, collected_args} = collect_foreign_app(f, [arg], env)
+    case base_func do
+      %AST.Var{name: name} when is_map_key(env.foreign_defs, name) ->
+        {erl_mod, erl_func} = env.foreign_defs[name]
+        args_code = Enum.map(collected_args, &generate_expr(&1, loc, env, mod))
+        {:call, 1,
+         {:remote, 1, {:atom, 1, String.to_atom(erl_mod)}, {:atom, 1, String.to_atom(erl_func)}},
+         args_code}
+
+      _ ->
+        {:call, 1, generate_expr(f, loc, env, mod), [generate_expr(arg, loc, env, mod)]}
+    end
   end
+
+  # Collect left-spine App arguments for multi-arg foreign calls
+  defp collect_foreign_app(%AST.App{func: f, arg: a}, acc, env) do
+    collect_foreign_app(f, [a | acc], env)
+  end
+  defp collect_foreign_app(other, acc, _env), do: {other, acc}
 
   defp generate_expr(other, _loc, _env, _mod) do
     # Fallback: emit undefined atom

@@ -2,11 +2,11 @@
 -- Port of Morte's recursive example:
 --   replicateM 5 (getLine >>= putLine)
 --
--- Run from Erlang:  henk_io:run_io(fun 'Test.Recursive':main/0()).
+-- Run from Erlang:  henk:run_io("Test.Recursive.main") from REPL.
 
 module Test.Recursive where
 
-import IO
+import Control.IO
 
 -- A single echo step: read a line and print it back
 echo_step = io_bind io_get_line (\s -> io_put_line s)
