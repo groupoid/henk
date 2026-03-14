@@ -27,15 +27,16 @@ io_put_line str io_r get_line_ put_line_ pure_ = put_line_ str (pure_ tt)
 
 -- ── Monad operations ──────────────────────────────────────────────────────
 
--- bind m f = \R getLine_ putLine_ pure_ ->
---   m R (\k      -> getLine_ (\s -> k s R getLine_ putLine_ pure_))
---       (\str ns -> putLine_ str (ns R getLine_ putLine_ pure_))
---       (\a      -> f a R getLine_ putLine_ pure_)
+-- bind m f R getLine_ putLine_ pure_ =
+--   m R getLine_ putLine_ (\a -> f a R getLine_ putLine_ pure_)
+-- getLine_ and putLine_ pass through UNCHANGED — only pure_ is modified.
+-- In the free monad, k (in getLine_) and ns (in putLine_) are already R
+-- values; wrapping them with extra handler applications is wrong.
 io_bind m f io_r get_line_ put_line_ pure_ =
     m io_r
-      (\k   -> get_line_ (\s -> k s io_r get_line_ put_line_ pure_))
-      (\str -> \ns -> put_line_ str (ns io_r get_line_ put_line_ pure_))
-      (\a   -> f a io_r get_line_ put_line_ pure_)
+      get_line_
+      put_line_
+      (\a -> f a io_r get_line_ put_line_ pure_)
 
 -- ── Interpreter (written in Henk, not Erlang) ────────────────────────────
 -- run_io action = action Any
