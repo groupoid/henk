@@ -1,0 +1,72 @@
+-- IO.henk — Free IO Monad (Church-encoded, ported from Morte IO)
+--
+-- IO a = ∀(R:*) → ((Data→R)→R)    -- GetLine_: callback receiving input
+-- run_io is the interpreter, written in Henk as a Church fold.
+-- It uses the foreign leaf operations get_line / put_line.
+-- Because Erlang is call-by-value, `let _ = put_line str in next`
+-- forces the side-effect before returning.
+
+module Control.IO where
+
+import Prelude
+
+-- Leaf FFI: only the primitive console operations are foreign
+foreign get_line :: Data       = henk_io get_line
+foreign put_line :: Data -> () = henk_io put_line
+
+-- ── Constructors ──────────────────────────────────────────────────────────
+
+-- pure x = \R getLine_ putLine_ pure_ -> pure_ x
+io_pure x io_r get_line_ put_line_ pure_ = pure_ x
+
+-- getLine = \R getLine_ putLine_ pure_ -> getLine_ pure_
+io_get_line io_r get_line_ put_line_ pure_ = get_line_ pure_
+
+-- putLine str = \R getLine_ putLine_ pure_ -> putLine_ str (pure_ tt)
+io_put_line str io_r get_line_ put_line_ pure_ = put_line_ str (pure_ tt)
+
+-- ── Monad operations ──────────────────────────────────────────────────────
+
+-- bind m f = \R getLine_ putLine_ pure_ ->
+--   m R (\k      -> getLine_ (\s -> k s R getLine_ putLine_ pure_))
+--       (\str ns -> putLine_ str (ns R getLine_ putLine_ pure_))
+--       (\a      -> f a R getLine_ putLine_ pure_)
+io_bind m f io_r get_line_ put_line_ pure_ =
+    m io_r
+      (\k   -> get_line_ (\s -> k s io_r get_line_ put_line_ pure_))
+      (\str -> \ns -> put_line_ str (ns io_r get_line_ put_line_ pure_))
+      (\a   -> f a io_r get_line_ put_line_ pure_)
+
+-- ── Interpreter (written in Henk, not Erlang) ────────────────────────────
+-- run_io action = action Any
+--     (\k      -> k get_line)                    -- GetLine_
+--     (\str    -> \next -> let _ = put_line str in next)  -- PutLine_
+--
+-- Note: let _ = put_line str in next
+--       desugars to  (\_ -> next) (put_line str)
+--       In Erlang (call-by-value), put_line str runs as a side effect
+--       before next is returned.
+-- io_get_handler: the GetLine continuation for run_io
+io_get_handler k = k get_line
+
+-- io_put_handler: the PutLine continuation for run_io
+-- seq: force put_line side-effect before returning next (Erlang is strict)
+io_put_handler str next =
+    let _ = put_line str
+    in next
+
+-- io_pure_handler: the Pure continuation for run_io
+io_pure_handler x = x
+
+-- run_io : IO a → a
+-- Applies the three handlers to the Church-encoded IO action
+run_io action = action Any io_get_handler io_put_handler io_pure_handler
+
+-- ── Library ───────────────────────────────────────────────────────────────
+
+-- replicate_io n action: repeat action n times
+-- p in (Succ p) is the IH = replicate_io (n-1) action (already done)
+replicate_io n action =
+    case n of
+        Zero   -> io_pure tt
+        Succ p -> io_bind action (\_ -> p)

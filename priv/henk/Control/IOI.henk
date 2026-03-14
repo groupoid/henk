@@ -1,0 +1,75 @@
+-- IOI.henk — Free IO Comonad (Church-encoded, ported from Morte IOI)
+--
+-- IOI is a comonadic state machine defined by an anamorphism over
+-- the functor F r s = ∀(X:*) → (Data→s→X) → ((Data→s)→X) → (r→X) → X
+--   PutLine_ : output a string and advance to state s
+--   GetLine_ : read a string via callback Data→s
+--   Return_  : done, produce final value r
+--
+-- IOI r = ∃(S:*). S × (S → F r S)
+-- Church-encoded as: ∀X. (∀S. S → (S→F r S) → X) → X
+--
+-- run_ioi_step is the recursive driver; Erlang provides the fixpoint.
+-- run_ioi unpacks the MkIO existential and starts the loop.
+
+module Control.IOI where
+
+import Prelude
+import Data.Maybe
+
+-- Leaf FFI (shared with IO.henk)
+foreign get_line :: Data       = henk_io get_line
+foreign put_line :: Data -> () = henk_io put_line
+
+-- ── F functor constructors ────────────────────────────────────────────────
+
+-- PutLineF str ns = \X putLine_ getLine_ return_ -> putLine_ str ns
+iof_put_line_f str ns x put_line_ get_line_ return_ = put_line_ str ns
+
+-- GetLineF k = \X putLine_ getLine_ return_ -> getLine_ k
+iof_get_line_f k x put_line_ get_line_ return_ = get_line_ k
+
+-- ReturnF vr = \X putLine_ getLine_ return_ -> return_ vr
+iof_return_f vr x put_line_ get_line_ return_ = return_ vr
+
+-- ── IOI constructors ──────────────────────────────────────────────────────
+
+-- MkIO r s seed step = \X k -> k s seed step
+mk_io r s seed step x k = k s seed step
+
+-- IOI step constructors (produce F r s values):
+ioi_get_line r s k = iof_get_line_f k
+ioi_put_line r s str vs = iof_put_line_f str vs
+ioi_return r s vr = iof_return_f vr
+
+-- ── Interpreter ──────────────────────────────────────────────────────────
+--
+-- run_ioi_step drives the comonad loop.
+-- Written using top-level binder helpers to avoid let-in parse ambiguity.
+--
+-- ioi_put_handler str next_state step:
+--   force put_line side-effect, then continue loop
+ioi_put_handler str next_state step =
+    let _ = put_line str
+    in run_ioi_step next_state step
+
+-- ioi_get_handler k step:
+--   read a line, compute next state, continue loop
+ioi_get_handler k step =
+    run_ioi_step (k get_line) step
+
+-- ioi_return_handler:  done
+ioi_return_handler r = r
+
+-- run_ioi_step state step:
+--   apply step to state, dispatch on F constructor via Church fold
+run_ioi_step state step =
+    step state Any
+         (\str -> \next_state -> ioi_put_handler str next_state step)
+         (\k   -> ioi_get_handler k step)
+         ioi_return_handler
+
+-- run_ioi : IOI r -> r
+-- Unpack the MkIO existential (seed, step) then drive the loop
+run_ioi ioi =
+    ioi Any (\_s -> \seed -> \step -> run_ioi_step seed step)
