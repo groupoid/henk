@@ -1,0 +1,17 @@
+-- IO monad integration test — checks Church fold wiring compiles
+
+module Test.IO where
+
+import IO
+
+-- A single echo step
+echo_once = io_bind io_get_line (\s -> io_put_line s)
+
+-- replicateM 0 echo_once = io_pure tt  (zero applications)
+echo_zero = replicate_io Zero echo_once
+
+-- Nat literal 3 = Succ (Succ (Succ Zero))
+three = Succ (Succ (Succ Zero))
+
+-- replicateM 3 echo_once (composes three echo steps)
+echo_three = replicate_io three echo_once

@@ -1,0 +1,24 @@
+-- Corecursive.henk — IOI echo machine (canonical demo)
+-- Port of Morte's corecursive example.
+--
+-- Models an infinite echo state machine using IOI (free comonad):
+--   state = Maybe Data
+--   Nothing  → GetLine (read input, wrap in Just)
+--   Just str → PutLine str (output it, reset to Nothing)
+--
+-- Run from Erlang:  henk_io:run_ioi(fun 'Test.Corecursive':corecursive/0()).
+
+module Test.Corecursive where
+
+import Prelude
+import Data.Maybe
+import IOI
+
+-- State transition: Maybe Data → F r (Maybe Data)
+corecursive_step m =
+    case m of
+        Nothing  -> iof_get_line_f (\str -> Just str)
+        Just str -> iof_put_line_f str Nothing
+
+-- IOI echo machine: seed = Nothing, step = corecursive_step
+corecursive = mk_io Any (Maybe Any) Nothing corecursive_step

@@ -1,0 +1,10 @@
+-- Henk integration test: Church Nat via data declaration
+module Test.ChurchNat where
+
+data Nat = Zero | Succ Nat
+
+is_zero n = case n of
+    Zero   -> Zero
+    Succ p -> Succ p
+
+const x y = x

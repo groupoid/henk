@@ -1,0 +1,6 @@
+-- Henk integration test: Church identity
+module Test.Identity where
+
+id x = x
+const x y = x
+flip f x y = f y x

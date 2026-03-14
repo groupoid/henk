@@ -1,0 +1,18 @@
+-- Recursive.henk — IO echo loop (canonical demo)
+-- Port of Morte's recursive example:
+--   replicateM 5 (getLine >>= putLine)
+--
+-- Run from Erlang:  henk_io:run_io(fun 'Test.Recursive':main/0()).
+
+module Test.Recursive where
+
+import IO
+
+-- A single echo step: read a line and print it back
+echo_step = io_bind io_get_line (\s -> io_put_line s)
+
+-- Five = 5 in Church Nat
+five = Succ (Succ (Succ (Succ (Succ Zero))))
+
+-- main: echo 5 times using the Church Nat fold
+main = replicate_io five echo_step
