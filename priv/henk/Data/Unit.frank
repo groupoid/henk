@@ -1,7 +1,0 @@
--- Unit datatype for Frank
-
-module Data.Unit where
-
-data Unit = tt
-
-unit = tt

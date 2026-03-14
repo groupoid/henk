@@ -83,6 +83,7 @@ defmodule Henk.Lexer do
       "case" -> lex(rest2, line, col + String.length(ident), [{:case, line, col} | acc])
       "of" -> lex(rest2, line, col + String.length(ident), [{:of, line, col} | acc])
       "foreign" -> lex(rest2, line, col + String.length(ident), [{:foreign, line, col} | acc])
+      "forall"  -> lex(rest2, line, col + String.length(ident), [{:forall, line, col} | acc])
       _ -> lex(rest2, line, col + String.length(ident), [{:ident, line, col, ident} | acc])
     end
   end

@@ -1,6 +1,0 @@
--- Natural numbers (Peano) for Frank
-
-module Data.Nat where
-
-data Nat = Zero | Succ Nat
-

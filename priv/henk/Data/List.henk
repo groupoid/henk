@@ -1,6 +1,31 @@
--- List datatype for Frank
+-- Parameterised List (Church-encoded by compiler)
+-- NOTE on recursion: in Church encoding, `t` in `Cons h t` is the fold
+-- result (IH) of the tail, NOT the tail itself. So functions like foldr
+-- must be written in fold style: `t` IS `foldr f z tail` already.
 
 module Data.List where
 
+import Prelude
+
 data List A = Nil | Cons A (List A)
 
+-- foldr f z xs = xs Any z (\h ih -> f h ih)
+-- where ih = foldr f z tail (the IH, already computed by the Church fold)
+foldr f z xs = case xs of
+    Nil      -> z
+    Cons h t -> f h t
+
+-- map f xs = xs Any Nil (\h ih -> Cons (f h) ih)
+map f xs = case xs of
+    Nil      -> Nil
+    Cons h t -> Cons (f h) t
+
+-- append xs ys: fold xs accumulating ys at the nil case
+append xs ys = case xs of
+    Nil      -> ys
+    Cons h t -> Cons h t
+
+-- list_length: fold counting Succs
+list_length xs = case xs of
+    Nil      -> Zero
+    Cons h t -> Succ t

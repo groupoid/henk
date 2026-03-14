@@ -1,12 +1,12 @@
--- Boolean datatype for Frank
+-- Boolean operations (Miranda-like, Church-encoded by compiler)
 
 module Data.Bool where
 
-data Bool = False | True
+import Prelude
 
 not b = case b of
-    False -> True
     True  -> False
+    False -> True
 
 and a b = case a of
     True  -> b
@@ -16,4 +16,6 @@ or a b = case a of
     True  -> True
     False -> b
 
-otherwise = True
+bool_if b t f = case b of
+    True  -> t
+    False -> f
