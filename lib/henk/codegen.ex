@@ -61,6 +61,10 @@ defmodule Henk.Codegen do
   defp generate_expr(%AST.Universe{}, _loc, _env, _mod), do: {:atom, 1, :type}
   defp generate_expr(%AST.Pi{}, _loc, _env, _mod), do: {:atom, 1, :type}
 
+  defp generate_expr(%AST.String{value: v}, _loc, _env, _mod) do
+    {:bin, 1, [{:bin_element, 1, {:string, 1, String.to_charlist(v)}, :default, :default}]}
+  end
+
   defp generate_expr(%AST.Lam{name: x, body: body}, local_vars, env, mod) do
     erl_x = {:var, 1, erl_var(x)}
     new_loc = MapSet.put(local_vars, x)
@@ -83,17 +87,34 @@ defmodule Henk.Codegen do
     end
   end
 
-  # Collect left-spine App arguments for multi-arg foreign calls
-  defp collect_foreign_app(%AST.App{func: f, arg: a}, acc, env) do
-    collect_foreign_app(f, [a | acc], env)
+  # Let: desugar to App(Lam) or handle natively as block
+  defp generate_expr(%AST.Let{decls: decls, body: body}, loc, env, mod) do
+    # Native Erlang block: begin X1 = E1, ... Body end
+    exprs =
+      Enum.map(decls, fn {name, expr} ->
+        {:match, 1, {:var, 1, erl_var(name)}, generate_expr(expr, loc, env, mod)}
+      end) ++ [generate_expr(body, loc, env, mod)]
+
+    {:block, 1, exprs}
   end
-  defp collect_foreign_app(other, acc, _env), do: {other, acc}
+
+  # Case: desugar on the fly if it reaches codegen
+  defp generate_expr(%AST.Case{} = c, loc, env, mod) do
+    desugared = Henk.Desugar.desugar_expr(c, env)
+    generate_expr(desugared, loc, env, mod)
+  end
 
   defp generate_expr(other, _loc, _env, _mod) do
     # Fallback: emit undefined atom
     {:atom, 1, :undefined}
     |> tap(fn _ -> IO.warn("Codegen: unhandled term #{inspect(other, limit: 5)}", []) end)
   end
+
+  # Collect left-spine App arguments for multi-arg foreign calls
+  defp collect_foreign_app(%AST.App{func: f, arg: a}, acc, env) do
+    collect_foreign_app(f, [a | acc], env)
+  end
+  defp collect_foreign_app(other, acc, _env), do: {other, acc}
 
   # Erlang variable names must start with uppercase
   defp erl_var("_"), do: :_

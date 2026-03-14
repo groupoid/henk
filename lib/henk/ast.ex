@@ -101,6 +101,10 @@ defmodule Henk.AST do
     defstruct [:func, :arg]
   end
 
+  defmodule String do
+    defstruct [:value]
+  end
+
   # ── Pretty Printing ───────────────────────────────────────────────────────
 
   def to_string(term) do
@@ -140,6 +144,9 @@ defmodule Henk.AST do
 
       %Case{expr: e} ->
         "case #{to_string(e)} of ..."
+
+      %String{value: v} ->
+        "\"#{v}\""
 
       _ ->
         inspect(term)

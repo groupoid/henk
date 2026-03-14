@@ -17,8 +17,8 @@ import Control.IOI
 -- State transition: Maybe Data → F r (Maybe Data)
 corecursive_step m =
     case m of
-        Nothing  -> iof_get_line_f (\str -> Just str)
-        Just str -> iof_put_line_f str Nothing
+        Nothing  -> iof_get_line_f (\str -> Just Any str)
+        Just str -> iof_put_line_f str (Nothing Any)
 
 -- IOI echo machine: seed = Nothing, step = corecursive_step
-corecursive = mk_io Any (Maybe Any) Nothing corecursive_step
+corecursive = mk_io Any (Maybe Any) (Nothing Any) corecursive_step

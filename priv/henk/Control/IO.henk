@@ -22,8 +22,10 @@ io_pure x io_r get_line_ put_line_ pure_ = pure_ x
 -- getLine = \R getLine_ putLine_ pure_ -> getLine_ pure_
 io_get_line io_r get_line_ put_line_ pure_ = get_line_ pure_
 
--- putLine str = \R getLine_ putLine_ pure_ -> putLine_ str (pure_ tt)
-io_put_line str io_r get_line_ put_line_ pure_ = put_line_ str (pure_ tt)
+-- putLine str = \R getLine_ putLine_ pure_ -> putLine_ str (\_ -> pure_ tt)
+-- We wrap pure_ tt in a thunk so it doesn't execute before putLine_
+io_put_line str io_r get_line_ put_line_ pure_ =
+    put_line_ str (\_ -> pure_ tt)
 
 -- ── Monad operations ──────────────────────────────────────────────────────
 
@@ -51,10 +53,10 @@ io_bind m f io_r get_line_ put_line_ pure_ =
 io_get_handler k = k get_line
 
 -- io_put_handler: the PutLine continuation for run_io
--- seq: force put_line side-effect before returning next (Erlang is strict)
-io_put_handler str next =
+-- Expects a thunk for strict-friendly sequential execution.
+io_put_handler str thunk =
     let _ = put_line str
-    in next
+    in thunk tt
 
 -- io_pure_handler: the Pure continuation for run_io
 io_pure_handler x = x
@@ -70,4 +72,4 @@ run_io action = action Any io_get_handler io_put_handler io_pure_handler
 replicate_io n action =
     case n of
         Zero   -> io_pure tt
-        Succ p -> io_bind action (\_ -> p)
+        Succ p -> io_bind action (\_ -> replicate_io p action)

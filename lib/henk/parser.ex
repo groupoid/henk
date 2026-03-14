@@ -289,15 +289,9 @@ defmodule Henk.Parser do
 
   defp parse_binders(tokens, acc), do: {:ok, Enum.reverse(acc), tokens}
 
-  defp parse_expr(tokens) do
-    case parse_expr_atom(tokens) do
-      {:ok, f, rest} -> parse_expr_app_tail(f, rest)
-      err -> err
-    end
-  end
-
   defp parse_expr_atom([{:ident, _, _, name} | rest]), do: {:ok, %AST.Var{name: name}, rest}
   defp parse_expr_atom([{:number, _, _, val} | rest]), do: {:ok, %AST.Universe{level: val}, rest}
+  defp parse_expr_atom([{:string, _, _, val} | rest]), do: {:ok, %AST.String{value: val}, rest}
 
   defp parse_expr_atom([{:case, _, _} | rest]) do
     case parse_expr(rest) do
@@ -353,6 +347,23 @@ defmodule Henk.Parser do
     end
   end
 
+  defp parse_expr_atom([{:left_paren, _, _} | rest]) do
+    case parse_expr(rest) do
+      {:ok, e, [{:right_paren, _, _} | rest2]} -> {:ok, e, rest2}
+      err -> err
+    end
+  end
+
+  defp parse_expr_atom(tokens), do: {:error, :no_expr_atom, Enum.take(tokens, 5)}
+
+  defp parse_expr(tokens) do
+    tokens1 = Enum.drop_while(tokens, fn t -> elem(t, 0) in [:v_right_brace, :v_semicolon] end)
+    case parse_expr_atom(tokens1) do
+      {:ok, f, rest} -> parse_expr_app_tail(f, rest)
+      err -> err
+    end
+  end
+
   defp parse_let_bindings(tokens, acc) do
     # Skip any virtual separators
     tokens1 = Enum.drop_while(tokens, fn t -> elem(t, 0) in [:v_semicolon, :v_left_brace] end)
@@ -377,15 +388,6 @@ defmodule Henk.Parser do
         {:ok, Enum.reverse(acc), tokens1}
     end
   end
-
-  defp parse_expr_atom([{:left_paren, _, _} | rest]) do
-    case parse_expr(rest) do
-      {:ok, e, [{:right_paren, _, _} | rest2]} -> {:ok, e, rest2}
-      err -> err
-    end
-  end
-
-  defp parse_expr_atom(tokens), do: {:error, :no_expr_atom, Enum.take(tokens, 5)}
 
   defp parse_branches([{:v_left_brace, _, _} | rest], acc), do: parse_branches(rest, acc)
   defp parse_branches([{:v_right_brace, _, _} | rest], acc), do: {:ok, Enum.reverse(acc), rest}
