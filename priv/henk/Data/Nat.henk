@@ -1,0 +1,30 @@
+-- Natural number operations in Church fold style.
+-- NOTE: in Church encoding, `p` in `Succ p` is the IH (fold result of the
+-- predecessor), NOT the predecessor Nat itself.
+-- So `plus m n = case m of Zero -> n; Succ p -> Succ p` means:
+--   m Any n (\ih -> Succ ih)
+-- = m Any n Succ   -- which correctly adds m applications of Succ to n.
+
+module Data.Nat where
+
+import Prelude
+
+-- plus: m Any n Succ
+plus m n = case m of
+    Zero   -> n
+    Succ p -> Succ p
+
+-- mult: m Any Zero (\ih -> plus n ih)
+mult m n = case m of
+    Zero   -> Zero
+    Succ p -> plus n p
+
+-- fold is exactly the Church eliminator: n Any z f = n z f
+fold n f z = case n of
+    Zero   -> z
+    Succ p -> f p
+
+-- is_zero: n Any True (\_ -> False)
+is_zero n = case n of
+    Zero   -> True
+    Succ p -> False

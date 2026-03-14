@@ -1,0 +1,23 @@
+-- Maybe / Option type (Church-encoded by compiler)
+
+module Data.Maybe where
+
+import Prelude
+
+data Maybe A = Nothing | Just A
+
+maybe def f m = case m of
+    Nothing -> def
+    Just x  -> f x
+
+from_maybe def m = case m of
+    Nothing -> def
+    Just x  -> x
+
+is_nothing m = case m of
+    Nothing -> True
+    Just x  -> False
+
+is_just m = case m of
+    Nothing -> False
+    Just x  -> True

@@ -1,0 +1,20 @@
+-- Henk Prelude (Miranda-like surface syntax)
+-- Church-encoded by compiler; no explicit codings needed here.
+
+module Prelude where
+
+data Empty =
+
+data Unit = tt
+
+data Bool = False | True
+
+data Nat = Zero | Succ Nat
+
+id x = x
+
+const x y = x
+
+flip f x y = f y x
+
+compose f g x = f (g x)

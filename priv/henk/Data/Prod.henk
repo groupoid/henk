@@ -1,0 +1,16 @@
+-- Product / Pair type (Church-encoded by compiler)
+
+module Data.Prod where
+
+import Prelude
+
+data Prod A B = Pair A B
+
+fst p = case p of
+    Pair a b -> a
+
+snd p = case p of
+    Pair a b -> b
+
+swap p = case p of
+    Pair a b -> Pair b a
