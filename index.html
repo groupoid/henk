@@ -49,18 +49,15 @@
             <h2>Syntax & Semantics</h2>
             <div class="grid-2">
                 <div class="product-card">
-                    <h3>Formal Syntax</h3>
-                    <p>The core of Henk consists of 8 fundamental AST nodes:</p>
+                    <h3>Formal Core</h3>
+                    <p>The core of Henk consists of 5 fundamental AST nodes:</p>
                     <pre class="code-snippet">
 type term =
   | Var of name
   | Universe of level
   | Pi of name * term * term
   | Lam of name * term * term
-  | App of term * term
-  | Let of decls * term
-  | Case of term * branches
-  | String of string</pre>
+  | App of term * term</pre>
                 </div>
                 <div class="product-card">
                     <h3>Operational Semantics</h3>
@@ -71,7 +68,7 @@ type term =
         </section>
 
         <section>
-            <h2>Practicum: IO Models</h2>
+            <h2>Infinitary I/O</h2>
             <p style="text-align: center; margin-bottom: 2rem;">Henk supports two distinct models of side-effects, both purely represented within the Type System.</p>
             <div class="grid-2">
                 <!-- Recursive / Monadic Card -->
@@ -121,8 +118,9 @@ corecursive = mk_io Any (Maybe Any)
         </section>
 
         <section>
-            <h2>Getting Started</h2>
-            <div class="code-snippet">
+            <h2>Practicum</h2>
+            <div style="max-width:720px;margin:0 auto;">
+                <pre class="code-snippet">
 $ mix henk.base
 Compiling Henk base library...
   Compiling priv/henk/Prelude.henk... OK
@@ -139,6 +137,7 @@ henk> run_io Test.Recursive.main
 helo
 helo
 henk>
+</pre>
 </div>
         </section>
 
