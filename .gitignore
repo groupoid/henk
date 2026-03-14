@@ -1,4 +1,7 @@
-node_modules/*
-package-lock.json
-header.html
-footer.html
+_build/*
+.DS_Store
+doc/*
+deps/*
+ebin/*
+mix.lock
+.elixir_ls/*
