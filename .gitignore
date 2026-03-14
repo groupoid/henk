@@ -5,3 +5,5 @@ deps/*
 ebin/*
 mix.lock
 .elixir_ls/*
+node_modules/*
+package-lock.json

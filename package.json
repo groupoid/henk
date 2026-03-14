@@ -1,28 +1,25 @@
 {
   "name": "henk",
-  "version": "1.0.1",
-  "description": "Henk: Pure CoC Type System",
+  "version": "0.3.14",
+  "description": "The Henk Programming Language",
   "main": "",
   "scripts": {
-    "start": "node-sass ../anders/styles -o ./ && pug -O ./framework.js index.pug",
+    "build": "pug -O ./framework.js ./henk.pug -o ./",
+    "start": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/groupoid/henk"
+    "url": "https://github.com/groupoid/henk"
   },
   "author": "Namdak Tonpa",
   "license": "DHARMA",
-  "preinstall": "npm i -g node-sass && npm i -g pug-cli",
-  "devDependencies": {
+  "dependencies": {
     "mathjax-full": "^3.2.0",
-    "node-sass": "^9.0.0",
-    "npm": "^10.1.0",
+    "npm": "^8.12.1",
     "pug": "^3.0.2",
     "pug-cli": "^1.0.0-alpha6",
-    "sass": "^1.68.0"
+    "sass": "^1.52.2"
   },
-  "dependencies": {
-    "saas": "^1.0.0"
-  }
+  "devDependencies": {}
 }

@@ -1,0 +1,388 @@
+/* index.css - Barbie x Unicorn Light Premium Theme + Rainbow Beam Animation on H1 for Phi */
+/* Pastel rainbow smoothness, consistent Barbie-pink-magenta-lavender-mint flow, dreamy glassmorphism */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-start:      #fff0f8;     /* soft blush pink */
+    --bg-end:        #f0e8ff;     /* very light lavender */
+    --surface:       #ffffff;
+    --surface2:      rgba(255, 255, 255, 0.88);
+    --text:          DarkSlateGray;          /* deep plum for contrast */
+    --text-secondary:#6b4f7e;          /* muted lavender-gray */
+    --accent:        DarkMagenta;          /* hot but pastel Barbie pink */
+    --accent-dark:   #e0117f;          /* deeper magenta-pink */
+    --accent-glow:   rgba(255, 93, 162, 0.35);
+    --rainbow-pink:  #ff9fd6;
+    --rainbow-peach: #febde2;
+    --rainbow-yellow:#fff3ad;
+    --rainbow-mint:  #bcffbc;
+    --rainbow-cyan:  #a2edff;
+    --rainbow-lav:   #c9b1ff;
+    --border:        rgba(255, 93, 162, 0.20);
+    --radius:        22px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    /* Smooth pastel rainbow – many stops for buttery transitions */
+    background: linear-gradient(
+        to bottom,
+        var(--bg-start)           0%,
+        #fff5fa               10%,
+        #ffebf5               20%,
+        #ffe0f0               28%,
+        #ffd4eb               35%,     /* strong pink */
+        #ffccde               42%,
+        #fec7d9               48%,
+        #febde2               54%,     /* peach-pink */
+        #ffe0cc               60%,
+        #fff3ad               66%,     /* soft sunny yellow */
+        #f0ffcc               72%,
+        #d9ffcc               78%,     /* mint green */
+        #a2edff               84%,     /* dreamy cyan */
+        #c9b1ff               94%,     /* soft lavender */
+        var(--bg-end)        100%
+    );
+    color: var(--text-secondary);
+    line-height: 1.65;
+    font-size: 1.05rem;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* NAV */
+nav.sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 240, 248, 0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2.25rem;
+    list-style: none;
+}
+
+.nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: RosyBrown;
+}
+
+
+.nav-container {
+    max-width: 1380px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 2rem;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.9rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, #ff2d95, #c026d3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.logo:hover {
+    color: var(--accent);
+}
+
+/* HERO */
+header {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+}
+
+
+.hero-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content h1 {
+    font-size: clamp(3.5rem, 8vw, 6.5rem);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.5rem;
+    margin-left: -6px;
+    background: linear-gradient(90deg,
+        var(--rainbow-pink) 0%,   var(--rainbow-peach) 14%,
+        #fff3ad             28%,  var(--rainbow-mint) 42%,
+        var(--rainbow-cyan) 56%,  var(--rainbow-lav)  70%,
+        #ff9fd6             84%,  var(--rainbow-pink) 100%);
+    background-size: 520% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    animation: rainbowBeam 4.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.hero-content h1:hover {
+    animation: rainbowBeam 3.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    text-shadow: 0 0 80px HotPink;
+}
+
+section > div > p {
+   padding-top: 25px;
+}
+
+@keyframes rainbowBeam {
+    0%   { background-position: -90% 90%; }
+    50%  { background-position: 0% -90%; }
+}
+
+.hero-subtitle {
+    font-size: 1.15rem;
+    max-width: 620px;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* SECTIONS */
+main {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 5rem clamp(1.5rem, 4vw, 5rem) 8rem;
+    background: transparent;
+}
+
+section {
+    margin-bottom: 6rem;
+}
+
+h2 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin-bottom: 2.5rem;
+    text-align: center;
+    color: HotPink;
+}
+
+/* PRODUCT / PACKAGE GRID */
+.package-grid, .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 2rem;
+}
+
+.product-card, .package-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem 2rem;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    backdrop-filter: blur(12px);
+}
+
+.product-card:hover, .package-card:hover {
+    transform: translateY(-16px);
+    border-color: var(--accent);
+    box-shadow: 0 30px 60px -15px rgba(0, 245, 196, 0.25);
+}
+
+.package-card h3, .product-card h3 {
+    font-size: 1.65rem;
+    margin-bottom: 1rem;
+    color: HotPink;
+}
+
+.package-card p, .product-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.75rem;
+    font-size: 1.05rem;
+}
+
+/* CARDS */
+
+.package-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 2rem 2.4rem;
+}
+
+.package-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.6rem 1.9rem;
+    backdrop-filter: blur(14px);
+    transition: all 0.32s ease;
+    box-shadow: 0 10px 28px -8px rgba(0,0,0,0.5);
+}
+
+.package-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    box-shadow: 0 18px 40px -12px rgba(0,245,196,0.22);
+}
+
+.package-card h3 {
+    font-size: 1.68rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: HotPink;
+}
+
+h3 { max-width:720px;margin:0 auto;margin-top:30px; }
+
+section > p { max-width:720px;margin:0 auto;margin-top:30px; }
+
+.package-card hr {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin: 0.8rem 0 1.1rem;
+}
+
+.package-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 1.03rem;
+    line-height: 1.6;
+}
+
+.package-card li {
+    margin: 0.28rem 0;
+}
+
+.package-card a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.22s ease, padding-left 0.22s ease;
+}
+
+.package-card a:hover {
+    color: var(--accent);
+    padding-left: 0.5rem;
+}
+
+
+
+/* CODE SNIPPET – now uses consistent accent family */
+.code-snippet {
+    background: #fff5fa;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', monospace;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    color: var(--accent);
+    margin: 2rem 0;
+    white-space: pre;
+}
+
+.library-index {
+    padding: 100px;
+}
+
+/* LIBRARY INDEX – rainbow text matches hero */
+.library-index h1 {
+    font-size: clamp(3.2rem, 7vw, 5.4rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    text-align: center;
+    margin: 0 0 4.2rem;
+    background: linear-gradient(90deg,
+        var(--rainbow-pink) 0%,   var(--rainbow-peach) 14%,
+        #fff3ad             28%,  var(--rainbow-mint) 42%,
+        var(--rainbow-cyan) 56%,  var(--rainbow-lav)  70%,
+        #ff9fd6             84%,  var(--rainbow-pink) 100%);
+    background-size: 520% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbowBeam 4.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.library-index h1:hover {
+    text-shadow: 0 0 45px var(--accent-glow);
+}
+
+
+
+/* FOOTER */
+footer {
+    background: linear-gradient(to bottom, #c9b1ff 50%);
+    border-top: 1px solid var(--border);
+    padding: 2.5rem clamp(2.5rem, 4vw, 1rem) 3rem;
+}
+
+.footer-columns {
+    max-width: 1380px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 3rem;
+}
+
+.footer-columns h4 {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.footer-columns a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-columns a:hover {
+    color: var(--accent);
+}
+
+/* RESPONSIVE */
+@media (max-width: 860px) {
+    .package-cards-grid { gap: 1.8rem 2rem; }
+    .package-card { padding: 1.5rem 1.7rem; }
+}
+
+@media (max-width: 768px) {
+    .nav-container { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.5rem; }
+    main { padding: 3.5rem 1.5rem 6rem; }
+    h2 { font-size: 2.15rem; }
+}
+
+@media (max-width: 620px) {
+    .library-index { padding: 2.5rem 1rem 5rem; }
+    .library-index h1 { margin-bottom: 3.2rem; font-size: clamp(2.6rem, 9vw, 4rem); }
+}
