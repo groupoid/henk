@@ -1,39 +1,57 @@
 -module(om_tok).
 -export([tokens/2]).
--define(is_alpha(C), (C>=$a andalso C=<$z) orelse (C>=$A andalso C=<$Z) orelse (C>=$0 andalso C=<$9) orelse C==$_ orelse C==$/ orelse C==$# orelse C==$- orelse C==$+ orelse C==$. orelse C==$@ orelse C==$$ orelse C==$| orelse C==$& orelse C==$[ orelse C==$] orelse C==$< orelse C==$> orelse C==$= orelse C==$!).
+-define(is_space(C), C==$\r; C==$\s; C==$\t).
+-define(is_num(C),   C>=$0,  C=<$9 ).
+-define(is_alpha(C), C>=$a,  C=<$z;  C>=$A,  C=<$Z;
+                     C==$&;  C==$|;  C>=$0,  C=<$9;
+                     C==$@;  C==$#;  C==$_;  C==$/;
+                     C==$-;  C==$+;  C==$[;  C==$];
+                     C==$<;  C==$>;  C==$=;  C==$.).
+-define(is_termi(C), C==$!;  C==$$;  C==$%;  C==$:;
+                     C==$;;  C==$~;  C==$^;  C==$?).
 
-tokens(Bin, S) -> tokens(Bin, S, 1, [], []).
+tokens(Bin, S) -> lists:reverse(tokens(S, Bin, 0, {1,[]}, [])).
 
-tokens(<<>>, _, _, Acc, []) -> lists:reverse(Acc);
-tokens(<<>>, _, _, Acc, Cur) -> lists:reverse(stack(lists:reverse(Cur), Acc));
-tokens(<<"--", R/binary>>, S, L, Acc, Cur) -> comment(R, S, L, stack(lists:reverse(Cur), Acc));
-tokens(<<$\n, R/binary>>, S, L, Acc, Cur) -> tokens(R, S, L+1, stack(lists:reverse(Cur), Acc), []);
-tokens(<<$-, $>, R/binary>>, S, L, Acc, Cur) -> tokens(R, S, L, [arrow|stack(lists:reverse(Cur), Acc)], []);
-tokens(<<$\\, R/binary>>, S, L, Acc, Cur) when Cur==[] -> tokens(R, S, L, [lambda|Acc], []);
-tokens(<<$*, R/binary>>, S, L, Acc, Cur) -> 
-    case Cur of 
-        [$*|_] -> tokens(R, S, L, Acc, [$*|Cur]);
-        []     -> tokens(R, S, L, Acc, [$*]);
-        _      -> tokens(R, S, L, stack(lists:reverse(Cur), Acc), [$*])
-    end;
-tokens(<<X, R/binary>>, S, L, Acc, Cur) when X==$(; X==$); X==$: ->
-    Sym = case X of $( -> open; $) -> close; $: -> colon end,
-    tokens(R, S, L, [Sym|stack(lists:reverse(Cur), Acc)], []);
-tokens(<<X/utf8, R/binary>>, S, L, Acc, Cur) when X==16#2200; X==16#3a0; X==16#3a0; X==16#2200 -> tokens(R, S, L, [pi|stack(lists:reverse(Cur), Acc)], []); % ∀, Π
-tokens(<<X/utf8, R/binary>>, S, L, Acc, Cur) when X==16#3bb; X==16#2202 -> tokens(R, S, L, [lambda|stack(lists:reverse(Cur), Acc)], []); % λ, ∂
-tokens(<<X/utf8, R/binary>>, S, L, Acc, Cur) when X==16#2192 -> tokens(R, S, L, [arrow|stack(lists:reverse(Cur), Acc)], []); % →
-tokens(<<X, R/binary>>, S, L, Acc, Cur) when ?is_alpha(X) -> tokens(R, S, L, Acc, [X|Cur]);
-tokens(<<_, R/binary>>, S, L, Acc, Cur) -> tokens(R, S, L, stack(lists:reverse(Cur), Acc), []).
+tokens(P,<<>>,                    _, {_,C}, Acc)  -> stack(P,C,Acc);
+tokens(P,<<"--"/utf8, R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{c,[]},     stack(P,C,Acc));
+tokens(P,<<$\n,       R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L+1,{1,[]},   stack(P,C,Acc));
+tokens(P,<<X,         R/binary>>, L, {c,C}, Acc)  -> tokens(P,R,L,{c,[]},     Acc);
+tokens(P,<<"->"/utf8, R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{1,[]},     [arrow  | stack(P,C,  Acc)]);
+tokens(P,<<$(,        R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{t,[]},     [open   | stack(P,C,  Acc)]);
+tokens(P,<<$),        R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{t,[]},     [close  | stack(P,C,  Acc)]);
+tokens(P,<<$*,        R/binary>>, L, {a,C}, Acc)  -> tokens(P,R,L,{a,[$*|C]}, Acc);
+tokens(P,<<$*,        R/binary>>, L, {X,C}, Acc)  -> tokens(P,R,L,{n,{star,C}},        stack(P,C,Acc));
+tokens(P,<<X,         R/binary>>, L, {n,{S,C}}, Acc) when ?is_num(X)  -> tokens(P,R,L,{n,{S,[X|C]}}, Acc);
+tokens(P,<<X,         R/binary>>, L, {n,{S,C}}, Acc)  -> tokens(P,R,L,{1,[]}, stack(P,{S,[C]},Acc));
+tokens(P,<<$:,        R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{1,[]},     [colon  | stack(P,C,  Acc)]);
+tokens(P,<<"□"/utf8,  R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{1,[]},     [box    | stack(P,C,  Acc)]);
+tokens(P,<<"→"/utf8,  R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{1,[]},     [arrow  | stack(P,C,  Acc)]);
+tokens(P,<<$\\,$/,    R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{1,[]},     [pi     | stack(P,C,  Acc)]);
+tokens(P,<<"∀"/utf8,  R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{1,[]},     [pi     | stack(P,C,  Acc)]);
+tokens(P,<<"forall"/utf8,R/binary>>,L,{_,C},Acc)  -> tokens(P,R,L,{1,[]},     [pi     | stack(P,C,  Acc)]);
+tokens(P,<<"Π"/utf8,  R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{1,[]},     [pi     | stack(P,C,  Acc)]);
+tokens(P,<<$\\,       R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{1,[]},     [lambda | stack(P,C,  Acc)]);
+tokens(P,<<"λ"/utf8,  R/binary>>, L, {_,C}, Acc)  -> tokens(P,R,L,{1,[]},     [lambda | stack(P,C,  Acc)]);
+tokens(P,<<X,         R/binary>>, L, {a,C}, Acc) when ?is_alpha(X) -> tokens(P,R,L,{a,[X|C]},            Acc);
+tokens(P,<<X,         R/binary>>, L, {_,C}, Acc) when ?is_alpha(X) -> tokens(P,R,L,{a,[X]},  stack(P,C,Acc));
+tokens(P,<<X,         R/binary>>, L, {t,C}, Acc) when ?is_termi(X) -> tokens(P,R,L,{t,[X|C]},            Acc);
+tokens(P,<<X,         R/binary>>, L, {_,C}, Acc) when ?is_termi(X) -> tokens(P,R,L,{t,[X]},  stack(P,C, Acc));
+tokens(P,<<X,         R/binary>>, L, {_,C}, Acc) when ?is_space(X) -> tokens(P,R,L,{s,C},               Acc).
 
-comment(<<$\n, R/binary>>, S, L, Acc) -> tokens(R, S, L+1, Acc, []);
-comment(<<_, R/binary>>, S, L, Acc) -> comment(R, S, L, Acc);
-comment(<<>>, _, _, Acc) -> lists:reverse(Acc).
+stack(P,{_,C},Ac) -> istar(C,Ac);
+stack(P,C,Ac) -> case lists:reverse(lists:flatten(C)) of
+    []     -> Ac;
+    "("    -> [open|Ac];
+    ")"    -> [close|Ac];
+    [$#|A] -> [{remote,A}|Ac];
+    [X|A] when ?is_alpha(X) -> vars([X|A],Ac);
+    [X|A] when ?is_termi(X) -> [{var,{list_to_atom([X|A]),-1}}|Ac];
+    X      -> [{var,{list_to_atom(X),0}}|Ac]
+end.
 
-stack([], Acc) -> Acc;
-stack([$*|T], Acc) -> [{star, length(T)+1}|Acc];
-stack([$#|T], Acc) -> [{remote, T}|Acc];
-stack(Cur, Acc) -> 
-    case lists:member($@, Cur) of
-        true -> [N, I] = string:tokens(Cur, "@"), [{var, {list_to_atom(N), list_to_integer(I)}}|Acc];
-        _    -> try [{star, list_to_integer(Cur)}|Acc] catch _:_ -> [{var, {list_to_atom(Cur), 0}}|Acc] end
-    end.
+fix(X)      -> case lists:flatten(lists:reverse(X)) of [] -> "1"; A -> A end.
+istar(X,Acc) -> [{star,list_to_integer(fix(X))}|Acc].
+ivar([N,I]) -> [N,I];
+ivar([N])   -> [N,"0"].
+vars(X,Acc) -> [Name,Index] = ivar(string:tokens(X,"@")),
+               [{var,{list_to_atom(Name),list_to_integer(Index)}}|Acc].

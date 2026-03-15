@@ -1,99 +1,94 @@
-Om Hacking
-==========
+Om/Henk Erlang Hacking
+=======================
 
-Henk Erlang Core is built as a compact, pure functional system.
+Compact, pure-functional Morte library type checker and extractor in Erlang.
 
-Developers
-----------
+## Quick Start
 
+```sh
+cd src/erlang
+
+# Compile base Morte library → ebin/*.beam
+rebar3 om base --root=../../
+
+# Open interactive REPL
+rebar3 om repl --root=../../
+
+# Run tests
+rebar3 om test --root=../../
 ```
-$ git clone git://github.com/groupoid/om && cd om
-$ cd src/erlang
-$ rebar3 om base --root=../.. --verbose
-$ rebar3 om test --root=../..
-$ rebar3 om repl --root=../..
+
+## Manual compile (no rebar3)
+
+```sh
+erlc +debug_info -o ebin/ \
+  src/repl/om_state.erl \
+  src/core/om_tok.erl src/core/om_parse.erl \
+  src/core/om_type.erl src/core/om_erase.erl \
+  src/core/om_extract.erl src/repl/om_repl.erl \
+  src/henk.erl
+
+erl -pa ebin -eval 'application:set_env(om, root, "../.."), om_repl:start(), om_repl:scan(false), init:stop().'
 ```
 
-Implementation Architecture
----------------------------
+## Module Map
 
-The core logic is implemented in compact modules:
+| File | Role |
+|------|------|
+| `core/om_tok.erl` | Tokenizer (stateful scanner → token list) |
+| `core/om_parse.erl` | Parser (forward/backward pass → AST) |
+| `core/om_type.erl` | Type checker + normalizer |
+| `core/om_erase.erl` | Type erasure → Core Erlang AST |
+| `core/om_extract.erl` | Morte-to-BEAM extractor (saves `.beam`) |
+| `repl/om_state.erl` | Pure `#state{}` record + cache maps |
+| `repl/om_repl.erl` | Entry points: `start`, `scan`, `parse`, `name` |
+| `plugins/om/src/om_prv_base.erl` | `rebar3 om base` provider |
+| `plugins/om/src/om_prv_repl.erl` | `rebar3 om repl` provider |
 
-- `core/om_tok.erl`: Tokenizer using functional recursion.
-- `core/om_parse.erl`: Fast forward/backward pass parser.
-- `core/om_type.erl`: Typechecker and normalizer state.
-- `core/om_erase.erl`: Program eraser (extraction preparation).
-- `core/om_extract.erl`: Morte-to-BEAM extractor.
-- `core/om_cache.erl`: Functional cache for types and normal forms.
+## AST Representation
 
-Infrastructure:
-
-- `repl/om_state.erl`: Definition of the core `#state{}` record.
-- `repl/om_repl.erl`: REPL process and state manager.
-
-State Management
-----------------
-
-All state (caches, configuration) is managed via the `#state{}` record defined in `om_state.erl`. The REPL process manages this state in its process dictionary. Session example with Henk:
+All nodes use plain Erlang strings for constructor names (charlists):
 
 ```erlang
-> om_repl:start().
-"morte"
-
-> om_repl:test([]).
-...
-
-> om_repl:mode("morte").
-"morte"
-
-> om_repl:extr("morte/Bool.henk").
-Saving compiled 'morte.Bool.beam' module.
-ok
+{star, N}                             %% * (kind N)
+{var,  {Name, Index}}                 %% variable with De Bruijn index
+{remote, "Module/Name"}               %% cross-module reference
+{app,  {Func, Arg}}                   %% application
+{{"λ", {Name, 0}}, {InputType, Body}} %% lambda abstraction
+{{"∀", {Name, 0}}, {InputType, Body}} %% pi (forall) type
+{"→", {InputType, OutputType}}        %% arrow shorthand
 ```
 
-### Result AST
+> **Note:** `"λ"` in Erlang is the charlist `[955]`, `"∀"` is `[8704]`, `"→"` is `[8594]`.
 
-The internal representation is a compact tuple-based AST:
+## State Passing Architecture
+
+All functions are **pure** — no ETS, no process dictionary.
+The `#state{}` record carries type/norm/erased caches as maps.
 
 ```erlang
-% star   : {star, N}
-% var    : {var, {Name, Index}}
-% remote : {remote, Name}
-% app    : {app, {Func, Arg}}
-% lambda : {{<<"λ"/utf8>>, {Name, 0}}, {Input, Output}}
-% pi     : {{<<"∀"/utf8>>, {Name, 0}}, {Input, Output}}
-% arrow  : {{<<"→"/utf8>>, {Input, Output}}}
+%% State-threaded operations
+{Norm,  S1} = om_type:norm(Term, S0).
+{Type,  S1} = om_type:type(Term, S0).
+{{B,T}, S1} = om_erase:erase(Term, Env, S0).
+
+%% Stateless helpers (no remotes required to be in cache)
+Term  = om_parse:expr(om_tok:tokens(Binary, 0), 0).
+Type  = om_type:type_s(Term, Env).
+Norm  = om_type:norm(Term).
 ```
 
-### Core Operations
+## Caching
 
-#### Normalization
-
-Rreturns `{Result, NewState}`.
+Remote terms (`#Module/Name`) are cached in `#state{}` maps:
 
 ```erlang
-{Norm, S1} = om_type:norm(Term, S0).
+%% Looks up N in state cache, or loads/parses/evaluates from disk
+{Value, S1} = om_state:cache(norm | type | erased, N, S0).
 ```
 
-#### Typechecking
+## Guidelines
 
-Returns `{Type, NewState}`.
-
-```erlang
-{Type, S1} = om_type:type(Term, S0).
-```
-#### Erasure 
-
-Rreturns `{{Erased, Type}, NewState}`.
-
-```erlang
-{E, S1} = om_erase:erase(Term, S0).
-```
-
-Guidelines for Hacking
-----------------------
-
-1. **Pure Functions**: Ensure core logic functions use thread `State` explicitly.
-2. **Compactness**: KUse functional recursion over complex imperative structures.
-3. **State Record**: All configuration and caches MUST live in `#state{}`.
-
+1. **No ETS, no `put/get`** — pass `S` explicitly through all operations.
+2. **Stateless helpers** (`norm/1`, `type_s/2`, `erase_s/2`) load remote files directly from disk when needed.
+3. **`om_extract` catches errors** per-file so one bad file doesn't abort the whole extraction.

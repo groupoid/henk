@@ -31,7 +31,7 @@ extract_path(S, P, V) ->
                         S0F = om_state:set(file, Path, S0),
                         try
                             Expr = om_parse:expr(om_tok:tokens(om_repl:read(Path), 0), 0),
-                            {E, SA} = om_erase:erase(Expr, S0F),
+                            {E, SA} = om_erase:erase(Expr, [], S0F),
                             {Ext, SB} = om_type:norm(element(1, E), SA),
                             case ext(F, Ext, 1) of 
                                 [] -> {Acc, SB}; 
@@ -58,7 +58,7 @@ extract_path(S, P, V) ->
                     try
                         SF = om_state:set(file, P, S),
                         Expr = om_parse:expr(om_tok:tokens(om_repl:read(P), 0), 0),
-                        {E, S1} = om_erase:erase(Expr, SF),
+                        {E, S1} = om_erase:erase(Expr, [], SF),
                         {Ext, S2} = om_type:norm(element(1, E), S1),
                         F = filename:basename(P),
                         case ext(F, Ext, 1) of 
@@ -104,10 +104,10 @@ ext(F, T, C) ->
 
 ext_body(T, C) ->
     case T of
-        {any, O} -> ext_body(O, C);
-        {{<<206,187>>, {N, _}}, {_, O}} -> 
-            {'fun', C, {clauses, [{clause, C, [{var, C, N}], [], [ext_body(O, C)]}]}};
-        {{<<226,136,128>>, {N, _}}, {_, O}} -> 
+        none       -> [];
+        {"→", _}   -> [];
+        {{"∀", _}, _} -> [];
+        {{"λ", {N, _}}, {_, O}} ->
             {'fun', C, {clauses, [{clause, C, [{var, C, N}], [], [ext_body(O, C)]}]}};
         {app, {A, B}} -> {call, C, ext_body(A, C), [ext_body(B, C)]};
         {var, {N, _}} -> {var, C, N};

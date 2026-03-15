@@ -1,44 +1,61 @@
 -module(om_erase).
--export([erase/2, erase/3, bind/3]).
+-export([erase/2, erase/3]).
+-import(om_type,[type_s/2,star/1,norm/1,eq/2,subst/3,func/1,hierarchy/2,var/2]).
 
-erase(T, S) -> erase(T, [], S).
+univ({star,_})         -> true;
+univ({{"∀",_},{_,O}})  -> univ(O);
+univ(_)                -> false.
 
-erase(T, D, S) ->
-    case T of
-        {star, N} -> {{none, {star, N+1}}, S};
-        {var, V} -> 
-            case lists:keyfind(V, 1, D) of
-                {V, Type} -> case univ(Type) of true -> {{none, Type}, S}; _ -> {{{var, V}, Type}, S} end;
-                _ -> erlang:error({var, V})
-            end;
-        {<<226,134,146>>, {_I, _O}} -> {{none, element(1, om_type:type(T, D, S))}, S};
-        {{Q, N}, {I, O}} when Q==<<226,136,128>>; Q==<<206,187>> ->
-            {RI, S1} = om_type:type(I, D, S), {NI, S2} = om_type:norm(I, S1),
-            {B1, S3} = erase(O, bind(N, NI, D), S2),
-            case Q of
-                <<226,136,128>> -> 
-                    Star = case element(1, RI) of {star, Idx} -> {star, Idx}; star -> {star, 1}; _ -> {star, 1} end,
-                    {{none, Star}, S3};
-                <<206,187>> ->
-                   T1 = {{<<226,136,128>>, N}, {NI, element(2, B1)}},
-                   case univ(NI) of true -> {{element(1, B1), T1}, S3}; _ -> {{{{<<206,187>>, N}, {any, element(1, B1)}}, T1}, S3} end
-            end;
-        {app, {F, A}} ->
-            {B1, S1} = erase(F, D, S), {B2, S2} = erase(A, D, S1),
-            {TypeF, S1A} = om_type:norm(element(2, B1), S1),
-            {{<<226,136,128>>, N}, {_I, O}} = TypeF,
-            T1 = element(1, om_type:norm(om_type:subst(O, N, A), S1A)),
-            case univ(element(2, B1)) of 
-                true -> {{none, T1}, S1A}; 
-                _ -> case univ(element(2, B2)) of true -> {{element(1, B1), T1}, S1A}; _ -> {{{app, {element(1, B1), element(1, B2)}}, T1}, S1A} end
-            end;
-        {remote, N} -> om_state:cache(erased, N, S)
+%% erase_s/2 — pure stateless eraser (direct port of original)
+%% On remote terms: load, parse and erase directly (no state needed)
+erase_s({remote,N}, D) ->
+    File = om_repl:name(N),
+    Ast  = om_parse:expr(om_tok:tokens(om_repl:read(File), 0), 0),
+    erase_s(Ast, D);
+erase_s({star,N}, _)              -> {none, {star,N+1}};
+erase_s({var,{N,I}}, D)          ->
+    true = var(N,D),
+    T = proplists:get_value(N,D),
+    case univ(T) of
+        true  -> {none, T};
+        false -> {{var,{N,I}}, T}
+    end;
+erase_s({"→",{I,O}}, D)          ->
+    {none, {star, hierarchy(star(type_s(I,D)), star(type_s(O,D)))}};
+erase_s({{"∀",{N,0}},{I,O}}, D)  ->
+    {none, {star, hierarchy(star(type_s(I,D)), star(type_s(O,[{N,norm(I)}|D])))}};
+erase_s({{"λ",{N,0}},{I,O}}, D)  ->
+    _ = star(type_s(I,D)),
+    NI = norm(I),
+    {B1, S1} = erase_s(O, [{N,NI}|D]),
+    T = {{"∀",{N,0}},{NI,S1}},
+    case univ(NI) of
+        true  -> {B1, T};
+        false -> {{{"λ",{N,0}},{any,B1}}, T}
+    end;
+erase_s({app,{F,A}}, D)          ->
+    {B1, _S1} = erase_s(F, D),
+    {B2,  S2} = erase_s(A, D),
+    try
+        S1T = norm(type_s(F, D)),
+        true = func(S1T),
+        {{"∀",{N,0}},{_I,O}} = S1T,
+        T = norm(subst(O,N,A)),
+        case univ(S1T) of
+            true  -> {none, T};
+            false -> case univ(norm(S2)) of
+                true  -> {B1, T};
+                false -> {{app,{B1,B2}}, T}
+            end
+        end
+    catch _:_ ->
+        {{app,{B1,B2}}, S2}
     end.
 
-bind({Name, _}, Type, D) ->
-    D1 = [{{N, I+1}, T} || {{N, I}, T} <- D, N == Name] ++ [{{N, I}, T} || {{N, I}, T} <- D, N /= Name],
-    [{{Name, 0}, Type} | D1].
+%% erase/2 — stateless entry (for direct calls)
+erase(T, D) -> erase_s(T, D).
 
-univ({star, _}) -> true;
-univ({{<<226,136,128>>, _}, {_, O}}) -> univ(O);
-univ(_) -> false.
+%% erase/3 — state-passing (for om_extract and om_state:cache)
+erase({remote,N}, _, S) -> om_state:cache(erased, N, S);
+erase(T, D, S) ->
+    {erase_s(T, D), S}.

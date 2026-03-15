@@ -34,19 +34,17 @@ do(State) ->
     Verbose = proplists:get_value(verbose, Args, false),
     rebar_api:info("Typechecking Henk base library...", []),
     code:add_pathsa(["ebin"]),
-    code:purge(om_extract),
-    code:load_file(om_extract),
-    io:format("om_extract which: ~p~n", [code:which(om_extract)]),
-    io:format("om_extract compile: ~p~n", [om_extract:module_info(compile)]),
+    Mods = [om_state, om_tok, om_parse, om_type, om_erase, om_extract, om_repl],
+    [begin code:purge(M), code:load_file(M) end || M <- Mods],
     application:load(henk),
     case application:get_key(henk, applications) of
         {ok, Deps} -> [ application:ensure_all_started(D) || D <- Deps ];
         _ -> ok
     end,
-    S0 = om_repl:init(),
-    S1 = om_repl:mode("morte", S0),
+    S0 = om_repl:start(),
+    om_repl:mode("morte"),
     rebar_api:info("Extracting Henk base library...", []),
-    om_extract:scan(S1, Verbose),
+    om_extract:scan(S0, Verbose),
     {ok, State}.
 
 -spec format_error(any()) ->  binary().
