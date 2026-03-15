@@ -34,7 +34,7 @@ Model and implementation sizes:
 
 * OCaml model is 150 LOC.
 * Erlang model is 300 LOC.
-* Elixir production-ready kernel of Henk is 2000 LOC.
+* Elixir implementation (with front end language) is 2000 LOC.
 
 ### `Henk.Lexer` — `lib/henk/lexer.ex`
 
