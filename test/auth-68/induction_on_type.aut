@@ -1,0 +1,1 @@
+[P: [_ : Bool.@.main] Prop.@.main] [a: Bool.@.main] [_ : P Bool.True.main] [_ : P Bool.False.main] P a

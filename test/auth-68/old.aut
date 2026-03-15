@@ -1,0 +1,2 @@
+-- Old Monad
+(a: *) (cmd: Cmd.@.main IO.@.main a) cmd (IO.@.main a)((b: *) IO._>>=_.main b a)(IO.pure.main a)

@@ -1,0 +1,1 @@
+(A: *) (P: [_ : A] *) (x: A) (X: Prop.@.main) (Z: P x) (Y: [y: A] [_ : P y] X) Y x Z
