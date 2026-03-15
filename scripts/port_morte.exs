@@ -129,6 +129,7 @@ Enum.each(files, fn file ->
   content = content
     |> String.replace(~r/forall/, "[_ :") # Will be followed by type and closing ]
     |> String.replace(~r/lambda/, "(_ :")
+    |> String.replace(~r/\s*(->|→)\s*/, " ")
     |> String.replace(" . ", " ")
 
   content = String.replace(content, ~r/\*([0-9]+)/, fn match ->

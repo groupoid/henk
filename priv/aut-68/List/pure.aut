@@ -1,1 +1,1 @@
- (a : *)  →  (x : a)  →  (List : *)  →  (Cons :  [head : a]  →  [tail : List]  → List)  → Cons x
+ (a : *) (x : a) (List : *) (Cons :  [head : a] [tail : List] List) Cons x

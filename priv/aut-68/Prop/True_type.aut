@@ -1,4 +1,2 @@
 -- True.main : Prop.@.main
-    [True: Prop.@.main] 
-→   [Intro: True] 
-→ True
+    [True: Prop.@.main] [Intro: True] True

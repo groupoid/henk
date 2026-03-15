@@ -1,5 +1,1 @@
-    (p: Prop.@.main) 
-→   (q: Prop.@.main) 
-→   (pp: p) 
-→   (qq: q) 
-→ pp
+    (p: Prop.@.main) (q: Prop.@.main) (pp: p) (qq: q) pp

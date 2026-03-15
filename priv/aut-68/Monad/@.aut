@@ -1,1 +1,1 @@
- (m : * → *)  →  [a : *]  → Cmd.@.main  m a → m a
+ (m : * *) [a : *] Cmd.@.main  m a m a

@@ -1,15 +1,8 @@
-  (xs :   [List : *]  →
-          (Cons :   (head :   [Nat : *]  →   [Succ : Nat → Nat]  →   [Zero : Nat]  → Nat) →
-                    [tail : List]  → List) →
-          [Nil : List]  → List)  →
-   xs (   [Nat : *]  →   [Succ : Nat → Nat]  →   [Zero : Nat]  → Nat)
-      (   (x :   [Nat : *]  →   [Succ : Nat → Nat]  →   [Zero : Nat]  → Nat)  →
-          (y :   [Nat : *]  →   [Succ : Nat → Nat]  →   [Zero : Nat]  → Nat)  →
-    x (   [Nat : *]  →   [Succ : Nat → Nat]  →   [Zero : Nat]  → Nat)
-  ( y (   [Nat : *]  →   [Succ : Nat → Nat]  →   [Zero : Nat]  → Nat)
-      (   (pred :   [Nat : *]  →   [Succ : Nat → Nat]  →   [Zero : Nat]  → Nat)  →
-          (Nat : *)  →   (Succ : Nat → Nat)  →   (Zero : Nat)  → Succ (pred Nat Succ Zero)))
-      (   (Nat : *)  →   (Succ : Nat → Nat)  →   (Zero : Nat)  → Zero))
-      (   (Nat : *)  →   (Succ : Nat → Nat)  → Succ)
+  (xs :   [List : *] (Cons :   (head :   [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat) [tail : List] List) [Nil : List] List) xs (   [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat)
+      (   (x :   [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat) (y :   [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat) x (   [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat)
+  ( y (   [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat)
+      (   (pred :   [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat) (Nat : *) (Succ : Nat Nat) (Zero : Nat) Succ (pred Nat Succ Zero)))
+      (   (Nat : *) (Succ : Nat Nat) (Zero : Nat) Zero))
+      (   (Nat : *) (Succ : Nat Nat) Succ)
 
 

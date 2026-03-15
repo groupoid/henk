@@ -1,6 +1,2 @@
 -- List/Nil
-    (A: *) 
-→   (L: *) 
-→   (C: A → L → L) 
-→   (N: L) 
-→ N
+(A: *) (L: *) (C: A L L) (N: L) N

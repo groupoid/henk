@@ -1,7 +1,1 @@
-     (p: Prop.@.main) 
-->   (q: Prop.@.main) 
-->   (r: Prop.@.main) 
-->   (f: p -> q -> r) 
-->   (g: p -> q) 
-->   (h: p) 
--> f h (g h)
+     (p: Prop.@.main) (q: Prop.@.main) (r: Prop.@.main) (f: p q r) (g: p q) (h: p) f h (g h)

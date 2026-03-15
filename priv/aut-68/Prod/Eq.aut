@@ -1,2 +1,1 @@
- (a : *)  →  (b : *)  →  (eqA : Eq.main a)  →  (eqB : Eq.main b)  →  (p1 : Prod.@.main  a b)  →  (p2 : Prod.@.main  a b) 
-→ p1 Bool.@.main  ( (_1 : a)  →  (_2 : b)  → p2 Bool.@.main  ( (_1 : a)  →  (_2 : b)  → Bool._&&_.main  (eqA _1₁ _1) (eqB _2₁ _2)))
+ (a : *) (b : *) (eqA : Eq.main a) (eqB : Eq.main b) (p1 : Prod.@.main  a b) (p2 : Prod.@.main  a b) p1 Bool.@.main  ( (_1 : a) (_2 : b) p2 Bool.@.main  ( (_1 : a) (_2 : b) Bool._&&_.main  (eqA _1₁ _1) (eqB _2₁ _2)))

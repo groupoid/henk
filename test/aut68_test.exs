@@ -27,8 +27,8 @@ case Henk.Parser.AUT68.parse(tokens2) do
     IO.inspect(err, label: "Parse Error")
 end
 
-# 4. Test Arrow
-source3 = "[A: *] A -> A"
+# 4. Test Pi Type (non-dependent)
+source3 = "[A: *] [x: A] A"
 IO.puts("\nSource 3: #{source3}")
 {:ok, tokens3} = Henk.Lexer.AUT68.lex(source3)
 case Henk.Parser.AUT68.parse(tokens3) do

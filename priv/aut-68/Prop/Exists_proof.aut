@@ -1,8 +1,2 @@
 -- Prop/Exists.proof
-     (A: *) 
-->   (P: A -> *) 
-->   (x: A) 
-->   (X: Prop.@.main) 
-->   (Z: P x) 
-->   (Y:   [y: A]  -> P y -> X) 
--> Y x Z
+     (A: *) (P: A *) (x: A) (X: Prop.@.main) (Z: P x) (Y:   [y: A] P y X) Y x Z

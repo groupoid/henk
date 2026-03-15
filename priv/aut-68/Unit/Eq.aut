@@ -1,1 +1,1 @@
- (_ : Unit.@.main )  →  (_ : Unit.@.main )  → Bool.True.main
+ (_ : Unit.@.main ) (_ : Unit.@.main ) Bool.True.main

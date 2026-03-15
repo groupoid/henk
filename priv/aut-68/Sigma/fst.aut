@@ -1,7 +1,3 @@
 -- Sigma/fst
-     (A: *) 
-->   (B: A -> *) 
-->   (n: A) 
-->   (S: Sigma.@.main A B n) 
--> S A (  (x: A)  ->  (_: B n)  -> x )
+     (A: *) (B: A *) (n: A) (S: Sigma.@.main A B n) S A (  (x: A) (_: B n) x )
 

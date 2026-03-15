@@ -1,12 +1,2 @@
 -- List/Cons
-    (A: *) 
-→   (H: A) 
-→   (T:
-      [L: *] 
-  →   [C: A → L → L] 
-  →   [N: L] 
-  → L) 
-→   (L: *) 
-→   (C: A → L → L) 
-→   (N: L) 
-→ C H (T L C N)
+(A: *) (H: A) (T: [L: *] [C: A L L] [N: L] L) (L: *) (C: A L L) (N: L) C H (T L C N)

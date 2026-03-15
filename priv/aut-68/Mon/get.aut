@@ -1,1 +1,1 @@
- (a : *)  →  (_1 : a)  →  (product : Mon.@.main  a)  → _1
+ (a : *) (_1 : a) (product : Mon.@.main  a) _1

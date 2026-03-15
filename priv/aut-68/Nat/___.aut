@@ -1,12 +1,3 @@
-    (x :  [Nat : *] 
-→   [Succ : Nat → Nat] 
-→   [Zero : Nat]  → Nat) 
-→ x (
-      [Nat : *] 
-  →   [Succ : Nat → Nat] 
-  →   [Zero : Nat]  → Nat) (   (pred :  [Nat : *] 
-                            →   [Succ : Nat → Nat] 
-                            →   [Zero : Nat]  → Nat) 
-                            →   (Nat : *)  →   (Succ : Nat → Nat) 
-                            →   (Zero : Nat)  → Succ (pred Nat Succ Zero))
+    (x :  [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat) x (
+      [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat) (   (pred :  [Nat : *] [Succ : Nat Nat] [Zero : Nat] Nat) (Nat : *) (Succ : Nat Nat) (Zero : Nat) Succ (pred Nat Succ Zero))
 

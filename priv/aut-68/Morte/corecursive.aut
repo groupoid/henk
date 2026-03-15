@@ -1,15 +1,12 @@
- (r : *₁) 
-->  IOI.MkIO.main
+ (r : *₁) IOI.MkIO.main
     r
     (Maybe.@.main IOI.data.main)
     (Maybe.Nothing.main IOI.data.main)
-    (    (m : Maybe.@.main IOI.data.main) 
-    ->  Maybe.maybe.main
+    (    (m : Maybe.@.main IOI.data.main) Maybe.maybe.main
             IOI.data.main
             m
             (IOI.F.main r (Maybe.@.main IOI.data.main))
-            ( (str : IOI.data.main)  ->
-                IOI.putLine.main
+            ( (str : IOI.data.main) IOI.putLine.main
                     r
                     (Maybe.@.main IOI.data.main)
                     str

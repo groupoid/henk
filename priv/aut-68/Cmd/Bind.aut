@@ -1,4 +1,1 @@
- (f : * → *)  →  (a : *)  →  (b : *)  →  (_x : f b)  →  (_x : b →  [Cmd : *]  →
- (Bind :  [b : *]  → f b → (b → Cmd) → Cmd) →  (Pure :  [r : a]  → Cmd) → Cmd)  →
- (Cmd : *)  →  (Bind :  [b : *]  → f b → (b → Cmd) → Cmd)  →  (Pure :  [r : a]  → Cmd)  →
-Bind b _x₁ ( (_x : b)  → _x₁ _x Cmd Bind Pure)
+ (f : * *) (a : *) (b : *) (_x : f b) (_x : b [Cmd : *] (Bind :  [b : *] f b (b Cmd) Cmd) (Pure :  [r : a] Cmd) Cmd) (Cmd : *) (Bind :  [b : *] f b (b Cmd) Cmd) (Pure :  [r : a] Cmd) Bind b _x₁ ( (_x : b) _x₁ _x Cmd Bind Pure)

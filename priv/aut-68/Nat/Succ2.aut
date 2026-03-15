@@ -1,9 +1,4 @@
 
 -- Compose/Cont Encoding
 
-    (Argument:  [N:*] ->(N->N)->N->N) 
-→   (Nat: *) 
-→   (Succ.CPS: (Nat.@.main -> Nat) -> Nat.@.main -> Nat) 
-→   (Succ: Nat -> Nat) 
-→   (Zero: Nat) 
-→ Succ.CPS (  (C: Nat.@.main)  -> C Nat Succ Zero) Argument
+    (Argument:  [N:*] (N N) N N) (Nat: *) (Succ.CPS: (Nat.@.main Nat) Nat.@.main Nat) (Succ: Nat Nat) (Zero: Nat) Succ.CPS (  (C: Nat.@.main) C Nat Succ Zero) Argument

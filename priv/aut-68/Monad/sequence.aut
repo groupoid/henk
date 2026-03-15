@@ -1,4 +1,2 @@
- (m : * → *)  →  (a : *)  →  (cmds : List.@.main  (m a))  → cmds (Cmd.@.main  m (List.@.main  a)) ( (cmd1 : m a)  →  (cmd2 : Cmd.@.main
-  m (List.@.main  a))  → Cmd.Monad.main  m (List.@.main  a) ( (Cmd : *)  →  (Bind :  [b : *]  → Cmd.@.main  m b → (b → Cmd) → Cmd)  →
-   (Pure : List.@.main  a → Cmd)  → Bind a (Cmd.lift.main  m a cmd1) ( (x : a)  → Bind (List.@.main  a) cmd2 ( (xs : List.@.main  a) 
-  → Bind (List.@.main  a) (Cmd.Pure.main  m (List.@.main  a) (List.Cons.main  a x xs)) Pure)))) (Cmd.Pure.main  m (List.@.main  a) (List.Nil.main  a))
+ (m : * *) (a : *) (cmds : List.@.main  (m a)) cmds (Cmd.@.main  m (List.@.main  a)) ( (cmd1 : m a) (cmd2 : Cmd.@.main
+  m (List.@.main  a)) Cmd.Monad.main  m (List.@.main  a) ( (Cmd : *) (Bind :  [b : *] Cmd.@.main  m b (b Cmd) Cmd) (Pure : List.@.main  a Cmd) Bind a (Cmd.lift.main  m a cmd1) ( (x : a) Bind (List.@.main  a) cmd2 ( (xs : List.@.main  a) Bind (List.@.main  a) (Cmd.Pure.main  m (List.@.main  a) (List.Cons.main  a x xs)) Pure)))) (Cmd.Pure.main  m (List.@.main  a) (List.Nil.main  a))

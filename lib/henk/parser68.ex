@@ -56,13 +56,7 @@ defmodule Henk.Parser.AUT68 do
               # Update environment
               {uniques, new_env} = bind_names(names, env)
               
-              # Optional arrow
-              rest2 = case after_paren do
-                [{:arrow, _, _} | tl] -> tl
-                _ -> after_paren
-              end
-
-              case parse_term(rest2, new_env) do
+              case parse_term(after_paren, new_env) do
                 {:ok, body, rest3} ->
                   nested = Enum.zip(names, uniques)
                            |> Enum.reverse()
@@ -93,13 +87,7 @@ defmodule Henk.Parser.AUT68 do
           {:ok, names, type} ->
             {uniques, new_env} = bind_names(names, env)
             
-            # Optional arrow
-            rest2 = case after_square do
-              [{:arrow, _, _} | tl] -> tl
-              _ -> after_square
-            end
-
-            case parse_term(rest2, new_env) do
+            case parse_term(after_square, new_env) do
               {:ok, body, rest3} ->
                 nested = Enum.zip(names, uniques)
                          |> Enum.reverse()
@@ -118,17 +106,9 @@ defmodule Henk.Parser.AUT68 do
   defp parse_atom(tokens, _env), do: {:error, :no_atom, Enum.take(tokens, 5)}
 
   defp parse_app_tail(left, tokens, env) do
-    case tokens do
-      [{:arrow, _, _} | rest] ->
-        case parse_term(rest, env) do
-          {:ok, right, rest2} -> {:ok, %AST.Pi{name: "_", domain: left, codomain: right}, rest2}
-          err -> err
-        end
-      _ ->
-        case parse_atom(tokens, env) do
-          {:ok, right, rest} -> parse_app_tail(%AST.App{func: left, arg: right}, rest, env)
-          _ -> {:ok, left, tokens}
-        end
+    case parse_atom(tokens, env) do
+      {:ok, right, rest} -> parse_app_tail(%AST.App{func: left, arg: right}, rest, env)
+      _ -> {:ok, left, tokens}
     end
   end
 

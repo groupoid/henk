@@ -23,13 +23,7 @@ defmodule Henk.Lexer.AUT68 do
     lex(rest2, line, col, acc)
   end
 
-  # Arrow, Backslash
-  defp lex(["-", ">" | rest], line, col, acc),
-    do: lex(rest, line, col + 2, [{:arrow, line, col} | acc])
-
-  defp lex(["→" | rest], line, col, acc),
-    do: lex(rest, line, col + 1, [{:arrow, line, col} | acc])
-
+  # Backslash
   defp lex(["\\" | rest], line, col, acc),
     do: lex(rest, line, col + 1, [{:backslash, line, col} | acc])
 

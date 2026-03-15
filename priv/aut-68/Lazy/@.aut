@@ -1,4 +1,1 @@
-    (a: *) 
-→   (x: a) 
-→   (y: Unit.@.main) 
-→ x
+    (a: *) (x: a) (y: Unit.@.main) x

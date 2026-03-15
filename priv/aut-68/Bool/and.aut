@@ -1,1 +1,1 @@
-  (B1: Bool.@.main )  →   (B2: Bool.@.main )  → B1 Bool.@.main B2 Bool.False.main
+  (B1: Bool.@.main ) (B2: Bool.@.main ) B1 Bool.@.main B2 Bool.False.main

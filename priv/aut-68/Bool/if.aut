@@ -1,6 +1,2 @@
-    (A : *) 
-→   (X : Bool.@.main) 
-→   (Y : Unit.@.main → A) 
-→   (Z : Unit.@.main → A) 
-→ X (Unit.@.main → A) Y Z Unit.Make.main
+    (A : *) (X : Bool.@.main) (Y : Unit.@.main A) (Z : Unit.@.main A) X (Unit.@.main A) Y Z Unit.Make.main
 

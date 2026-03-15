@@ -1,1 +1,1 @@
- (f : * → *)  →  (a : *)  →  (m : f a)  →  (Cmd : *)  →  (Bind :  [b : *]  → f b → (b → Cmd) → Cmd)  → Bind a m
+ (f : * *) (a : *) (m : f a) (Cmd : *) (Bind :  [b : *] f b (b Cmd) Cmd) Bind a m

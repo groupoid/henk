@@ -1,5 +1,3 @@
 -- List/cond
-     (a : *) 
-->   (x:   [r : *]  -> (a -> r -> r) -> r -> r) 
--> x
+     (a : *) (x:   [r : *] (a r r) r r) x
 

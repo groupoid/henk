@@ -1,7 +1,3 @@
 -- Equ/Refl
-    (A: *) 
-→   (x: A) 
-→   (Equ: A → A → *) 
-→   (Refl:   [z: A]  → Equ z z) 
-→ Refl x
+    (A: *) (x: A) (Equ: A A *) (Refl:   [z: A] Equ z z) Refl x
 

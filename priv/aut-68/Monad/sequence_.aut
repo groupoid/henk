@@ -1,2 +1,1 @@
- (m : * → *)  →  (cmds : List.@.main  (m Unit.@.main ))  → cmds (Cmd.@.main  m Unit.@.main ) ( (cmd1 : m Unit.@.main )  →
- (cmd2 : Cmd.@.main  m Unit.@.main )  → Cmd.Bind.main  m Unit.@.main Unit.@.main cmd1 ( (_ : Unit.@.main )  → cmd2)) (Cmd.Pure.main  m Unit.@.main  Unit.Make.main )
+ (m : * *) (cmds : List.@.main  (m Unit.@.main )) cmds (Cmd.@.main  m Unit.@.main ) ( (cmd1 : m Unit.@.main ) (cmd2 : Cmd.@.main  m Unit.@.main ) Cmd.Bind.main  m Unit.@.main Unit.@.main cmd1 ( (_ : Unit.@.main ) cmd2)) (Cmd.Pure.main  m Unit.@.main  Unit.Make.main )

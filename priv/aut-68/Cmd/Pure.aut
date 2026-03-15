@@ -1,1 +1,1 @@
- (f : * → *)  →  (a : *)  →  (r : a)  →  (Cmd : *)  →  (Bind :  [b : *]  → f b → (b → Cmd) → Cmd)  →  (Pure :  [r : a]  → Cmd)  → Pure r
+ (f : * *) (a : *) (r : a) (Cmd : *) (Bind :  [b : *] f b (b Cmd) Cmd) (Pure :  [r : a] Cmd) Pure r
