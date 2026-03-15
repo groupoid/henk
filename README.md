@@ -104,8 +104,8 @@ Key operations according to Maksym's article:
 
 ### `Henk.Codegen` — `lib/henk/codegen.ex`
 
-Translates desugared CoC terms into Core Erlang abstract-syntax forms
-(`:cerl`), which are then compiled to BEAM bytecode via `:compile.forms/2`.
+Translates desugared CoC terms into Core Erlang abstract-syntax forms,
+which are then compiled to BEAM bytecode via `:compile.forms/2`.
 `foreign` declarations are mapped directly to calls into existing Erlang
 modules, letting pure Henk functions interoperate with the OTP ecosystem.
 
@@ -131,8 +131,8 @@ The default (Miranda-like) syntax:
  I ::= #identifier
  U ::= * <#number>
  O ::= U | I | ( O ) | O O
-         | \ ( I : O ) -> O     -- lambda
-         | forall ( I : O ) -> O -- pi / forall
+         | \ ( I : O ) -> O 
+         | \/ ( I : O ) -> O
 ```
 
 Alternative syntaxes (`aut-68`, `morte`) are available via the `:syntax`
