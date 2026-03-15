@@ -1,7 +1,7 @@
 Henk Barendregt: Pure Type System
 ---------------------------------
 
-This photo provided exclusively for **Henk** type checker.
+This photo provided exclusively for The **Henk** Programming Language.
 
 <img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg" height=400>
 
