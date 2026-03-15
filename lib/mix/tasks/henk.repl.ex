@@ -104,18 +104,21 @@ defmodule Mix.Tasks.Henk.Repl do
 
       ":syntax " <> rest ->
         name = String.trim(rest)
-        new_syntax = case name do
-          "aut-68" -> :aut68
-          "aut68"  -> :aut68
-          "morte"  -> :morte
-          "miranda" -> :miranda
-          "henk"    -> :miranda
-          _ -> syntax
+        {new_syntax, final_name} = case name do
+          "aut-68" -> {:aut68, "aut-68"}
+          "aut68"  -> {:aut68, "aut68"}
+          "morte"  -> {:morte, "morte"}
+          "miranda" -> {:miranda, "miranda"}
+          "henk"    -> {:miranda, "henk"}
+          _ -> {syntax, syntax_name}
         end
-        # Keep the user's name if valid, else use internal
-        final_name = if new_syntax == syntax and name not in ["aut-68", "aut68", "morte", "miranda", "henk"], do: syntax_name, else: name
-        IO.puts("Switched to #{new_syntax} syntax.")
-        loop(env, new_syntax, final_name)
+        if new_syntax != syntax or final_name != syntax_name do
+          IO.puts("Switched to #{new_syntax} syntax.")
+          loop(env, new_syntax, final_name)
+        else
+          IO.puts("Unknown or same syntax: #{name}")
+          loop(env, syntax, syntax_name)
+        end
 
       "import " <> rest ->
         mod_name = String.trim(rest)
@@ -127,6 +130,18 @@ defmodule Mix.Tasks.Henk.Repl do
             IO.puts("Error: #{inspect(err)}")
             loop(env, syntax, syntax_name)
         end
+
+      ":print " <> rest ->
+        handle_introspection(String.trim(rest), :print, env, syntax)
+        loop(env, syntax, syntax_name)
+
+      ":eval " <> rest ->
+        handle_introspection(String.trim(rest), :eval, env, syntax)
+        loop(env, syntax, syntax_name)
+
+      ":check " <> rest ->
+        handle_introspection(String.trim(rest), :check, env, syntax)
+        loop(env, syntax, syntax_name)
 
       "run_io " <> rest ->
         run_program(String.trim(rest), :io, env)
@@ -146,6 +161,65 @@ defmodule Mix.Tasks.Henk.Repl do
           {:error, err} ->
             IO.puts("Error: #{inspect(err)}")
             loop(env, syntax, syntax_name)
+        end
+    end
+  end
+
+  defp handle_introspection(input, mode, env, syntax) do
+    case parse_and_desugar(input, env, syntax) do
+      {:ok, term} ->
+        case Typechecker.infer(env, term) do
+          {:error, err} ->
+            IO.puts("Type Error: #{inspect(err)}")
+
+          ty ->
+            case mode do
+              :check ->
+                IO.puts("TYPE: #{AST.to_string(ty)}")
+
+              :eval ->
+                norm = Typechecker.normalize(env, term)
+                IO.puts("TYPE: #{AST.to_string(ty)}")
+                IO.puts("TERM: #{AST.to_string(norm)}")
+
+              :print ->
+                case ty do
+                  %AST.Universe{} ->
+                    IO.puts("TYPE: #{AST.to_string(term)}")
+
+                  _ ->
+                    IO.puts("TYPE: #{AST.to_string(ty)}")
+                    IO.puts("TERM: #{AST.to_string(term)}")
+                end
+            end
+        end
+
+      {:error, err} ->
+        IO.puts("Error: #{inspect(err)}")
+    end
+  end
+
+  defp parse_and_desugar(input, env, syntax) do
+    input = String.trim(input)
+
+    case syntax do
+      :miranda ->
+        with {:ok, tokens} <- Lexer.lex(input),
+             resolved <- Layout.resolve(tokens),
+             {:ok, expr, _} <- Parser.parse_expression(resolved) do
+          {:ok, Desugar.desugar_expr(expr, env)}
+        end
+
+      :aut68 ->
+        with {:ok, tokens} <- Henk.Lexer.AUT68.lex(input),
+             {:ok, expr, _} <- Henk.Parser.AUT68.parse(tokens) do
+          {:ok, Desugar.desugar_expr(expr, env)}
+        end
+
+      :morte ->
+        with {:ok, tokens} <- Henk.Lexer.Morte.lex(input),
+             {:ok, expr, _} <- Henk.Parser.Morte.parse(tokens) do
+          {:ok, Desugar.desugar_expr(expr, env)}
         end
     end
   end
@@ -209,31 +283,9 @@ defmodule Mix.Tasks.Henk.Repl do
 
   defp eval(:eof, _, _), do: :stop
   defp eval(input, env, syntax) do
-    input = String.trim(input)
-    if input == "" do
-      {:error, :empty_input}
-    else
-      case syntax do
-        :miranda ->
-          with {:ok, tokens} <- Lexer.lex(input),
-               resolved <- Layout.resolve(tokens),
-               {:ok, expr, _} <- Parser.parse_expression(resolved) do
-            desugared = Desugar.desugar_expr(expr, env)
-            {:ok, Typechecker.normalize(env, desugared)}
-          end
-        :aut68 ->
-          with {:ok, tokens} <- Henk.Lexer.AUT68.lex(input),
-               {:ok, expr, _} <- Henk.Parser.AUT68.parse(tokens) do
-            desugared = Desugar.desugar_expr(expr, env)
-            {:ok, Typechecker.normalize(env, desugared)}
-          end
-        :morte ->
-          with {:ok, tokens} <- Henk.Lexer.Morte.lex(input),
-               {:ok, expr, _} <- Henk.Parser.Morte.parse(tokens) do
-            desugared = Desugar.desugar_expr(expr, env)
-            {:ok, Typechecker.normalize(env, desugared)}
-          end
-      end
+    case parse_and_desugar(input, env, syntax) do
+      {:ok, term} -> {:ok, Typechecker.normalize(env, term)}
+      err -> err
     end
   end
 end
