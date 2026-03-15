@@ -41,7 +41,7 @@
             <h2>Abstract</h2>
             <div style="max-width:800px;margin:0 auto;">
                 <p><b>Henk</b> is a minimal yet powerful functional programming language based on the top vertice of Henk Barendregt's λ-Cube — <b>Pure Type System</b> (or Thierry Coquand's <b>Calculus of Inductive Constructions</b>).
-                It implements the λPω logic, similar to <b>Morte</b>, but uses infinite number of universes and a friendly <b>Miranda-style syntax</b>.
+                It implements the λPω logic, similar to <b>Morte</b>, but uses countable universes and a friendly <b>Miranda-style syntax</b>.
                 Henk serves as an intermediate minimal fibrational proto language for the whole Groupoid Infinity stack,
                 providing a sound foundation for theorem proving and high-assurance Erlang/OTP mission critical applications.</p>
                 <p>Key features include <b>Church encoding</b> of all inductive data types, a robust <b>FFI system</b> for Erlang integration,
@@ -153,7 +153,7 @@ main = replicate_io five echo</pre>
                 <div class="package-card">
                     <h3>Corecursive (Comonad)</h3>
                     <hr>
-                    <p>The <b>Comonadic IOI</b> model represents IO as an infinite state machine (Anamorphism). It is the canonical model for long-running servers.</p>
+                    <p>The <b>Comonadic IOI</b> model represents IOI as an infinite state machine (anamorphism). It is the canonical model for long-running servers.</p>
                     <pre class="code-snippet" style="font-size: 0.85rem;">
 module Test.Corecursive where
 import Control.IOI
