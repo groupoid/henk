@@ -20,7 +20,10 @@ extract_path(S, P, V) ->
     case filelib:is_dir(P) of
         true ->
             Rel = rel(P),
-            Mod = om_repl:atom(case Rel of "" -> filename:basename(P); _ -> string:join(string:tokens(Rel, "/"), ".") end),
+            Mod = om_repl:atom(case Rel of 
+                "" -> filename:basename(P);
+                _ -> string:join(string:tokens(Rel, "/"), ".")
+            end),
             {ok, Files} = file:list_dir(P),
             Header = [{attribute,1,module,Mod}, {attribute,1,compile,export_all}],
             {Fs, S1} = lists:foldl(fun(F, {Acc, S0}) ->
@@ -54,7 +57,10 @@ extract_path(S, P, V) ->
             case filelib:is_file(P) of
                 true ->
                     Rel = rel(filename:dirname(P)),
-                    Mod = om_repl:atom(case Rel of "" -> filename:basename(P); _ -> string:join(string:tokens(Rel, "/"), ".") end),
+                    Mod = om_repl:atom(case Rel of
+                        "" -> filename:basename(P);
+                        _ -> string:join(string:tokens(Rel, "/"), ".")
+                    end),
                     try
                         SF = om_state:set(file, P, S),
                         Expr = om_parse:expr(om_tok:tokens(om_repl:read(P), 0), 0),
