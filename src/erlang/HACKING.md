@@ -27,8 +27,6 @@ erlc +debug_info -o ebin/ \
   src/core/om_type.erl src/core/om_erase.erl \
   src/core/om_extract.erl src/repl/om_repl.erl \
   src/henk.erl
-
-erl -pa ebin -eval 'application:set_env(om, root, "../.."), om_repl:start(), om_repl:scan(false), init:stop().'
 ```
 
 ## Module Map
@@ -42,16 +40,87 @@ erl -pa ebin -eval 'application:set_env(om, root, "../.."), om_repl:start(), om_
 | `core/om_extract.erl` | Morte-to-BEAM extractor (saves `.beam`) |
 | `repl/om_state.erl` | Pure `#state{}` record + cache maps |
 | `repl/om_repl.erl` | Entry points: `start`, `scan`, `parse`, `name` |
-| `plugins/om/src/om_prv_base.erl` | `rebar3 om base` provider |
-| `plugins/om/src/om_prv_repl.erl` | `rebar3 om repl` provider |
+
+## Console Session (rebar3 om repl --root=../../)
+
+### Setup
+
+```erlang
+%% Start — returns initial state S
+S = om_repl:start().
+```
+
+### Parse (`om:a`)
+
+Parse term and remote references.
+
+```erlang
+T = om_repl:parse(<<"\\(x:*)->x">>).
+% {{"λ",{x,0}},{{star,1},{var,{x,0}}}}
+T2 = om_repl:parse(<<"#List/@">>).
+% {remote,"List/@"}
+```
+
+### Norm (`om:norm`)
+
+Normalize a local term and unfold a remote like `om:norm(om:a("#List/map"))`.
+
+```erlang
+{Norm1, _} = om_type:norm(T, S).
+{Norm2, _} = om_state:cache(norm, "List/map", S).
+```
+
+### Type (`om:type`)
+
+Typechecks a local or remote term like `om:type(om:a("#IO/[>>=]"))`.
+
+```erlang
+{Type1, _} = om_type:type(T, S).
+{Type2, _} = om_state:cache(type, "IO/[>>=]", S).
+```
+
+### Erase (`om:erase`)
+
+Erase a local term.
+
+```erlang
+{{Body, ErasedType}, _} = om_erase:erase(T, [], S).
+```
+
+### Show (`om:show`)
+
+Parse and print a library file like `om:show("List/@")`.
+
+```erlang
+T = om_repl:parse(om_repl:read(om_repl:name("List/@"))).
+io:format("~ts~n", [om_parse:print(T, 0)]).
+```
+
+### Scan (`om:scan`)
+
+Scan+extract all files in current mode with verbose and quite effects.
+
+```erlang
+om_repl:scan(true).
+om_repl:scan(false).
+```
+
+### Mode (`om:mode`)
+
+```erlang
+%% Get current mode
+om_repl:mode().
+% "morte"
+
+%% Set mode
+om_repl:mode("morte").
+```
 
 ## AST Representation
 
-All nodes use plain Erlang strings for constructor names (charlists):
-
 ```erlang
 {star, N}                             %% * (kind N)
-{var,  {Name, Index}}                 %% variable with De Bruijn index
+{var,  {Name, Index}}                 %% variable (De Bruijn index)
 {remote, "Module/Name"}               %% cross-module reference
 {app,  {Func, Arg}}                   %% application
 {{"λ", {Name, 0}}, {InputType, Body}} %% lambda abstraction
@@ -59,36 +128,26 @@ All nodes use plain Erlang strings for constructor names (charlists):
 {"→", {InputType, OutputType}}        %% arrow shorthand
 ```
 
-> **Note:** `"λ"` in Erlang is the charlist `[955]`, `"∀"` is `[8704]`, `"→"` is `[8594]`.
+> `"λ"` = charlist `[955]`, `"∀"` = `[8704]`, `"→"` = `[8594]`.
 
-## State Passing Architecture
+## State Passing
 
-All functions are **pure** — no ETS, no process dictionary.
-The `#state{}` record carries type/norm/erased caches as maps.
+All functions are pure — no ETS, no process dictionary.
 
 ```erlang
-%% State-threaded operations
+%% State-threaded
 {Norm,  S1} = om_type:norm(Term, S0).
 {Type,  S1} = om_type:type(Term, S0).
-{{B,T}, S1} = om_erase:erase(Term, Env, S0).
-
-%% Stateless helpers (no remotes required to be in cache)
-Term  = om_parse:expr(om_tok:tokens(Binary, 0), 0).
-Type  = om_type:type_s(Term, Env).
-Norm  = om_type:norm(Term).
-```
-
-## Caching
-
-Remote terms (`#Module/Name`) are cached in `#state{}` maps:
-
-```erlang
-%% Looks up N in state cache, or loads/parses/evaluates from disk
 {Value, S1} = om_state:cache(norm | type | erased, N, S0).
+
+%% Stateless helpers (load remotes from disk on demand)
+Term = om_repl:parse(Binary).
+Type = om_type:type_s(Term, Env).
+Norm = om_type:norm(Term).
 ```
 
 ## Guidelines
 
 1. **No ETS, no `put/get`** — pass `S` explicitly through all operations.
-2. **Stateless helpers** (`norm/1`, `type_s/2`, `erase_s/2`) load remote files directly from disk when needed.
-3. **`om_extract` catches errors** per-file so one bad file doesn't abort the whole extraction.
+2. **Stateless helpers** (`norm/1`, `type_s/2`, `erase_s/2`) load remote files from disk when needed.
+3. **`om_extract` catches errors** per-file so one bad file doesn't abort extraction.
