@@ -4,7 +4,7 @@ Henk: Minimal Proving System
 [![Actions Status](https://github.com/groupoid/henk/workflows/ci/badge.svg)](https://github.com/groupoid/henk/actions)
 [![Hex pm](http://img.shields.io/hexpm/v/henk.svg?style=flat)](https://hex.pm/packages/henk)
 
-**Henk** is an implementation of a Pure Type System (PTS) with an infinite
+**Henk** is an implementation of a Pure Type System (PTS) with an countable
 universe hierarchy, written in Elixir for Erlang/OTP. It was described first by
 Erik Meijer and Simon Peyton Jones in 1997, and later inspired the Morte
 intermediate language by Gabriella Gonzalez. Maksym Sokhatskyi wrote an implementation in 2015
@@ -90,7 +90,7 @@ Transforms the surface AST into core CoC terms:
 
 ### `Henk.Typechecker` — `lib/henk/typechecker.ex`
 
-Bidirectional type checker for pure CoC with an infinite universe hierarchy.
+Bidirectional type checker for pure CoC with an countable universe hierarchy.
 All state is passed explicitly as `%Henk.Typechecker.Env{}`:
 
 | Field | Purpose |

@@ -52,7 +52,7 @@ The Henk Syntax is the following:
             | ∀ ( I : O ) → O
 ```
 
-Henk is an implementation of PTS with an Infinite Number of Universes, the pure lambda calculus with dependent types.
+Henk is an implementation of PTS with Countable Universes, the pure lambda calculus with dependent types.
 It can be compiled (code extraction) to bytecode of Erlang virtual machines BEAM and LING.
 
 ## Semantics
@@ -72,10 +72,10 @@ Its Syntax and Semantics, 1992, p. 567), which the code reflects by parameterizi
 
 ### Star
 
-The star function extracts or validates the numeric level of a universe sort, central to the infinite hierarchy of types.
+The star function extracts or validates the numeric level of a universe sort, central to the countable hierarchy of types.
 In the code, `star (star,N) -> N` returns the integer `N` from a universe term `star N` (e.g., \*0, \*1,
 while `star S -> error ("universe",\*,S)` errors out for invalid inputs. Formally, Barendregt defines sorts in PTS as a set 
-S, such as `{∗,□}` in CoC, or an infinite sequence `\*0 : \*1 : \*2 : ...` in systems with universes, where each 
+S, such as `{∗,□}` in CoC, or an countable sequence `\*0 : \*1 : \*2 : ...` in systems with universes, where each 
 `**n : **(n+1)`. He states, "Sorts form the backbone of the type hierarchy, with each level governing the types
 below it" (Barendregt, Introduction to Generalized Type Systems, 1991, p. 6), and the code’s star function directly
 supports this by managing universe indices.
