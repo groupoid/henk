@@ -1,0 +1,13 @@
+{application, om, [
+    {description, "Om: A rebar plugin for Henk compiler"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["DHARMA"]},
+    {links, []}
+ ]}.
