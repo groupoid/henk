@@ -168,6 +168,6 @@ extractor that the Elixir code faithfully reproduces and extends.
 * <a href="https://www.haskellforall.com/2014/09/morte-intermediate-language-for-super.html">Morte: an intermediate language for super-optimizing functional programs</a> [Gabriella Gonzalez]
 * <a href="https://henk.groupoid.space/doc/henk.pdf">Henk: Pure Type System for Erlang</a> [Maksym Sokhatskyi]
 
-## Credits
+## Author
 
 * <a itemprop="sameAs" content="https://orcid.org/0000-0001-7127-8796" href="https://orcid.org/0000-0001-7127-8796" target="orcid.widget" rel="me noopener noreferrer">Maksym Sokhatskyi <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png"> 🇺🇦</a>
