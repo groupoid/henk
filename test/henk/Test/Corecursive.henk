@@ -3,7 +3,6 @@
 --
 -- Models an infinite echo state machine using IOI (free comonad):
 --   state = Maybe Data
-import Data.Nat
 --   Nothing  → GetLine (read input, wrap in Just)
 --   Just str → PutLine str (output it, reset to Nothing)
 --
@@ -13,6 +12,7 @@ module Test.Corecursive where
 
 import Prelude
 import Data.Maybe
+import Data.Nat
 import Control.IOI
 
 -- State transition: Maybe Data → F r (Maybe Data)
@@ -22,4 +22,4 @@ corecursive_step m =
         Just str -> iof_put_line_f str (Nothing Any)
 
 -- IOI echo machine: seed = Nothing, step = corecursive_step
-corecursive = mk_io Any (Maybe Any) (Nothing Any) corecursive_step
+main = mk_io Any (Maybe Any) (Nothing Any) corecursive_step

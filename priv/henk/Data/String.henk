@@ -1,3 +1,5 @@
+module Data.String where
+
 import Prelude
 import Data.Nat
 import Data.List
