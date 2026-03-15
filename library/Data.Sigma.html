@@ -50,11 +50,13 @@
                 </div>
 
                 <div class="doc-entry">
-                    <h3 class="doc-heading">snd <span class="doc-signature">:: (p : Sigma A B) -> B (fst p)</span></h3>
-                    <p class="doc-description">Returns the second component of a dependent pair.</p>
+                    <h3 class="doc-heading">snd <span class="doc-signature">:: (p : Sigma A B) -> B</span></h3>
+                    <p class="doc-description">Returns the second component of a non-dependent pair.</p>
                     <span class="doc-label">Implementation</span>
                     <pre class="doc-implementation">snd p = case p of
     Sigma a b -> b</pre>
+                    <p>NOTE: Herman Geuvers showed that dependent eliminator principle
+                       is non-derivable in second-order polymorphic lambda calculus</p>
                 </div>
             </section>
         </div>
