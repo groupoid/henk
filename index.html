@@ -118,14 +118,24 @@ main = mk_io Any (Maybe Any) (Nothing Any) step</pre>
             <h2>Practicum</h2>
             <div style="max-width:720px;margin:0 auto;">
                 <pre class="code-snippet">
-$ mix henk.base
+$ mix henk.base --syntax=miranda
 Compiling Henk base library...
-  Compiling priv/henk/Prelude.henk... OK
-  Compiling priv/henk/Control/IO.henk... OK
-  Compiling priv/henk/Control/IOI.henk... OK
-  Compiling test/henk/Test/Recursive.henk... OK
-  Compiling test/henk/Test/Corecursive.henk... OK
+  Compiling [miranda] priv/henk/Control/IO.henk -> Control.IO... OK
+  Compiling [miranda] priv/henk/Control/IOI.henk -> Control.IOI... OK
+  Compiling [miranda] priv/henk/Data/Bool.henk -> Data.Bool... OK
+  Compiling [miranda] priv/henk/Data/Fin.henk -> Data.Fin... OK
+  Compiling [miranda] priv/henk/Data/List.henk -> Data.List... OK
+  Compiling [miranda] priv/henk/Data/Maybe.henk -> Data.Maybe... OK
+  Compiling [miranda] priv/henk/Data/Nat.henk -> Data.Nat... OK
+  Compiling [miranda] priv/henk/Data/Prod.henk -> Data.Prod... OK
+  Compiling [miranda] priv/henk/Prelude.henk -> Prelude... OK
 
+Henk base library compilation finished.
+</pre>
+</div>
+
+            <div style="max-width:720px;margin:0 auto;">
+                <pre class="code-snippet">
 $ mix henk.repl --syntax=miranda
 🧊 Henk Programming Language version 0.3.11
 henk> run_io Test.Recursive.main
