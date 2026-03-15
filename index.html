@@ -84,7 +84,8 @@ hd (a: *) (x: List a) =
             <div class="grid-2">
                 <div class="product-card">
                     <h3>Compact Formal Core</h3>
-                    <p>The core of Henk consists of 5 fundamental AST nodes:</p>
+                    <p>The core of Henk consists of 5 fundamental AST nodes of the single type called Dependent Type Pi,
+                       the fibrational generalization of functions from algebraic topology:</p>
                     <pre class="code-snippet">
 type term =
   | Var of name
@@ -168,15 +169,21 @@ Henk base library compilation finished.
             <div style="max-width:720px;margin:0 auto;">
                 <pre class="code-snippet">
 $ mix henk.repl --syntax=miranda
-🧊 Henk Programming Language version 0.3.11
-henk> run_io Test.Recursive.main
-1
-1
-helo
-helo
-henk>
-</pre>
-</div>
+🧊 Henk Programming Language version 11.3.15 [miranda syntax]
+Copyright (c) 2015-2026 Groupoid Infinity
+https://groupoid.github.io/henk/
+
+miranda> :eval map
+TYPE: (f : Any) -> (xs : Any) -> Any
+TERM: \f -> \xs -> xs Any Nil (\h -> \t -> Cons (f h) t)
+miranda> :check map
+TYPE: (f : Any) -> (xs : Any) -> Any
+miranda> map id
+= \xs -> xs Any Nil (\h -> \t -> Cons (id h) t)
+miranda> :eval map id [1]
+TYPE: Any
+TERM: \x2 -> \R -> \nil -> \cons -> cons (Nil Any) x2
+miranda>
         </section>
 
         <section class="section-standards">
