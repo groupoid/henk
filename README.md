@@ -23,13 +23,13 @@ verifiable programs that can be distributed over the networks and compiled at ta
 Linux, WSL:
 
 ```
-$ sudo install elixir erlang
+$ sudo install elixir
 ```
 
 Mac:
 
 ```
-$ brew install elixir erlang
+$ brew install elixir
 ```
 
 ## Install Henk
