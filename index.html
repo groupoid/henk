@@ -59,9 +59,24 @@
                     <hr>
                     <p><b>Original AUT-68</b> by Nikolaas Govert de Bruijn. Designed for low-level <b>Calculus of Construction</b> programming and formal mathematical verification.</p>
                     <pre class="code-snippet" style="font-size: 0.85rem;">
-(A : *) (B : [_ : A] *)
-(n : A) (S : Sigma A B n)
-  S A ((x : A) (_ : B n) x)</pre>
+-- head
+(a: *) (xs: List.@.main a) xs (Maybe.@.main a)
+((x: a) (_: Maybe.@.main a) Maybe.Just.main a x)
+(Maybe.Nothing.main a)
+
+-- pure
+(a: *) (x: a) (List: *) (Cons: [head: a] [tail:
+List] List) Cons x
+
+-- map
+(a: *) (b: *) (f: [_ : a] b) (xs: [List: *]
+[Cons: [head: a] [tail: List] List] [Nil: List]
+List) xs ([List: *] [Cons: [head: b] [tail: List]
+List] [Nil: List] List) ((head: a) (tail: [List: *]
+[Cons: [head: b] [tail: List] List] [Nil: List] List)
+(List: *) (Cons: [head: b] [tail: List] List) Nil:
+List) Cons (f head)(tail List Cons Nil)) ((List: *)
+(Cons: [head: b] [tail: List] List) (Nil: List) Nil)</pre>
                     <p>Minimalist, binder-driven syntax for categorical foundational proofs.</p>
                 </div>
 

@@ -1,21 +1,9 @@
 \documentclass{article}
-\usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{amsthm}
-\usepackage{url}
-\usepackage{tikz}
-\usepackage{tikz-cd}
-\usetikzlibrary{matrix}
-\usetikzlibrary{babel}
-\usepackage{listings}
-\usepackage[utf8]{inputenc}
-\usepackage[only,llbracket,rrbracket,llparenthesis,rrparenthesis]{stmaryrd}
+\include{journal}
 
-\lstset{basicstyle=\small,inputencoding=utf8}
 \begin{document}
 
-\title{Henk: Pure Type System for Erlang}
+\title{Issue XI: Minimal Proving System of Henk with Countable Universes for Erlang/OTP}
 \author{Maxim Sokhatsky}
 \date{ $^1$ National Technical University of Ukraine \\
        \small Igor Sikorsky Kyiv Polytechnical Institute\\
@@ -24,1010 +12,249 @@
 \maketitle
 
 \begin{abstract}
-This paper presents the design of the {\bf Henk} language and an implementation of its type checker and bytecode extractor to Erlang.
-{\bf Henk} is an intermediate language based on a pure type system with the infinite number of universes, so it is known to be consistent in dependent type theory.
-This {\bf Henk} language is a core part of the language family for verification purposes.
-The type checker is built upon MLTT principles and can be switched between predicative and impredicative hierarchies of universes.
-This system is expected to be usable as trusted core for certified applications which could be run inside Erlang virtual machines LING and BEAM.
-The syntax is compatible with Morte language and supports its base library, however, it extends the indexed universes.
-We show how to program in this environment and link with Erlang inductive and coinductive free structures.
-A very basic prelude library is shipped as a part of the work with infinite I/O operations which
-immediately enables {\bf Henk} for long living runtime verified applications.
-We briefly describe the top-level language which compiles to pure type system (PTS) core as the further work.
-As the results, we will show lambda evaluation performance on BEAM virtual machine.
-PTS approach take its roots starting from AUTOMATH, MLTT, CoC,
-but extracting to performant untyped lambda interpreters is a novel way of cerifying applications.
-As a full vision we propose a stack of langauges, where {\bf Henk} takes a central part.
+This paper presents \textbf{Henk}, a pure type system (PTS) with a countable hierarchy of universes indexed by natural numbers.
+Henk is implemented as a minimal dependently typed core in Erlang and extracts to BEAM bytecode via type erasure.
+The type checker supports configurable predicative and impredicative modes and follows the standard PTS rules of Barendregt.
+Syntax is compatible with Morte, extended with explicit universe indices. We provide the complete formal specification,
+the reference implementation of the type checker (normalization, conversion, shifting, substitution),
+and the erasure/extraction pipeline. Data types are encoded via Church--Böhm--Berarducci representations;
+effects use recursive free monads and corecursive comonads linked to Erlang I/O primitives.
+Higher-level languages (Frank, Per, Christine) that extend Henk with inductive types, $\Sigma$-types and equality are outlined as future work.
+The core is limited to 1K lines of Erlang for the essential passes.
+This work builds directly on the Calculus of Constructions, AUTOMATH and the original Henk design of Meijer and Peyton Jones.
 \end{abstract}
 
 \newpage
-\tableofcontents
+\ifincludeTOC
+  \tableofcontents
+\else
+\fi
+
 \newpage
-
 \section{Introduction}
-IEEE\footnote{IEEE Std 1012-2016  --- V\&V Software verification and validation} standard
-and ESA\footnote{ESA PSS-05-10 1-1 1995 -- Guide to software verification and validation} regulatory documents define a number of tools and approaches for verification and validation processes. 
-The most advanced techniques involve mathematical languages and notations. 
-The age of verified math was started by de Bruin's AUTOMATH prover and Martin-Löf\cite{Lof84}'s type theory. 
-Today we have Coq, Agda, Lean, Idris, F* languages which are based on Calculus of Inductive Constructions or CiC\cite{Mohring15}.
-The core of CiC is Calculus of Constructions or CoC\cite{Coq88}.
-Further development has lead to Lambda Cube\cite{Henk93} and Pure Type Systems by Henk\cite{Erik97} and Morte\footnote{Gabriella Gonzalez. Haskell Morte Library}.
-Pure Type Systems are custom languages based on CoC with single Pi-type and possibly other extensions.
-Notable extensions are ECC, ECC with Inductive Types\cite{Ore92}, K-rules\cite{Barthe95}.
-The main motivation of Pure Type Systems is an easy reasoning about core, strong normalization and trusted external verification due to compact type checkers.
-A custom type checker can be implemented to run certified programs retrieved over untrusted channels.
-The applications of such minimal cores are 1) Blockchain smart-contract languages, 2) certified applications kernels, 3) payment processing, etc.
+Verified software requires a trusted computational core whose meta-theory is well-understood.
+Henk is such a core: a pure type system whose only primitive is the dependent function type $\Pi$ and whose universes are indexed by $\mathbb{N}$.
+It extracts directly to untyped Erlang terms that run on the BEAM virtual machine.
 
-\subsection{Generating Trusted Programs}
-According to Curry-Howard, a correspondence inside Martin-Löf Type Theory\cite{Lof84} proofs or certificates are lambda terms of particular types or specifications.
-As both specifications and implementations are done in a typed language with dependent types we can extract target implementation of a certified program just in any programming language.
-These languages could be so primitive as untyped lambda calculus and are usually implemented as untyped interpreters (JavaScript, Erlang, PyPy, LuaJIT, K).
-The most advanced approach is code generation to higher-level languages such as C++ and Rust (which is already language with trusted features on memory, variable accessing, linear types, etc.).
-In this work, we present a simple code extraction to Erlang programming language as a target interpreter.
-However, we have also worked on C++ and Rust targets as well.
+Henk is deliberately minimal: five AST constructors, one axiom schema, four deduction rules, and no built-in recursion or inductive types.
+All data (Booleans, natural numbers, lists, I/O protocols) are encoded via Church--Böhm--Berarducci representations.
+The implementation is written entirely in Erlang; the extracted code is plain Erlang that can be loaded into any OTP application.
+
+Higher languages in the Groupoid Infinity family (Per, Christine) embed Henk as their core and add inductive definitions and equality reasoning on top.
+
+\subsection{Extraction to Erlang}
+By Curry--Howard, proofs are programs. Henk erases all type information and universes, producing a pure $\lambda$-term that is then translated to Erlang functions.
+The resulting code is ordinary BEAM bytecode with no runtime type checking beyond Erlang's own. Host primitives (I/O, arithmetic) are supplied at extraction time.
 
 \subsection{System Architecture}
-{\bf Henk} as a programming language has a core type system, the {\bf PTS$^{\infty}$} --- the pure type system with the infinite number of universes.
-This type system represents the core of the language.
-Higher languages form a set of front-ends to this core.
- Here is example of possible languages:
-1) Language for inductive reasoning, based on CiC with extensions;
-2) Homotopy Core with interval [0,1] for proving J and funExt;
-3) Stream Calculus for deep stream fusion (Futhark);
-3) Pi-calculus for linear types, coinductive reasoning and runtime modeling (Erlang, Ling, Rust).
-These languages desugar to {\bf PTS$^{\infty}$} as an intermediate language before extracting to target language\footnote{Note that extracting from [0,1] Homotopy Core is an open problem}.
 
-Not all terms from higher languages could be desugared to PTS.
-As was shown by Geuvers\cite{Geuvers01} we cannot build induction principle inside PTS, we need a fixpoint extension to PTS.
-And also we cannot build the J and funExt terms.
-But still PTS is very powerful, it's compatible with System F libraries.
-The properties of that libraries could be proven in higher languages with Induction and/or [0,1] Homotopy Core.
-Then runtime part could be refined to PTS, extracted to target and run in an environment.
-
-We see two levels of extensions to PTS core: 1) Inductive Types support; 2) Homotopy Core with [0,1] and its eliminators.
-We will touch a bit this topic in the last section of this document.
-
-\subsection{Place among other languages}
-The product is a regular Erlang/OTP application, that provides dependent language services to the Erlang environment: 1) type checking; 2) normalization; 3) extraction.
-All parts of {\bf Henk} compiler is written in Erlang language and target/runtime language is Erlang.
+Henk consists of:
 
 \begin{itemize}
-\item Level 0 --- certified vectorized interpreter
-\item {\bf Level 1 --- consistent pure type system for type checking and normalization}
-\item Level 2 --- higher language for theorem proving and models property checking
+\item Level 0: strongly-typed Erlang runtime (BEAM).
+\item Level 1: PTS Core (type checker + extractor).
+\item Level 2: higher languages (Henk, Frank, Christine).
 \end{itemize}
 
+All compiler passes are implemented in Erlang; the target remains Erlang.
+
+\section{Formal Definition of the Henk PTS}
+
+Henk is a Pure Type System in the sense of Barendregt. We give the precise specification that the implementation realises.
+
+\subsection{Sorts, Axioms and Rules}
+
+Sorts: $\mathcal{S} = \{\mathsf{Type}_i \mid i \in \mathbb{N}\}$.
+
+Two configurations are supported:
+
+\paragraph{Impredicative mode}
+\begin{align*}
+\text{Axioms} &\quad \mathsf{Type}_i : \mathsf{Type}_{i+1} &&\text{for all } i, \\
+\text{Rules}  &\quad (\mathsf{Type}_i, \mathsf{Type}_j, \mathsf{Type}_j) &&\text{for all } i,j.
+\end{align*}
+
+\paragraph{Predicative mode}
+\begin{align*}
+\text{Axioms} &\quad \mathsf{Type}_i : \mathsf{Type}_j &&\text{for all } i < j, \\
+\text{Rules}  &\quad (\mathsf{Type}_i, \mathsf{Type}_j, \mathsf{Type}_{\max(i,j)}) &&\text{for all } i,j.
+\end{align*}
+
+Both configurations satisfy Barendregt's criteria and are therefore strongly normalizing and consistent (Terlouw, 1993; Barendregt, 1992).
+
+\subsection{Judgments}
+
+Contexts $\Gamma$ are lists of declarations $x:A$ with $A:\mathsf{Type}_k$. The typing relation $\Gamma \vdash t : T$ is defined by the standard PTS rules:
+
+\begin{itemize}
+\item (Sort) $\vdash \mathsf{Type}_i : \mathsf{Type}_{i+1}$
+\item (Var) $\Gamma, x:A \vdash x : A$ if $\Gamma \vdash A : \mathsf{Type}_k$
+\item (Pi) $\Gamma \vdash A : \mathsf{Type}_i \quad \Gamma,x:A \vdash B : \mathsf{Type}_j \quad \Rightarrow \quad \Gamma \vdash \Pi x:A.B : \mathsf{Type}_k$ where $(i,j,k)$ is a rule
+\item (Lam) $\Gamma,x:A \vdash b : B \quad \Rightarrow \quad \Gamma \vdash \lambda x:A.b : \Pi x:A.B$
+\item (App) $\Gamma \vdash f : \Pi x:A.B \quad \Gamma \vdash a : A \quad \Rightarrow \quad \Gamma \vdash f\,a : B[a/x]$
+\item (Conv) $\Gamma \vdash a : A \quad \Gamma \vdash B : \mathsf{Type}_k \quad A \equiv B \quad \Rightarrow \quad \Gamma \vdash a : B$
+\end{itemize}
+
+Definitional equality $\equiv$ is $\beta$-convertibility obtained by full normalization (the implementation uses weak-head normalization
+followed by structural comparison with shifting and substitution).
+
+Subject reduction, strong normalization and decidability of type checking follow from the meta-theory of PTS with countable universes (standard results;
+see Barendregt, 1992 and the references therein). The implementation realises exactly these rules; formal verification of the 60-line type-checker module is left as future work.
+
+\subsection{Abstract Syntax}
+
+\[
+\begin{array}{rcl}
+t &::=& x \mid \mathsf{Type}_i \mid \Pi x:A.B \mid \lambda x:A.b \mid f\,a
+\end{array}
+\]
+
+De Bruijn indices with explicit universe tags are used internally; the surface syntax accepts named variables and Morte-style notation.
+
+\section{Implementation}
+
+The reference implementation consists of five modules (total $\approx$ 265 LOC):
+
 \begin{table}[h]
 \begin{center}
-\caption{List of languages, tried as verification targets}
-\label{tab:a}
-\tabcolsep7pt\begin{tabular}{lcccc}
+\caption{Compiler passes}
+\begin{tabular}{lcc}
 \hline
-{\bf Target} & {\bf Class} & {\bf Intermediate} & {\bf Theory}\\
+Module & LOC & Description \\
 \hline
-C++        & compiler/native      & HNC & System F\\
-Rust       & compiler/native      & HNC & System F\\
-JVM        & interpreter/native   & Java    & F-sub\footnote{System F wit bounded quantification}\\
-JVM        & interpreter/native   & Scala   & System F-omega\\
-GHC Core   & compiler/native      & Haskell & System D\\
-GHC Core   & compiler/native      & Morte   & CoC\\
-Haskell    & compiler/native      & Coq     & CiC\\
-OCaml      & compiler/native      & Coq     & CiC\\
-{\bf BEAM} & {\bf interpreter} & {\bf Henk}   & {\bf PTS$^\infty$} \\
-O          & interpreter          & Om  & PTS$^\infty$ \\
-K          & interpreter          & Q   & Applicative \\
-PyPy       & interpreter/native   & N/A & ULC \\
-LuaJIT     & interpreter/native   & N/A & ULC \\
-JavaScript & interpreter/native & PureScript & System F\\
+om\_erase   &  53 & type erasure to untyped $\lambda$-terms \\
+om\_tok     &  53 & hand-written lexer \\
+om\_parse   &  61 & hand-written 2-pass parser \\
+om\_type    & 102 & normalization, shifting, substitution, typing \\
+om\_extract & 120 & translation to Erlang abstract format \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-\section{Consistent PTS as Intermediate Language}
-The {\bf Henk} language is a dependently typed lambda calculus {\bf PTS$^\infty$}, an extension of Coquand' Calculus of Constructions\cite{Coq88} with the predicative hierarchy of indexed universes.
-There is no fixpoint axiom, so there is no infinite term dependence, the theory is fully consistent and has strong normalization property.
+The type-checker implements the rules above via:
+\begin{itemize}
+\item \texttt{star/1} -- universe level extraction,
+\item \texttt{shift/3}, \texttt{subst/4} -- de Bruijn operations,
+\item \texttt{norm/1} -- weak-head normalization,
+\item \texttt{eq/2} -- $\beta$-convertibility after normalization,
+\item \texttt{type/2} -- the bidirectional typing algorithm.
+\end{itemize}
 
-All terms respect ranking {\bf Axioms} inside the sequence of universes {\bf Sorts} and complexity of the dependent term is equal to the maximum complexity of term and its dependency {\bf Rules}.
-The universe system is completely described by the following PTS notation due to Barendregt\cite{Henk93}:
+All functions are total and terminate because of strong normalization.
+
+\section{Erasure and Extraction}
+
+Erasure removes all universe annotations and dependent $\Pi$-binders, mapping to ordinary $\lambda$-terms:
 
 $$
 \begin{cases}
-Sorts = Type.\{i\},\ i : Nat\\
-Axioms = Type.\{i\} : Type.\{inc\ i\}\\
-Rules = Type.\{i\} \leadsto Type.\{j\} : Type.\{max\ i\ j\}\\
+\text{erase}(\mathsf{Type}_i) = \texttt{unit},\\
+\text{erase}(\Pi x:A.B) = \text{erase}(B),\\
+\text{erase}(\lambda x:A.b) = \lambda x.\,\text{erase}(b),\\
+\text{erase}(f\,a) = \text{erase}(f)\,\text{erase}(a).
 \end{cases}
 $$
 
-The {\bf Henk} language is based on Henk languages described first by Erik Meijer and Simon Peyton Jones in 1997\cite{Erik97}.
-Later on in 2015 Morte implementation of Henk design appeared in Haskell, using the Boem-Berrarducci encoding of non-recursive lambda terms.
-It is based only on one type constructor {\bf $\Pi$}, its intro {\bf $\lambda$} and apply eliminator, infinite number of universes, and {\bf $\beta$}-reduction.
-The design of Om language resemble Henk and Morte both in design and in implementation.
-This language intended to be small, concise, easy provable and able to produce the verifiable piece of code that can be distributed over the networks, compiled at the target platform with a safe linkage.
-
-\subsection{BNF and AST}
-
-{\bf Henk} syntax is compatible with CoC presented in Morte and Henk languages.
-However, it has extension in a part of specifying universe index as a {\bf Nat} number.
-Traditionally we present the language in Backus-Naur form.
-Equivalent AST tree encoding from the right side.
-
-\begin{lstlisting}[mathescape=true]
-   <> ::= #option                  data pts = star (n: nat)
-    V ::= #identifier                       | var (n: name)
-    S ::= * < #number >                     | app (f a: pts)
-    O ::= S | V | ( O )                     | lambda (x: name) (d c: pts)
-        | O O | O $\rightarrow$ O                        | pi (x: name) (d c: pts)
-        | $\lambda$ ( I : O ) $\rightarrow$ O
-        | $\forall$ ( I : O ) $\rightarrow$ O
-\end{lstlisting}
-
-\subsection{Universes}
-
-As {\bf Henk} has infinite number of universes it should include metatheoretical {\bf Nat} inductive type in its core.
-{\bf Henk} supports predicative and impredicative hierarchies.
-
-$$
-U_0 : U_1 : U_2 : U_3 : ...
-$$
-
-Where $U_0$ --- propositions, $U_1$ --- sets, $U_2$ --- types and $U_3$ --- kinds, etc.
-
-\begin{equation}
-\tag{I}
-\dfrac
-{}
-{Nat}
-\end{equation}
-
-\begin{equation}
-\tag{S}
-\dfrac
-{o : Nat}
-{Type_o}
-\end{equation}
-
-You may check if a term is a universe with the star function.
-If an argument is not a universe it returns $\{error,\_\}$.
-
-\begin{lstlisting}[mathescape=true]
-star (:star,N) $\rightarrow$ N
-             _ $\rightarrow$ (:error, "*")
-\end{lstlisting}
-
-\subsection{Predicative Universes}
-
-All terms obey the {\bf Axioms} ranking inside the sequence of {\bf Sorts} universes, and the complexity {\bf Rules} of the dependent term is equal to a maximum of the term's complexity and its dependency.
-Note that predicative universes are incompatible with Church lambda term encoding.
-You choose either predicative or impredicative universes with a type checker parameter.
-
-\[
-\tag{$A_1$}
-\dfrac{i: Nat, j: Nat, i < j}{Type_i : Type_j}
-\]
-
-\[
-\tag{$R_1$}
-\dfrac{i : Nat, j : Nat}{Type_i \rightarrow Type_j : Type_{max(i,j)} }
-\]
-
-\subsection{Impredicative Universes}
-Propositional contractible bottom space is the only available extension to the predicative hierarchy which doesn't lead to inconsistency.
-However, there is another option to have the infinite impredicative hierarchy.
-
-\begin{equation}
-\tag{$A_2$}
-\dfrac
-{i: Nat}
-{Type_i : Type_{i+1}}
-\end{equation}
-
-\begin{equation}
-\tag{$R_2$}
-\dfrac
-{i : Nat,\ \ \ \ j : Nat}
-{Type_i \rightarrow Type_{j} : Type_{j}}
-\end{equation}
-
-\subsection{Hierarchy Switching}
-Function {\bf h} returns the target Universe of B term dependence on A.
-There are two dependence rules known as the predicative one and the impredicative one which returns max universe or universe of the last term respectively.
-
-\begin{lstlisting}[mathescape=true]
-dep A B :impredicative $\rightarrow$ B
-    A B :predicative   $\rightarrow$ max A B
-
-h A B $\rightarrow$ dep A B :impredicative
-\end{lstlisting}
-
-\subsection{Contexts}
-The contexts model a dictionary with variables for type checker.
-It can be typed as the list of pairs or {\bf List\ Sigma}.
-The elimination rule is not given here as in our implementation the whole dictionary is destroyed after type checking.
-
-\begin{equation}
-\tag{Ctx-formation}
-\dfrac
-{}
-{\Gamma : Context}
-\end{equation}
-
-\begin{equation}
-\tag{Ctx-intro$_1$}
-\dfrac
-{\Gamma : Context}
-{Empty : \Gamma}
-\end{equation}
-
-\begin{equation}
-\tag{Ctx-intro$_2$}
-\dfrac
-{A : Type_i,\ \ \ \ x : A,\ \ \ \ \Gamma : Context}
-{(x : A)\ \vdash\ \Gamma : Context}
-\end{equation}
-
-\subsection{Single Axiom Language}
-
-This language is called one axiom language (or pure) as eliminator
-and introduction rules inferred from type formation rule.
-The only computation rule of Pi type is called beta-reduction.
-Computational rules of language are called operational semantics
-and establish equality of substitution and lambda application.
-Operational semantics in that way defines the rewrite rules of computations.
-
-\begin{equation}
-\tag{$\Pi$-formation}
-\dfrac
-{x:A \vdash B : Type}
-{\Pi\ (x:A) \rightarrow B : Type}
-\end{equation}
-
-\begin{equation}
-\tag{$\lambda$-intro}
-\dfrac
-{x:A \vdash b : B}
-{\lambda\ (x:A) \rightarrow b : \Pi\ (x: A) \rightarrow B }
-\end{equation}
-
-\begin{equation}
-\tag{$App$-elimination}
-\dfrac
-{f: (\Pi\ (x:A) \rightarrow B)\ \ \ a: A}
-{f\ a : B\ [a/x]}
-\end{equation}
-
-\begin{equation}
-\tag{$\beta$-computation}
-\dfrac
-{x:A \vdash b: B\ \ \ a:A}
-{(\lambda\ (x:A) \rightarrow b)\ a = b\ [a/x] : B\ [a/x]}
-\end{equation}
-
-\begin{equation}
-\tag{subst}
-\dfrac
-{\pi_1 : A\ \ \ \ u:A \vdash \pi_2 : B}
-{[\pi_1/u]\ \pi_2 : B}
-\end{equation}
-
-The theorems (specification) of PTS could be embedded in itself and used as
-Logical Framework for the Pi type. Here is the example in the higher language.
-
-\begin{lstlisting}[mathescape=true]
-record Pi (A: Type) :=
-       (intro:  (A $\rightarrow$ Type) $\rightarrow$ Type)
-       (lambda: (B: A $\rightarrow$ Type) $\rightarrow$ pi A B $\rightarrow$ intro B)
-       (app:    (B: A $\rightarrow$ Type) $\rightarrow$ intro B $\rightarrow$ pi A B)
-       (applam: (B: A $\rightarrow$ Type) (f: pi A B) $\rightarrow$ (a: A) $\rightarrow$
-                Path (B a) ((app B (lambda B f)) a) (f a))
-       (lamapp: (B: A $\rightarrow$ Type) (p: intro B) $\rightarrow$
-                Path (intro B) (lambda B ($\lambda$ (a:A) $\rightarrow$ app B p a)) p)
-\end{lstlisting}
-
-The proofs intentionally left blank, as it proofs could be taken from various sources \cite{Henk93}.
-The equalities of computational semantics presented here as {\bf Path} types in the higher language.
-
-The {\bf Henk} language is the extention of the {\bf PTS$^\infty$} with the remote AST node which means remote file loading from trusted storage, anyway this will be checked by the type checker.
-We deny recursion over the remote node.
-We also add an index to var for simplified de Bruijn indexes, we allow overlapped names with tags, incremented on each new occurrence.
-
-\begin{lstlisting}[mathescape=true]
-data om = star             (n: nat)
-        | var    (n: name) (n: nat)
-        | remote (n: name) (n: nat)
-        | pi     (x: name) (n: nat) (d c: om)
-        | fn     (x: name) (n: nat) (d c: om)
-        | app                       (f a: om)
-\end{lstlisting}
-
-Our typechecker differs from cannonical example of Coquand\cite{Coq96}. 
-We based our typechecker on variable {\bf Substitution}, variable {\bf Shifting}, term {\bf Normalization}, definitional {\bf Equality} anf {\bf Type Checker} itself.
-
-\subsection{Type Checker}
-For sure in a pure system, we should be careful with {\bf :remote} AST node.
-Remote AST nodes like {\bf \#List/Cons or \#List/map} are remote links to files.
-So using trick one should desire circular dependency over {\bf :remote}.
-
-\begin{lstlisting}[mathescape=true]
-type (:star,N)         D $\rightarrow$ (:star,N+1)
-     (:var,N,I)        D $\rightarrow$ :true = proplists:is_defined N B, om:keyget N D I
-     (:remote,N)       D $\rightarrow$ om:cache (type N D)
-     (:pi,N,0,I,O)     D $\rightarrow$ (:star,h(star(type I D)),star(type O [(N,norm I)|D]))
-     (:fn,N,0,I,O)     D $\rightarrow$ let star (type I D), NI = norm I
-                             in (:pi,N,0,NI,type(O,[(N,NI)|D]))
-     (:app,F,A)        D $\rightarrow$ let T = type(F,D),
-                                (:pi,N,0,I,O) = T, :true = eq I (type A D)
-                             in norm (subst O N A)
-\end{lstlisting}
-
-\newpage
-\subsection{Shifting}
-Shift renames var N in B. Renaming means adding 1 to the nat component of variable.
-
-\begin{lstlisting}[mathescape=true]
-  sh (:star,X)       N P $\rightarrow$ (:star,X)
-     (:var,N,I)      N P $\rightarrow$ (:var,N,I+1) when I >= P
-                         $\rightarrow$ (:var,N,I)
-     (:remote,X)     N P $\rightarrow$ (:remote,X)
-     (:pi,N,0,I,O)   N P $\rightarrow$ (:pi,N,0,sh I N P,sh O N P+1)
-     (:fn,N,0,I,O)   N P $\rightarrow$ (:fn,N,0,sh I N P,sh O N P+1)
-     (:app,L,R)      N P $\rightarrow$ (:app,L,R)
-\end{lstlisting}
-
-\subsection{Substitution}
-Substitution replaces variable occurance in terms.
-
-\begin{lstlisting}[mathescape=true]
- sub (:star,X)     N V L $\rightarrow$ (:star,X)
-     (:var,N,L)    N V L $\rightarrow$ V
-     (:var,N,I)    N V L $\rightarrow$ (:var,N,I-1) when I > L
-     (:remote,X)   N V L $\rightarrow$ (:remote,X)
-     (:pi,N,0,I,O) N V L $\rightarrow$ (:pi,N,0,sub I N V L,sub O N (sh V N 0) L+1)
-     (:pi,F,X,I,O) N V L $\rightarrow$ (:pi,F,X,sub I N V L,sub O N (sh V F 0) L)
-     (:fn,N,0,I,O) N V L $\rightarrow$ (:fn,N,0,sub I N V L,sub O N (sh V N 0) L+1)
-     (:fn,F,X,I,O) N V L $\rightarrow$ (:fn,F,X,sub I N V L,sub O N (sh V F 0) L)
-     (:app,F,A)    N V L $\rightarrow$ (:app,   sub F N V L,sub A N V L)
-\end{lstlisting}
-
-\subsection{Normalization}
-Normalization performs substitutions on applications to functions (beta-reduction)
-by recursive entrance over the lambda and pi nodes.
-
-\begin{lstlisting}[mathescape=true]
-norm (:star,X)     $\rightarrow$ (:star,X)
-     (:var,X)      $\rightarrow$ (:var,X)
-     (:remote,N)   $\rightarrow$ cache (norm N [])
-     (:pi,N,0,I,O) $\rightarrow$ (:pi,N,0,norm I,norm O)
-     (:fn,N,0,I,O) $\rightarrow$ (:fn,N,0,norm I,norm O)
-     (:app,F,A)    $\rightarrow$ case norm F of
-                         (:fn,N,0,I,O) $\rightarrow$ norm (subst O N A)
-                                    NF $\rightarrow$ (:app,NF,norm A) end
-\end{lstlisting}
-
-\newpage
-\subsection{Equality}
-Definitional Equality simply checks the equality of Erlang terms.
-
-\begin{lstlisting}[mathescape=true]
-  eq (:star,N)        (:star,N)        $\rightarrow$ true
-     (:var,N,I)       (:var,(N,I))     $\rightarrow$ true
-     (:remote,N)      (:remote,N)      $\rightarrow$ true
-     (:pi,N1,0,I1,O1) (:pi,N2,0,I2,O2) $\rightarrow$
-          let :true = eq I1 I2
-           in eq O1 (subst (shift O2 N1 0) N2 (:var,N1,0) 0)
-     (:fn,N1,0,I1,O1) (:fn,N2,0,I2,O2) $\rightarrow$
-          let :true = eq I1 I2
-           in eq O1 (subst (shift O2 N1 0) N2 (:var,N1,0) 0)
-     (:app,F1,A1)       (:app,F2,A2)   $\rightarrow$ let :true = eq F1 F2 in eq A1 A2
-     (A,B)                             $\rightarrow$ (:error,(:eq,A,B))
-\end{lstlisting}
-
-\section{Language Usage}
-Here we will show some examples of {\bf Henk} language usage.
-In this section, we will show two examples.
-One is lifting PTS system to MLTT system by defining {\bf Sigma} and {\bf Equ} types using only {\bf Pi} type.
-We will use Bohm inductive dependent encoding\cite{Bohm85}.
-The second is to show how to write real world programs in {\bf Henk} that performs input/output operations within Erlang environment.
-We show both recursive (finite, routine) and corecursive (infinite, coroutine, process) effects.
-
-\begin{lstlisting}
-$ ./om help me
-[{a,[expr],"to parse. Returns {_,_} or {error,_}."},
- {type,[term],"typechecks and returns type."},
- {erase,[term],"to untyped term. Returns {_,_}."},
- {norm,[term],"normalize term. Returns term's normal form."},
- {file,[name],"load file as binary."},
- {str,[binary],"lexical tokenizer."},
- {parse,[tokens],"parse given tokens into {_,_} term."},
- {fst,[{x,y}],"returns first element of a pair."},
- {snd,[{x,y}],"returns second element of a pair."},
- {debug,[bool],"enable/disable debug output."},
- {mode,[name],"select metaverse folder."},
- {modes,[],"list all metaverses."}]
-
-$ ./om print fst erase norm a "#List/Cons"
-   \ Head
--> \ Tail
--> \ Cons
--> \ Nil
--> Cons Head (Tail Cons Nil)
-ok
-\end{lstlisting}
-
-
-\subsection{Sigma Type}
-The PTS system is extremely powerful even without {\bf Sigma} type.
-But we can encode {\bf Sigma} type similar how we encode {\bf Prod} tuple pair in Bohm encoding.
-Let's formulate {\bf Sigma} type as an inductive type in higher language.
-
-\begin{lstlisting}
-data Sigma (A: Type) (P: A -> Type) (x: A): Type =
-     (intro: P x -> Sigma A P)
-\end{lstlisting}
-
-The {\bf Sigma-type} with its eliminators appears as example in Aaron Stump \cite{Stump17}.
-Here we will show desugaring to {\bf PTS$^\infty$}.
-
-\begin{lstlisting}
--- Sigma/@
-   \ (A: *)
--> \ (P: A -> *)
--> \ (n: A)
--> \/ (Exists: *)
--> \/ (Intro: A -> P n -> Exists)
--> Exists
-
--- Sigma/Intro
-   \ (A: *)
--> \ (P: A -> *)
--> \ (x: A)
--> \ (y: P x)
--> \ (Exists: *)
--> \ (Intro: \/ (x:A) -> P x -> Exists)
--> Intro x y
-
--- Sigma/fst
-   \ (A: *)
--> \ (B: A -> *)
--> \ (n: A)
--> \ (S: #Sigma/@ A B n)
--> S A ( \(x: A) -> \(y: B n) -> x)
-
--- Sigma/snd
-   \ (A: *)
--> \ (B: A -> *)
--> \ (n: A)
--> \ (S: #Sigma/@ A B n)
--> S (B n) ( \(_: A) -> \(y: B n) -> y )
-\end{lstlisting}
-
-\begin{lstlisting}[mathescape=true]
-> om:fst(om:erase(om:norm(om:a("#Sigma/test.fst")))).
-{{$\lambda$,{'Succ',0}},
- {any,{{$\lambda$,{'Zero',0}},{any,{var,{'Zero',0}}}}}}
-\end{lstlisting}
-
-For using {\bf Sigma} type for Logic purposes one should change the
-home Universe of the type to {\bf Prop}. Here it is:
-
-\begin{lstlisting}[mathescape=true]
-data Sigma (A: Prop) (P: A -> Prop): Prop =
-     (intro: (x:A) (y:P x) -> Sigma A P)
-\end{lstlisting}
-
-\subsection{Equ Type}
-Another example of expressiveness is Equality type a la Martin-Löf.
-
-\begin{lstlisting}
-data Equ (A: Type): A -> A -> Type :=
-     (refl (a: A): Equ A a a)
-\end{lstlisting}
-
-\begin{lstlisting}
--- Equ/@
-   \ (A: *)
--> \ (x: A)
--> \ (y: A)
--> \/ (Equ: A -> A -> *)
--> \/ (Refl: \/ (z: A) -> Equ z z)
--> Equ x y
-\end{lstlisting}
-
-\begin{lstlisting}
--- Equ/Refl
-   \ (A: *)
--> \ (x: A)
--> \ (Equ: A -> A -> *)
--> \ (Refl: \/ (z: A) -> Equ z z)
--> Refl x
-\end{lstlisting}
-
-You cannot construct a lambda that will check different values of A type is they are equal,
-however, you may want to use built-in definitional equality and
-normalization feature of type checker to actually compare two values:
-
-\begin{lstlisting}[mathescape=true]
-> om:print(om:type(
-  om:a("(\\ (z: #Equ/@ #Nat/@ #Nat/One #Nat/One) -> #Prop/True)"++
-       " (#Equ/Refl #Nat/@ (#Nat/Succ #Nat/Zero))"))).
-   \/ (True: *0)
--> \/ (Intro: True)
--> True
-ok
-
-> om:print(om:type(
-  om:a("(\\ (z: #Equ/@ #Nat/@ #Nat/One #Nat/One) -> #Prop/True)"++
-       " (#Equ/Refl #Nat/@ #Nat/Zero)"))).
-** exception error: no match of right hand side value
-   {error,{"==",
-          {app,{{var,{'Succ',0}},{var,{'Zero',0}}}},
-          {var,{'Zero',0}}}}
-\end{lstlisting}
-
-\subsection{Effect Type System}
-This work is expected to compile to a limited number of target platforms.
-For now, Erlang, Haskell, and LLVM are awaiting.
-Erlang version is expected to be used both on LING and BEAM Erlang virtual machines.
-This language allows you to define trusted operations in System F and extract this routine to Erlang/OTP platform and plug as trusted resources.
-As the example, we also provide infinite coinductive process creation and inductive shell that linked to Erlang/OTP IO functions directly.
-
-{\bf IO} protocol.
-We can construct in pure type system the state machine based on (co)free monads driven by {\bf IO/IOI} protocols.
-Assume that {\bf String} is a {\bf List\ Nat} (as it is in Erlang natively), and three external constructors: getLine, putLine and pure.
-We need to put correspondent implementations on host platform as parameters to perform the actual IO.
-
-\begin{lstlisting}
-String: Type = List Nat
-data IO: Type =
-     (getLine: (String -> IO) -> IO)
-     (putLine: String -> IO)
-     (pure: () -> IO)
-\end{lstlisting}
-
-\subsubsection{Infinity I/O Type}
-
-Infinity I/O Type Spec.
-
-\begin{lstlisting}
--- IOI/@: (r: U) [x: U] [[s: U] -> s -> [s -> #IOI/F r s] -> x] x
-   \ (r : *)
--> \/ (x : *)
--> (\/ (s : *)
-   -> s
-   -> (s -> #IOI/F r s)
-   -> x)
--> x
-
--- IOI/F
-   \ (a : *)
--> \ (State : *)
--> \/ (IOF : *)
--> \/ (PutLine_ : #IOI/data -> State -> IOF)
--> \/ (GetLine_ : (#IOI/data -> State) -> IOF)
--> \/ (Pure_ : a -> IOF)
--> IOF
-
--- IOI/MkIO
-   \ (r : *)
--> \ (s : *)
--> \ (seed : s)
--> \ (step : s -> #IOI/F r s)
--> \ (x : *)
--> \ (k : forall (s : *) -> s -> (s -> #IOI/F r s) -> x)
--> k s seed step
-
--- IOI/data
-#List/@ #Nat/@
-\end{lstlisting}
-
-Infinite I/O Sample Program.
-
-\begin{lstlisting}[mathescape=true]
--- Morte/corecursive
-( \ (r: *1)
- -> ( (((#IOI/MkIO r) (#Maybe/@ #IOI/data)) (#Maybe/Nothing #IOI/data))
-    ( \ (m: (#Maybe/@ #IOI/data))
-     -> (((((#Maybe/maybe #IOI/data) m) ((#IOI/F r) (#Maybe/@ #IOI/data)))
-           ( \ (str: #IOI/data)
-            -> ((((#IOI/putLine r) (#Maybe/@ #IOI/data)) str)
-                (#Maybe/Nothing #IOI/data))))
-         (((#IOI/getLine r) (#Maybe/@ #IOI/data))
-          (#Maybe/Just #IOI/data))))))
-\end{lstlisting}
-
-Erlang Coinductive Bindings.
-
-\begin{lstlisting}[mathescape=true]
-copure() ->
-    fun (_) -> fun (IO) -> IO end end.
-
-cogetLine() ->
-    fun(IO) -> fun(_) ->
-        L = ch:list(io:get_line("> ")),
-        ch:ap(IO,[L]) end end.
-
-coputLine() ->
-    fun (S) -> fun(IO) ->
-        X = ch:unlist(S),
-        io:put_chars(": "++X),
-        case X of "0\n" -> list([]);
-                      _ -> corec() end end end.
-
-corec() ->
-    ap('Morte':corecursive(),
-        [copure(),cogetLine(),coputLine(),copure(),list([])]).
-\end{lstlisting}
-
-\begin{lstlisting}[mathescape=true]
-
-> om_extract:extract("priv/normal/IOI").
-ok
-> Active: module loaded: {reloaded,'IOI'}
-\end{lstlisting}
-
-\begin{lstlisting}[mathescape=true]
-> om:corec().
-> 1
-: 1
-> 0
-: 0
-#Fun<List.3.113171260>
-\end{lstlisting}
-
-\subsubsection{I/O Type}
-
-I/O Type Spec.
-
-\begin{lstlisting}[mathescape=true]
--- IO/@
-   \ (a : *)
--> \/ (IO : *)
--> \/ (GetLine_ : (#IO/data -> IO) -> IO)
--> \/ (PutLine_ : #IO/data -> IO -> IO)
--> \/ (Pure_ : a -> IO)
--> IO
-
--- IO/replicateM
-   \ (n: #Nat/@)
--> \ (io: #IO/@ #Unit/@)
--> #Nat/fold n (#IO/@ #Unit/@)
-               (#IO/[>>] io)
-               (#IO/pure #Unit/@ #Unit/Make)
-\end{lstlisting}
-
-Guarded Recursion I/O Sample Program.
-
-\begin{lstlisting}[mathescape=true]
--- Morte/recursive
-((#IO/replicateM #Nat/Five)
- ((((#IO/[>>=] #IO/data) #Unit/@) #IO/getLine) #IO/putLine))
-\end{lstlisting}
-
-Erlang Inductive Bindings.
-
-\begin{lstlisting}[mathescape=true]
-pure() ->
-    fun(IO) -> IO end.
-
-getLine() ->
-    fun(IO) -> fun(_) ->
-        L = ch:list(io:get_line("> ")),
-        ch:ap(IO,[L]) end end.
-
-putLine() ->
-    fun (S) -> fun(IO) ->
-        io:put_chars(": "++ch:unlist(S)),
-        ch:ap(IO,[S]) end end.
-
-rec() ->
-    ap('Morte':recursive(),
-        [getLine(),putLine(),pure(),list([])]).
-\end{lstlisting}
-
-
-Here is example of Erlang/OTP shell running recursive example.
-
-\begin{lstlisting}[mathescape=true]
-> om:rec().
-> 1
-: 1
-> 2
-: 2
-> 3
-: 3
-> 4
-: 4
-> 5
-: 5
-#Fun<List.28.113171260>
-\end{lstlisting}
-
-\section{Higher Language with Inductive Types}
-As was shown by Herman Geuvers\cite{Geuvers01} the induction principle is not derivable in second-order dependent type theory.
-However there a lot of ways doing this. For example, we can build in induction principal into the core for every defined inductive type.
-We even can allow recursive type check for only terms of induction principle, which have recursion base --- that approach was successfully established by Peng Fu and Aaron Stump\cite{Stump17}.
-In any case for derivable induction principle in PTS$^\infty$ we need to have fixpoint somehow in the core.
-
-So-called Calculus of Inductive Constructions\cite{Mohring15} is used as a top language on top of PTS to reason about inductive types.
-Here we will show you a sketch of such inductive language model which intended to be a language extension to PTS system.
-CiC is allowing fixpoint for any terms, and base checking should be performed during type checking such terms.
-
-Our future top language is a general-purpose functional language with $\Pi$ and $\Sigma$ types, recursive algebraic types, higher order functions, corecursion, and a free monad to encode effects.
-It compiles to a small MLTT core of dependent type system with inductive types and equality.
-It also has an Id-type (with its recursor) for equality reasoning, Case analysis over inductive types.
-
-\subsection{BNF}
-
-\begin{lstlisting}[mathescape=true]
-    <> ::= #option
-    [] ::= #list
-     | ::= #sum
-     1 ::= #unit
-     I ::= #identifier
-     U ::= Type < #nat >
-     T ::= 1 | ( I : O ) T
-     F ::= 1 | I : O = O , F
-     B ::= 1 | [ | I [ I ] $\rightarrow$ O ]
-     O ::= I | ( O ) |
-           U | O $\rightarrow$ O                  | O O
-             | fun ( I : O ) $\rightarrow$ O      | fst O
-             | snd O                 | id O O O
-             | J O O O O O           | let F in O
-             | ( I : O ) * O         | ( I : O ) $\rightarrow$ O
-             | data I T : O := T     | record I T : O := T
-             | case O B
-\end{lstlisting}
-
-\newpage
-\subsection{AST}
-The AST of higher language is formally defined using itself.
-Here you can find telescopes (context lists), split and its branches, inductive data definitions.
-
-\begin{lstlisting}[mathescape=true]
- data tele (A: U)   = emp | tel (n: name) (b: A) (t: tele A)
- data branch (A: U) =        br (n: name) (args: list name) (term: A)
- data label (A: U)  =       lab (n: name) (t: tele A)
- data ind
-    = star                        (n: nat)
-    | var    (n: name)            (i: nat)
-    | app              (f a: ind)
-    | lambda (x: name) (d c: ind)
-    | pi     (x: name) (d c: ind)
-    | sigma  (n: name) (a b: ind)
-    | arrow            (d c: ind)
-    | pair             (a b: ind)
-    | fst              (p:   ind)
-    | snd              (p:   ind)
-    | id               (a b: ind)
-    | idpair           (a b: ind)
-    | idelim           (a b c d e: ind)
-    | data_  (n: name) (t: tele ind) (labels:   list (label ind))
-    | case   (n: name) (t: ind)      (branches: list (branch ind))
-    | ctor   (n: name)               (args:     list ind)
-\end{lstlisting}
-
-The Erlang version of parser encoded with OTP library {\bf yecc} which implements LALR-1 grammar generator.
-This version resembles the model and slightly based on cubical type checker by Mortberg\cite{Mortberg17} and could be reached at Github repository\footnote{http://github.com/groupoid/infinity/tree/master/priv}.
-
-\subsection{Inductive Type Encoding}
-There are a number of inductive type encodings:
-1) Commutative square encoding of F-algebras by Hinze, Wu \cite{Hinze13};
-2) Inductive-recursive encoding, algebraic type of algebraic types, inductive family encoding by Dagand \cite{Dagand13};
-3) Encoding with motives inductive-inductive definition, also with inductive families, for modeling quotient types by Altenkirch, Kaposi \cite{Kaposi16};
-4) Henry Ford encoding or encoding with Ran,Lan-extensions by Hamana, Fiore \cite{Hamana11};
-5) Church-compatible Bohm-Berarducci encoding Bohm, Berarducci \cite{Bohm85}.
-Om is shipped with base library in Church encoding and we already gave the example of IO system encoded with runtime linkage.
-We give here simple calculations behind this theory.
-
-\newpage
-\subsection{Polynomial Functors}
-Least fixed point trees are called well-founded trees.
-They encode polynomial functors.\\
-
-\noindent Natural Numbers: $\mu\ X \rightarrow 1 + X$\\
-List A: $\mu\ X \rightarrow 1 + A \times X$\\
-Lambda calculus: $\mu\ X \rightarrow 1 + X \times X + X$\\
-Stream: $\nu\ X \rightarrow A \times X$\\
-Potentialy Infinite List A: $\nu\ X \rightarrow 1 + A \times X$\\
-Finite Tree: $\mu\ X \rightarrow \mu\ Y \rightarrow 1 + X \times Y = \mu\ X = List\ X$\\
-
-As we know there are several ways to appear for a variable in a recursive algebraic type.
-Least fixpoint is known as a recursive expression that has a base of recursion In Chuch-Bohm-Berarducci encoding type are store as non-recursive definitions of their right folds.
-A fold in this encoding is equal to id function as the type signature contains its type constructor as parameters to a pure function.
-
-\subsection{List Example}
-The data type of lists over a given set A can be represented as the initial algebra
-$(\mu L_A, in)$ of the functor $L_A(X) = 1 + (A \times X)$. Denote $\mu L_A = List(A)$.
-The constructor functions $nil: 1 \rightarrow List(A)$ and
-$cons: A \times List(A) \rightarrow List(A)$ are defined by
-$nil = in \circ inl$ and $cons = in \circ inr$, so $in = [nil,cons]$.
-Given any two functions $c: 1 \rightarrow C$ and $h: A \times C \rightarrow C$,
-the catamorphism $f = \llparenthesis [c,h] \rrparenthesis : List(A) \rightarrow C$
-is the unique solution of the simultaneous equations:
-
-$$
-\begin{cases}
-  f \circ nil  = c \\
-  f \circ cons = h \circ (id \times f)
-\end{cases}
-$$
-
-where $f = foldr(c,h)$. Having this the initial algebra is presented with functor
-$\mu (1 + A \times X)$ and morphisms sum $[1 \rightarrow List(A), A \times List(A) \rightarrow List(A)]$
-as catamorphism. Using this encoding the base library of List will have following form:
-
-$$
-\begin{cases}
-list = \lambda\ ctor \rightarrow \lambda\ cons \rightarrow \lambda\ nil \rightarrow ctor\\
-cons = \lambda\ x\ \rightarrow \lambda\ xs \rightarrow \lambda\ list \rightarrow \lambda\ cons \rightarrow\ \lambda\ nil \rightarrow cons\ x\ (xs\ list\ cons\ nil)\\
-nil = \lambda\ list \rightarrow \lambda\ cons \rightarrow \lambda\ nil \rightarrow nil\\
-\end{cases}
-$$
-
-Here traditionally we show the {\bf List} definition in higher language and its
-desugared version in {\bf Henk} language.
-
-\begin{lstlisting}[mathescape=true]
-  data List: (A: *) $\rightarrow$ * :=
-       (Cons: A $\rightarrow$ list A $\rightarrow$ list A)
-       (Nil: list A)
-\end{lstlisting}
-
-\begin{lstlisting}[mathescape=true]
--- List/@
-   \ (A : *)
--> \/ (List: *)
--> \/ (Cons: \/ (Head: A) -> \/ (Tail: List) -> List)
--> \/ (Nil: List)
--> List
-
--- List/Cons
-   \ (A: *)
--> \ (Head: A)
--> \ (Tail:
-      \/ (List: *)
-   -> \/ (Cons: \/ (Head: A) -> \/ (Tail: List) -> List)
-   -> \/ (Nil: List)
-   -> List)
--> \ (List: *)
--> \ (Cons:
-      \/ (Head: A)
-   -> \/ (Tail: List)
-   -> List)
--> \ (Nil: List)
--> Cons Head (Tail List Cons Nil)
-
--- List/Nil
-   \ (A: *)
--> \ (List: *)
--> \ (Cons:
-      \/ (Head: A)
-   -> \/ (Tail: List)
-   -> List)
--> \ (Nil: List)
--> Nil
-\end{lstlisting}
-
-\begin{lstlisting}[mathescape=true]
-           record lists: (A B: *) :=
-                  (len: list A $\rightarrow$ integer)
-                  ((++): list A $\rightarrow$ list A $\rightarrow$ list A)
-                  (map: (A $\rightarrow$ B) $\rightarrow$ (list A $\rightarrow$ list B))
-                  (filter: (A $\rightarrow$ bool) $\rightarrow$ (list A $\rightarrow$ list A))
-\end{lstlisting}
-
-$$
-\begin{cases}
-foldr = \llparenthesis [ f \circ nil , h] \rrparenthesis, f \circ cons = h \circ (id \times f)\\
-len = \llparenthesis [ zero, \lambda\ a\ n \rightarrow succ\ n ] \rrparenthesis \\
-(++) = \lambda\ xs\ ys \rightarrow \llparenthesis [ \lambda (x) \rightarrow ys, cons ] \rrparenthesis (xs) \\
-map = \lambda\ f \rightarrow \llparenthesis [ nil, cons \circ (f \times id)] \rrparenthesis
-\end{cases}
-$$
-
-$$
-\begin{cases}
-len = foldr\ (\lambda\ x\ n \rightarrow succ\ n)\ 0\\
-(++) = \lambda\ ys \rightarrow foldr\ cons\ ys\\
-map = \lambda\ f \rightarrow foldr\ (\lambda x\ xs \rightarrow cons\ (f\ x)\ xs)\ nil\\
-filter = \lambda\ p \rightarrow foldr\ (\lambda x\ xs \rightarrow if\ p\ x\ then\ cons\ x\ xs\ else\ xs)\ nil\\
-foldl = \lambda\ f\ v\ xs = foldr\ (\lambda\ xg\rightarrow\ (\lambda \rightarrow g\ (f\ a\ x)))\ id\ xs\ v\\
-\end{cases}
-$$
-
-\subsection{Base Library}
-The base library includes basic type-theoretical
-building blocks starting from {\bf Unit}, {\bf Bool}, {\bf Either}, {\bf Maybe}, {\bf Nat}, {\bf List} and {\bf IO}.
-Here some examples how it looks like. The full listing of Base Library folder
-is available at {\bf Henk} GitHub repository\footnote{http://github.com/groupoid/om}.
-
-\begin{lstlisting}[mathescape=true]
-
-             data Nat: Type :=
-                  (Zero: Unit $\rightarrow$ Nat)
-                  (Succ: Nat $\rightarrow$ Nat)
-
-             data List (A: Type) : Type :=
-                  (Nil: Unit $\rightarrow$ List A)
-                  (Cons: A $\rightarrow$ List A $\rightarrow$ List A)
-
-           record String: List Nat := List.Nil
-
-             data IO: Type :=
-                  (getLine: (String $\rightarrow$ IO) $\rightarrow$ IO)
-                  (putLint: String $\rightarrow$ IO)
-                  (pure: () $\rightarrow$ IO)
-
-           record IO: Type :=
-                  (data: String)
-                  ([>>=]: ...)
-
-           record Morte: Type :=
-                  (recursive: IO.replicateM
-                    Nat.Five (IO.[>>=] IO.data Unit
-                              IO.getLine IO.putLine))
-
-\end{lstlisting}
-
-\subsection{Measurements}
-The underlying {\bf Henk} type checker and compiler is a target language for higher level languages.
-The overall size of {\bf Henk} language with extractor to Erlang is 265 lines of code.
-
-\begin{table}[h]
-\begin{center}
-\caption{Compiler Passes}
-\label{tab:passes}
-\tabcolsep7pt\begin{tabular}{lccc}
-\hline
-{\bf Module} & {\bf LOC} & {\bf Description}\\
-\hline
-om\_tok     & 54 LOC & Handcoded Tokenizer\\
-om\_parse   & 81 LOC & Inductive AST Parser\\
-om\_type    & 60 LOC & Term normalization and typechecking\\
-om\_erase   & 36 LOC & Delete information about types\\
-om\_extract & 34 LOC & Extract Erlang Code\\
-\hline
-\end{tabular}
-\end{center}
-\end{table}
+The extracted term is then pretty-printed as Erlang functions using \texttt{erl\_abstract\_format}.
+Primitive operations (I/O, arithmetic) are supplied as higher-order Erlang functions at extraction time.
+The result runs directly on BEAM with no additional runtime overhead beyond ordinary Erlang.
+
+Exampled the Church-encoded successor function which extracts to a plain Erlang closure that
+can be applied to any host-provided natural-number representation.
+
+\section{Tutorial: Encodings and Effects}
+
+All data are Church-encoded. The prelude (available in the repository) provides:
+\begin{itemize}
+\item \texttt{Bool}, \texttt{Nat}, \texttt{List}, \texttt{Maybe}, \texttt{Either},
+\item $\Sigma$- and equality types via Böhm--Berarducci encodings,
+\item two I/O models:
+  \begin{enumerate}
+  \item recursive free monad (finite scripts),
+  \item corecursive comonad (infinite servers/processes).
+  \end{enumerate}
+\end{itemize}
+
+The corecursive model directly mirrors Erlang processes: an anamorphism generates an infinite state machine whose step
+function is linked to \texttt{io:get\_line} and \texttt{io:put\_chars}.
+
+Example extraction and execution of a corecursive echo server is shown in the repository tests; the resulting Erlang code
+runs indefinitely and interacts with the console exactly as a native OTP process.
+
+\section{Higher-Level Languages}
+
+Henk is the trusted core. The planned language Christine adds:
+
+\begin{itemize}
+\item inductive families (via fixpoints or self-types),
+\item $\Sigma$-types and dependent records,
+\item Martin-Löf identity type with eliminators,
+\item case analysis and recursion on inductive types.
+\end{itemize}
+
+These extensions are compiled down to Henk + host primitives, preserving the extraction pipeline.
+
+\section{Limitations}
+
+\begin{itemize}
+\item No inductive types or fixpoints in the core (by design; they are added in higher layers).
+\item The type-checker correctness has not yet been mechanically verified.
+\item Performance benchmarks against Coq/Agda extraction or native Erlang are not included in this paper.
+\item Extraction yields untyped code; any safety guarantees beyond those of Erlang itself are the responsibility of the higher-level compiler.
+\end{itemize}
 
 \section{Conclusion}
-We have proposed a modified version of CoC, also known as pure type system, with predicative and impredicative switchable infinitary hierarchies.
-This system is known to be consistent, supports strong normalization and resembles the type system which is the same as foundations of modern provers, like Coq, Lean, Agda.
 
-{\bf Discoveries}.
- During this investigation were made following discoveries:
-1) baning recursion caused impossibility of encoding a class of theorems based on induction principle.
-As was shown by Peng Fu, Aaron Stump\cite{Fu14}, the only needed ingredient for induction in CoC is Self-Type, weak form of fixpoint recursion in the core.
-2) however for running applications at runtime it is enough System F programs or Dependent Types without Fixpoint.
-So we can prove properties of these programs in higher languages with fixpoint (and thus induction) and then erase theorems from a specification and convert runtime parts of the specification into {\bf PTS$^\infty$} with later extraction to any functional language.
-2) there are a lot of theorems, that could be expressed without fixpoint, such as theorems from higher order logic.
-3) this system could be naturally translated into untyped lambda interpreters.
+Henk is a mathematically precise, minimal PTS implementation whose meta-theory is standard and well-understood.
+It provides a trustworthy extraction path from dependent types to the Erlang ecosystem.
+The implementation is compact, the formal rules are fully specified, and the encodings for data and effects are complete.
+Future work will add inductive types in Christine and formally verify the type-checker kernel.
 
-{\bf Advantages over existing pure languages}.
-1) refined version of type checker and the clean implementation in 265 LOC.
-This will make more trust to the core by external institutions.
-2) supporting both predicative and impredicative hierarchies of {\bf PTS$^\infty$} configuration.
-3) comparing to other languages, Om is much faster on big terms
-thanks to fast Erlang lambda evaluations and a cache layer.
-4) Om is a production language.
+The source code, prelude, test suite and live REPL are available at \url{https://github.com/groupoid/henk} and \url{https://henk.groupoid.space}.
 
-{\bf Scientific and Production usage}.
-1) The language could be used as a trusted core for certification sensitive parts of applications, such as in finance, math or other domains with the requirement for totality.
-2) This work could be used as embeddable runtime library.
-3) In the academia {\bf PTS$^\infty$} could be used as teaching instrument for logic, type systems, lambda calculus, functional languages.
+\begin{thebibliography}{99}
 
-{\bf Further research perspective}.
-1) Extend the host languages from Erlang to Rust and prove the Om within Coq or Cubical.
-2) Build a theory of compilation and erasing from higher languages to {\bf PTS$^\infty$}.
-3) Build a certified interpreter (replace Erlang) in future higher level language.
-4) Make Induction Principle switchable with {\bf PTS$^\infty$} in future.
+\bibitem{Barendregt92}
+Henk Barendregt,
+\textit{Lambda Calculi with Types},
+Handbook of Logic in Computer Science, Vol.~2, Oxford University Press, 1992.
 
-\section{Acknowledgments}
-We thank all contributors of Groupoid Infinity who helped us to avoid mistakes in TeX and Erlang files.
-We also thank our spouses for continuous support.
+\bibitem{Terlouw93}
+J. Terlouw,
+\textit{Strong Normalization for the Calculus of Constructions},
+Technical Report, University of Nijmegen, 1993.
 
-\bibliographystyle{plain}
-\bibliography{pts_ua}
+\bibitem{Erik97}
+Simon Peyton Jones and Erik Meijer,
+\textit{Henk: A Typed Intermediate Language},
+Types in Compilation Workshop, 1997.
+
+\bibitem{Coq88}
+Thierry Coquand and Gérard Huet,
+\textit{The Calculus of Constructions},
+Information and Computation 95(2), 1988.
+
+\bibitem{Lof84}
+Per Martin-Löf,
+\textit{Intuitionistic Type Theory},
+Bibliopolis, 1984.
+
+\bibitem{Geuvers01}
+Herman Geuvers,
+\textit{Induction is not Derivable in Second-Order Dependent Type Theory},
+Typed Lambda Calculi and Applications, 2001.
+
+\bibitem{Bohm85}
+Corrado Böhm and Alessandro Berarducci,
+\textit{Automatic Synthesis of Typed Lambda-Programs on Term Algebras},
+Theoretical Computer Science 39, 1985.
+
+\bibitem{Fu14}
+Peng Fu and Aaron Stump,
+\textit{Self Types for Dependently Typed Lambda Encodings},
+RTA-TLCA 2014.
+
+\end{thebibliography}
 
 \end{document}
