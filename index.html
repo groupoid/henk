@@ -80,12 +80,10 @@ type term =
                     <hr>
                     <p>The <b>Monadic IO</b> model uses a Church-encoded Free Monad. It is suitable for sequential imperative-style programs.</p>
                     <pre class="code-snippet" style="font-size: 0.85rem;">
--- Control/IO.henk
 module Test.Recursive where
 import Control.IO
 
-echo = io_bind io_get_line 
-               (\s -> io_put_line s)
+echo = io_bind io_get_line (\s -> io_put_line s)
 
 main = replicate_io five echo</pre>
                     <ul>
@@ -100,21 +98,17 @@ main = replicate_io five echo</pre>
                     <hr>
                     <p>The <b>Comonadic IOI</b> model represents IO as an infinite state machine (Anamorphism). It is the canonical model for long-running servers.</p>
                     <pre class="code-snippet" style="font-size: 0.85rem;">
--- Control/IOI.henk
 module Test.Corecursive where
 import Control.IOI
 
 step m = case m of
-    Nothing -> iof_get_line_f 
-               (\s -> Just Any s)
-    Just s  -> iof_put_line_f s 
-               (Nothing Any)
+    Nothing -> iof_get_line_f (\s -> Just Any s)
+    Just s  -> iof_put_line_f s (Nothing Any)
 
-corecursive = mk_io Any (Maybe Any) 
-                    (Nothing Any) step</pre>
+main = mk_io Any (Maybe Any) (Nothing Any) step</pre>
                     <ul>
                         <li><a href="test/henk/Test/Corecursive.henk">View Source</a></li>
-                        <li><b>REPL:</b> <code>run_ioi Test.Corecursive.corecursive</code></li>
+                        <li><b>REPL:</b> <code>run_ioi Test.Corecursive.main</code></li>
                     </ul>
                 </div>
             </div>
