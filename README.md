@@ -1,5 +1,5 @@
-Henk: Minimal Proving System in Elixir
-======================================
+Henk: Minimal Proving System
+============================
 
 [![Actions Status](https://github.com/groupoid/henk/workflows/ci/badge.svg)](https://github.com/groupoid/henk/actions)
 [![Hex pm](http://img.shields.io/hexpm/v/henk.svg?style=flat)](https://hex.pm/packages/henk)
@@ -34,7 +34,7 @@ Model and implementation sizes:
 
 * OCaml model is 150 LOC.
 * Erlang model is 300 LOC.
-* Elixir implementation (with front end language) is 2000 LOC.
+* Elixir implementation (with front language and Berarducci schemes) is 1400 LOC.
 
 ### `Henk.Lexer` — `lib/henk/lexer.ex`
 
