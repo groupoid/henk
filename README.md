@@ -144,10 +144,10 @@ Lambda Calculus: Its Syntax and Semantics, 1992, p. 568), which type upholds by 
 
 In repository `henk` you may find the following parts of core:
 
-* [Parser](https://github.com/groupoid/henk/blob/main/src/elixir/syntax/morte/om_parse.erl)
-* [Type Checker](https://github.com/groupoid/henk/blob/main/src/elixir/typechecker/om_type.erl)
-* [Eraser](https://github.com/groupoid/henk/blob/main/src/elixir/extractor/om_erase.erl)
-* [Code Extractor](https://github.com/groupoid/henk/blob/main/src/elixir/extractor/om_extract.erl)
+* [Parser](https://github.com/groupoid/henk/blob/main/src/erlang/syntax/om_parse.erl)
+* [Type Checker](https://github.com/groupoid/henk/blob/main/src/erlang/typechecker/om_type.erl)
+* [Eraser](https://github.com/groupoid/henk/blob/main/src/erlang/extractor/om_erase.erl)
+* [Code Extractor](https://github.com/groupoid/henk/blob/main/src/erlang/extractor/om_extract.erl)
 
 Henk ships with different "syntaxes" (spaces of types with own encodings), or "preludes", which
 you may find in `priv` directory. They are selectable with `om:mode("aut-68")`.
@@ -155,7 +155,7 @@ you may find in `priv` directory. They are selectable with `om:mode("aut-68")`.
 #### [Henk Library](https://github.com/groupoid/henk/tree/main/src/elixir/priv/Morte)
 
 ```sh
-henk.groupoid.space/priv/morte/
+henk.groupoid.space/priv/aut-68/
   ├── Bool
   ├── Cmd
   ├── Eq
