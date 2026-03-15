@@ -17,7 +17,7 @@ be able to produce verifiable programs that can be distributed over the networks
 
 ```
 $ mix deps.get
-$ iex -S mix
+$ mix henk.repl
 ```
 
 ## Syntax
@@ -26,11 +26,8 @@ The Henk Syntax is the following:
 
 ```
    <> ::= #option
-
     I ::= #identifier
-
     U ::= * < #number >
-
     O ::= U | I | ( O ) | O O
             | λ ( I : O ) → O
             | ∀ ( I : O ) → O
@@ -173,8 +170,8 @@ for infinitary I/O, long-term processes). The generated code is being sewed with
 Erlang effects that are passed as parameters to pure functions.
 
 Note: all these folders (modules) are encoded in plain CoC in Henk repository to demonstrate
-you the basic principles how things work. Later all these should be written in Per
-languages and translated to Henk automatically (if possible). You may think of Henk as the low-level
+you the basic principles how things work. Later all these was written in Elixir
+language and translated to Henk automatically. You may think of Henk as the low-level
 typed assembler of type theory.
 
 PTS
