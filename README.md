@@ -152,7 +152,7 @@ In repository `henk` you may find the following parts of core:
 Henk ships with different "syntaxes" (spaces of types with own encodings), or "preludes", which
 you may find in `priv` directory. They are selectable with `om:mode("aut-68")`.
 
-#### [Henk Library](https://github.com/groupoid/henk/tree/main/src/elixir/priv/Morte)
+#### [Henk Library](https://github.com/groupoid/henk/tree/main/priv/aut-68/)
 
 ```sh
 henk.groupoid.space/priv/aut-68/
