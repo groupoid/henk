@@ -168,7 +168,7 @@ defmodule Mix.Tasks.Henk.Repl do
   defp print_banner(syntax_name) do
     vsn = Application.spec(:henk, :vsn) || "unknown"
     IO.puts(
-      "🧊 Henk Programming Language version #{vsn} [#{syntax_name} syntax]\n" <>
+      "🧊 Henk Minimal Proving System version #{vsn} [#{syntax_name} syntax]\n" <>
         "Copyright (c) 2015-2026 Groupoid Infinity\n" <>
         "https://groupoid.github.io/henk/\n"
     )
