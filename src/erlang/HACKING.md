@@ -107,12 +107,10 @@ om_repl:scan(false).
 
 ### Mode (`om:mode`)
 
-```erlang
-%% Get current mode
-om_repl:mode().
-% "morte"
+Get or sets current mode.
 
-%% Set mode
+```erlang
+om_repl:mode().
 om_repl:mode("morte").
 ```
 
@@ -128,19 +126,23 @@ om_repl:mode("morte").
 {"→", {InputType, OutputType}}        %% arrow shorthand
 ```
 
+## UTF-8
+
 > `"λ"` = charlist `[955]`, `"∀"` = `[8704]`, `"→"` = `[8594]`.
 
 ## State Passing
 
-All functions are pure — no ETS, no process dictionary.
+State-threaded.
 
 ```erlang
-%% State-threaded
 {Norm,  S1} = om_type:norm(Term, S0).
 {Type,  S1} = om_type:type(Term, S0).
 {Value, S1} = om_state:cache(norm | type | erased, N, S0).
+```
 
-%% Stateless helpers (load remotes from disk on demand)
+Stateless helpers (load remotes from disk on demand).
+
+```
 Term = om_repl:parse(Binary).
 Type = om_type:type_s(Term, Env).
 Norm = om_type:norm(Term).
