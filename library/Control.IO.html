@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control.IO</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Control.IO</h1>
+                <div class="subtitle">v0.1.0 • Free IO Monad</div>
+            </div>
+
+            <p class="module-description">
+                Church-encoded Free IO Monad, ported from Morte IO. This module provides a way to represent
+                impure IO actions as pure values that can be interpreted later.
+            </p>
+                       <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">IO <span class="doc-signature">:: * -> *</span></h3>
+                    <p class="doc-description">
+                        The Church-encoded Free IO Monad. It represents a calculation that can perform effects 
+                        via handles (get_line, put_line) and eventually returns a pure value.
+                    </p>
+                </div>
+            </section>
+
+            <section>
+                <h2>Foreigns</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">get_line <span class="doc-signature">:: Data</span></h3>
+                    <p class="doc-description">Leaf FFI: the primitive console operation to read input from standard input.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">foreign get_line :: Data = henk_io get_line</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">put_line <span class="doc-signature">:: Data -> ()</span></h3>
+                    <p class="doc-description">Leaf FFI: the primitive console operation to write output to standard output.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">foreign put_line :: Data -> () = henk_io put_line</pre>
+                </div>
+            </section>
+
+            <section>
+                <h2>Functions</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">io_pure <span class="doc-signature">:: A -> IO A</span></h3>
+                    <p class="doc-description">Lifts a pure value into the IO monad.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">io_pure x io_r get_line_ put_line_ pure_ = pure_ x</pre>
+                    <span class="doc-label">Usage</span>
+                    <pre class="doc-example">io_pure 5</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">io_get_line <span class="doc-signature">:: IO String</span></h3>
+                    <p class="doc-description">Abstract action that requests a line of text via handles.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">io_get_line io_r get_line_ put_line_ pure_ = get_line_ pure_</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">io_put_line <span class="doc-signature">:: String -> IO ()</span></h3>
+                    <p class="doc-description">Abstract action that requests to display a string via handles.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">io_put_line str io_r get_line_ put_line_ pure_ =
+    put_line_ str (\_ -> pure_ tt)</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">io_bind <span class="doc-signature">:: IO A -> (A -> IO B) -> IO B</span></h3>
+                    <p class="doc-description">Monadic bind for sequencing IO actions.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">io_bind m f io_r get_line_ put_line_ pure_ =
+    m io_r get_line_ put_line_ (\a -> f a io_r get_line_ put_line_ pure_)</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">run_io <span class="doc-signature">:: IO A -> A</span></h3>
+                    <p class="doc-description">Interpreter for the IO action. Written in Henk as a Church fold.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">run_io action = action Any io_get_handler io_put_handler io_pure_handler</pre>
+                </div>
+
+                <div class="doc-entry">
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">replicate_io <span class="doc-signature">:: Nat -> IO () -> IO ()</span></h3>
+                    <p class="doc-description">Repeats an IO action N times sequentially.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">replicate_io n action = case n of
+    Zero   -> io_pure tt
+    Succ p -> io_bind action (\_ -> replicate_io p action)</pre>
+                    <span class="doc-label">Usage</span>
+                    <pre class="doc-example">greet_thrice = replicate_io (Succ (Succ (Succ Zero))) 
+                            (io_put_line "Hi!")</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data.Prod</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Data.Prod</h1>
+                <div class="subtitle">v0.1.0 • Product Types</div>
+            </div>
+
+            <p class="module-description">
+                Generic product types (pairs).
+            </p>
+            
+            <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Prod <span class="doc-signature">:: * -> * -> *</span></h3>
+                    <p class="doc-description">The sigma type (dependent pair), representing a tuple where the second type can depend on the first value.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Prod A B = Σ A B</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Pair <span class="doc-signature">:: * -> * -> *</span></h3>
+                    <p class="doc-description">Standard non-dependent product type.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Pair A B = Pair A B</pre>
+                </div>
+            </section>
+
+            <section>
+                <h2>Foreigns</h2>
+                <p class="module-description" style="font-size:1rem; margin-bottom:2rem;">No foreign functions defined in this module.</p>
+            </section>
+
+            <section>
+                <h2>Functions</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">fst <span class="doc-signature">:: Pair A B -> A</span></h3>
+                    <p class="doc-description">Returns the first element of a pair.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">fst p = case p of
+    Pair a b -> a</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">snd <span class="doc-signature">:: Pair A B -> B</span></h3>
+                    <p class="doc-description">Returns the second element of a pair.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">snd p = case p of
+    Pair a b -> b</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">curry <span class="doc-signature">:: (Pair A B -> C) -> A -> B -> C</span></h3>
+                    <p class="doc-description">Converts a function on pairs to a curried function.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">curry f a b = f (Pair a b)</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">uncurry <span class="doc-signature">:: (A -> B -> C) -> Pair A B -> C</span></h3>
+                    <p class="doc-description">Converts a curried function to a function on pairs.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">uncurry f p = case p of
+    Pair a b -> f a b</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

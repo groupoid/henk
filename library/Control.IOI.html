@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control.IOI</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Control.IOI</h1>
+                <div class="subtitle">v0.1.0 • Free IOI Comonad</div>
+            </div>
+
+            <p class="module-description">
+                Church-encoded Free IOI Comonad, ported from Morte IOI. IOI is a comonadic state machine 
+                defined by an anamorphism. It represents a process that can interact with its environment.
+            </p>
+            
+            <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">IOI <span class="doc-signature">:: * -> *</span></h3>
+                    <p class="doc-description">
+                        The Church-encoded Free IO Comonad. It represents a potentially infinite state-based 
+                        process (a machine) defined by an anamorphism.
+                    </p>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">F <span class="doc-signature">:: * -> * -> *</span></h3>
+                    <p class="doc-description">
+                        The interaction functor for the IO stream. Describes the possible next steps 
+                        of a process: output, input, or return.
+                    </p>
+                </div>
+            </section>
+
+            <section>
+                <h2>Foreigns</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">get_line <span class="doc-signature">:: Data</span></h3>
+                    <p class="doc-description">Leaf FFI shared with IO. Reads input from console.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">foreign get_line :: Data = henk_io get_line</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">put_line <span class="doc-signature">:: Data -> ()</span></h3>
+                    <p class="doc-description">Leaf FFI shared with IO. Writes output to console.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">foreign put_line :: Data -> () = henk_io put_line</pre>
+                </div>
+            </section>
+
+            <section>
+                <h2>Functions</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">iof_put_line_f <span class="doc-signature">:: String -> S -> F r S</span></h3>
+                    <p class="doc-description">Helper to construct a "write" step in the interaction functor.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">iof_put_line_f str ns x put_line_ get_line_ return_ = put_line_ str ns</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">iof_get_line_f <span class="doc-signature">:: (String -> S) -> F r S</span></h3>
+                    <p class="doc-description">Helper to construct a "read" step in the interaction functor.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">iof_get_line_f k x put_line_ get_line_ return_ = get_line_ k</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">iof_return_f <span class="doc-signature">:: r -> F r S</span></h3>
+                    <p class="doc-description">Helper to construct a terminal step in the interaction functor.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">iof_return_f vr x put_line_ get_line_ return_ = return_ vr</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">mk_io <span class="doc-signature">:: S -> (S -> F r S) -> IOI r</span></h3>
+                    <p class="doc-description">Creates an IOI process from an initial state and a step function (existential constructor).</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">mk_io r s seed step x k = k s seed step</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">run_ioi <span class="doc-signature">:: IOI r -> r</span></h3>
+                    <p class="doc-description">Unpacks the existential machine and drives the loop.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">run_ioi ioi = ioi Any (\_s -> \seed -> \step -> run_ioi_step seed step)</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

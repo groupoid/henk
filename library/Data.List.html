@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data.List</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Data.List</h1>
+                <div class="subtitle">v0.1.0 • Parameterized Lists</div>
+            </div>
+
+            <p class="module-description">
+                Church-encoded linked lists. Functional operations are implemented using Church folds.
+            </p>
+            
+            <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">List <span class="doc-signature">:: * -> *</span></h3>
+                    <p class="doc-description">Parameterized linked list. Church-encoded by the compiler.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data List A = Nil | Cons A (List A)</pre>
+                </div>
+            </section>
+
+            <section>
+                <h2>Foreigns</h2>
+                <p class="module-description" style="font-size:1rem; margin-bottom:2rem;">No foreign functions defined in this module.</p>
+            </section>
+
+            <section>
+                <h2>Functions</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">hd <span class="doc-signature">:: List A -> Maybe A</span></h3>
+                    <p class="doc-description">Safely retrieve the head of a list.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">hd xs = case xs of
+    Nil      -> Nothing
+    Cons h t -> Just h</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">foldr <span class="doc-signature">:: (A -> B -> B) -> B -> List A -> B</span></h3>
+                    <p class="doc-description">Right-associative fold. In Church encoding, <code>t</code> is the IH result.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">foldr f z xs = case xs of
+    Nil      -> z
+    Cons h t -> f h t</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">map <span class="doc-signature">:: (A -> B) -> List A -> List B</span></h3>
+                    <p class="doc-description">Apply a function to every element.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">map f xs = case xs of
+    Nil      -> Nil
+    Cons h t -> Cons (f h) t</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">append <span class="doc-signature">:: List A -> List A -> List A</span></h3>
+                    <p class="doc-description">Concatenates two lists.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">append xs ys = case xs of
+    Nil      -> ys
+    Cons h t -> Cons h t</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">length <span class="doc-signature">:: List A -> Nat</span></h3>
+                    <p class="doc-description">Calculates the size of the list.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">length xs = case xs of
+    Nil      -> Zero
+    Cons h t -> Succ t</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

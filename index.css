@@ -231,6 +231,7 @@ h2 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
     gap: 2rem 2.4rem;
+    align-items: start;
 }
 
 .package-card {
@@ -335,6 +336,129 @@ section > p { max-width:720px;margin:0 auto;margin-top:30px; }
 }
 
 
+
+/* DOCUMENTATION STYLES - World Class Barbie Unicorn Style */
+.module-header {
+    text-align: center;
+    margin-bottom: 4.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.module-header h1 {
+    font-size: clamp(3rem, 6vw, 4.5rem);
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.module-header .subtitle {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+}
+
+.module-description {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin: 0 auto 4rem; /* Adjusted from 5rem for tighter flow to first H2 */
+    max-width: 720px;
+    text-align: center;
+}
+
+section h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 3rem;
+    margin-top: 4rem; /* Spacing between major sections */
+    background: linear-gradient(135deg, HotPink, DarkMagenta);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+section:first-of-type h2 {
+    margin-top: 0; /* Remove top margin for the very first H2 */
+}
+
+.doc-entry {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3.5rem; /* Larger padding for a more premium, spacious feel */
+    margin-bottom: 5rem;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 60px -20px rgba(255, 93, 162, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.doc-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: 2.2rem;
+    font-weight: 850;
+    color: HotPink;
+    margin-bottom: 1.5rem;
+    max-width: none;
+    margin-top: 0;
+}
+
+.doc-signature {
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--accent);
+    opacity: 0.9;
+}
+
+.doc-description {
+    font-size: 1.2rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    max-width: 100%;
+    margin-top: 0;
+}
+
+.doc-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: DarkMagenta;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.doc-implementation, .doc-example {
+    background: transparent; /* Remove background box */
+    border: none;             /* Remove internal border */
+    border-left: 2px solid rgba(255, 105, 180, 0.2); /* Subtle left accent only */
+    border-radius: 0;
+    padding: 0 0 0 1.5rem;
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: var(--text-primary);
+    margin-bottom: 3rem;
+    white-space: pre;
+}
+
+.doc-example {
+    margin-bottom: 0;
+    color: var(--accent-dark);
+}
 
 /* FOOTER */
 footer {

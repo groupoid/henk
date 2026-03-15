@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data.Fin</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Data.Fin</h1>
+                <div class="subtitle">v0.1.0 • Finite Sets</div>
+            </div>
+
+            <p class="module-description">
+                Finite sets (inductive types parameterized by natural numbers).
+            </p>
+            
+            <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Fin <span class="doc-signature">:: Nat -> *</span></h3>
+                    <p class="doc-description">Finite sets. <code>Fin N</code> is a type with exactly <code>N</code> inhabitants. It is an inductive type indexed by a natural number <code>N</code>.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Fin N = FZero N | FSucc N (Fin N)</pre>
+                    <span class="doc-label">Usage</span>
+                    <pre class="doc-example">z = FZero (Succ Zero) -- 0 in Fin 1
+s = FSucc (Succ Zero) (FZero Zero) -- 1 in Fin 2</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

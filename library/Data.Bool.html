@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data.Bool</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Data.Bool</h1>
+                <div class="subtitle">v0.1.0 • Boolean Logic</div>
+            </div>
+
+            <p class="module-description">
+                Boolean operations and Church-encoded logic.
+            </p>
+            
+            <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Bool <span class="doc-signature">:: *</span></h3>
+                    <p class="doc-description">Boolean type representing truth values (True and False).</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Bool = False | True</pre>
+                </div>
+            </section>
+
+            <section>
+                <h2>Foreigns</h2>
+                <p class="module-description" style="font-size:1rem; margin-bottom:2rem;">No foreign functions defined in this module.</p>
+            </section>
+
+            <section>
+                <h2>Functions</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">not <span class="doc-signature">:: Bool -> Bool</span></h3>
+                    <p class="doc-description">Standard boolean negation.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">not b = case b of
+    True  -> False
+    False -> True</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">and <span class="doc-signature">:: Bool -> Bool -> Bool</span></h3>
+                    <p class="doc-description">Boolean conjunction.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">and a b = case a of
+    True  -> b
+    False -> False</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">or <span class="doc-signature">:: Bool -> Bool -> Bool</span></h3>
+                    <p class="doc-description">Boolean disjunction.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">or a b = case a of
+    True  -> True
+    False -> b</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">bool_if <span class="doc-signature">:: Bool -> A -> A -> A</span></h3>
+                    <p class="doc-description">Functional version of if-then-else.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">bool_if b t f = case b of
+    True  -> t
+    False -> f</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

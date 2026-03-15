@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prelude</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Prelude</h1>
+                <div class="subtitle">v0.1.0 • Core Definitions</div>
+            </div>
+
+            <p class="module-description">
+                Core types and functions automatically imported in every module.
+            </p>
+            
+            <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Empty <span class="doc-signature">:: *</span></h3>
+                    <p class="doc-description">The empty type (unoccupied). It has no inhabitants.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Empty =</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Unit <span class="doc-signature">:: *</span></h3>
+                    <p class="doc-description">The type with a single value <code>tt</code>, often used as a dummy return for side-effects.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Unit = tt</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Bool <span class="doc-signature">:: *</span></h3>
+                    <p class="doc-description">Core boolean type.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Bool = False | True</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Nat <span class="doc-signature">:: *</span></h3>
+                    <p class="doc-description">Inductive natural numbers.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Nat = Zero | Succ Nat</pre>
+                </div>
+            </section>
+
+            <section>
+                <h2>Foreigns</h2>
+                <p class="module-description" style="font-size:1rem; margin-bottom:2rem;">No foreign functions defined in this module.</p>
+            </section>
+
+            <section>
+                <h2>Functions</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">id <span class="doc-signature">:: A -> A</span></h3>
+                    <p class="doc-description">The identity function.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">id x = x</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">const <span class="doc-signature">:: A -> B -> A</span></h3>
+                    <p class="doc-description">The constant function.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">const x y = x</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">flip <span class="doc-signature">:: (A -> B -> C) -> B -> A -> C</span></h3>
+                    <p class="doc-description">Flips the arguments of a binary function.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">flip f x y = f y x</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">compose <span class="doc-signature">:: (B -> C) -> (A -> B) -> A -> C</span></h3>
+                    <p class="doc-description">Function composition: <code>(f ∘ g) x = f (g x)</code>.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">compose f g x = f (g x)</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
