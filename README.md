@@ -1,7 +1,7 @@
-Henk Barendregt: Pure Type System
----------------------------------
+Henk: AUTOMATH in Elixir for Erlang/OTP
+---------------------------------------
 
-[![Actions Status](https://github.com/groupoid/henk/workflows/mix/badge.svg)](https://github.com/groupoid/henk/actions)
+[![Actions Status](https://github.com/groupoid/henk/workflows/ci/badge.svg)](https://github.com/groupoid/henk/actions)
 [![Hex pm](http://img.shields.io/hexpm/v/henk.svg?style=flat)](https://hex.pm/packages/henk)
 
 This photo provided exclusively for The **Henk** Programming Language.
@@ -17,6 +17,22 @@ Henk has constants, variables, and kinds, is based only on **П**, **λ** and **
 one axiom and four deduction rules. The Henk language resembles Henk design and Morte implementation.
 This language is indended to be small, concise, easily provable, clean and be able to produce
 verifiable programs that can be distributed over the networks and compiled at target with safe linkage.
+
+## Install Prerequisites
+
+Linux, WSL:
+
+```
+$ sudo install elixir
+```
+
+Mac:
+
+```
+$ brew install elixir
+```
+
+## Install Henk
 
 ```
 $ mix deps.get
