@@ -177,7 +177,7 @@ are written by Maksym Sokhatskyi.
 * <a href="https://www.cambridge.org/core/services/aop-cambridge-core/content/view/869991BA6A99180BF96A616894C6D710/S0956796800020025a.pdf/introduction-to-generalized-type-systems.pdf">Introduction to Generalized Type Systems</a> [Henk Barendregt]
 * <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/1997/01/henk.pdf">Henk: a typed intermediate language</a> [Erik Meijer, Simon Peyton Jones]
 * <a href="https://www.haskellforall.com/2014/09/morte-intermediate-language-for-super.html">Morte: an intermediate language for super-optimizing functional programs</a> [Gabriella Gonzalez]
-* <a href="https://henk.groupoid.space/doc/henk.pdf">Henk: Pure Type System for Erlang</a> [Maksym Sokhatskyi]
+* <a href="https://henk.groupoid.space/articles/henk.pdf">Henk: Pure Type System for Erlang</a> [Maksym Sokhatskyi]
 
 ## Author
 
