@@ -18,7 +18,7 @@ one axiom and four deduction rules. The Henk language resembles Henk design and 
 This language is indended to be small, concise, easily provable, clean and be able to produce
 verifiable programs that can be distributed over the networks and compiled at target with safe linkage.
 
-# Install Prerequisites
+## Install Prerequisites
 
 Linux, WSL:
 
