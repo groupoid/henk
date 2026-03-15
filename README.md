@@ -1,19 +1,22 @@
 Henk Barendregt: Pure Type System
 ---------------------------------
 
+[![Actions Status](https://github.com/groupoid/henk/workflows/mix/badge.svg)](https://github.com/groupoid/henk/actions)
+[![Hex pm](http://img.shields.io/hexpm/v/henk.svg?style=flat)](https://hex.pm/packages/henk)
+
 This photo provided exclusively for The **Henk** Programming Language.
 
 <img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg" height=400>
 
 # Abstract
 
-**Henk** languages described first by Erik Meijer and Simon Peyton Jones in 1997.
+The **Henk** language described first by Erik Meijer and Simon Peyton Jones in 1997.
 Later on in 2015 a new implementation of the ideas in Haskell appeared, called Morte.
 It used the Böhm-Berarducci encoding of recursive data types into non-recursive terms.
-Morte has constants, variables, and kinds, is based only on **П**, **λ** and **apply** constructions,
+Henk has constants, variables, and kinds, is based only on **П**, **λ** and **apply** constructions,
 one axiom and four deduction rules. The Henk language resembles Henk design and Morte implementation.
-This language is indended to be small, concise, easily provable, clean and
-be able to produce verifiable programs that can be distributed over the networks and compiled at target with safe linkage.
+This language is indended to be small, concise, easily provable, clean and be able to produce
+verifiable programs that can be distributed over the networks and compiled at target with safe linkage.
 
 ```
 $ mix deps.get

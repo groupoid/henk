@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Test (Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: ['1.16']
+        otp: ['26']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{matrix.elixir}}
+          otp-version: ${{matrix.otp}}
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-build-
+
+      - name: Mix Hex Dependencies
+        run: mix deps.get
+
+      - name: Compile AUTOMATH
+        run: mix henk.base --syntax=aut68
+
+      - name: Compile Miranda
+        run: mix henk.base --syntax=henk
+
+      - name: Compile Morte
+        run: mix henk.base --syntax=morte
+
+      - name: Test AUTOMATH
+        run: mix henk.test --syntax=aut68
+
+      - name: Test Miranda
+        run: mix henk.test --syntax=henk
+
+      - name: Test Morte
+        run: mix henk.test --syntax=morte
