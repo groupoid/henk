@@ -12,3 +12,7 @@ src/erlang-original/
 _checkouts/*
 erl_crash.dump
 rebar3.crashdump
+src/erlang/_build/*
+src/erlang/_checkouts/*
+src/erlang/ebin/*
+
