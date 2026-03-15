@@ -20,7 +20,7 @@
         <div style="max-width:800px;margin:0 auto;">
             <div class="module-header">
                 <h1>Control.IOI</h1>
-                <div class="subtitle">v0.1.0 • Free IOI Comonad</div>
+                <div class="subtitle">v11.3.15 • Free IOI Comonad</div>
             </div>
 
             <p class="module-description">
@@ -37,6 +37,10 @@
                         The Church-encoded Free IO Comonad. It represents a potentially infinite state-based 
                         process (a machine) defined by an anamorphism.
                     </p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">forall (x: *) .
+  (forall (s: *) . s -> (s -> f r s) -> x) ->
+  x</pre>
                 </div>
 
                 <div class="doc-entry">
@@ -45,6 +49,12 @@
                         The interaction functor for the IO stream. Describes the possible next steps 
                         of a process: output, input, or return.
                     </p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">forall (x: *) .
+  (data -> s -> x) ->
+  ((data -> s) -> x) ->
+  (r -> x) ->
+  x</pre>
                 </div>
             </section>
 
@@ -73,21 +83,24 @@
                     <h3 class="doc-heading">iof_put_line_f <span class="doc-signature">:: String -> S -> F r S</span></h3>
                     <p class="doc-description">Helper to construct a "write" step in the interaction functor.</p>
                     <span class="doc-label">Implementation</span>
-                    <pre class="doc-implementation">iof_put_line_f str ns x put_line_ get_line_ return_ = put_line_ str ns</pre>
+                    <pre class="doc-implementation">iof_put_line_f str ns x put_line_ get_line_ return_ =
+  put_line_ str ns</pre>
                 </div>
 
                 <div class="doc-entry">
                     <h3 class="doc-heading">iof_get_line_f <span class="doc-signature">:: (String -> S) -> F r S</span></h3>
                     <p class="doc-description">Helper to construct a "read" step in the interaction functor.</p>
                     <span class="doc-label">Implementation</span>
-                    <pre class="doc-implementation">iof_get_line_f k x put_line_ get_line_ return_ = get_line_ k</pre>
+                    <pre class="doc-implementation">iof_get_line_f k x put_line_ get_line_ return_ =
+  get_line_ k</pre>
                 </div>
 
                 <div class="doc-entry">
                     <h3 class="doc-heading">iof_return_f <span class="doc-signature">:: r -> F r S</span></h3>
                     <p class="doc-description">Helper to construct a terminal step in the interaction functor.</p>
                     <span class="doc-label">Implementation</span>
-                    <pre class="doc-implementation">iof_return_f vr x put_line_ get_line_ return_ = return_ vr</pre>
+                    <pre class="doc-implementation">iof_return_f vr x put_line_ get_line_ return_ =
+  return_ vr</pre>
                 </div>
 
                 <div class="doc-entry">
@@ -101,7 +114,8 @@
                     <h3 class="doc-heading">run_ioi <span class="doc-signature">:: IOI r -> r</span></h3>
                     <p class="doc-description">Unpacks the existential machine and drives the loop.</p>
                     <span class="doc-label">Implementation</span>
-                    <pre class="doc-implementation">run_ioi ioi = ioi Any (\_s -> \seed -> \step -> run_ioi_step seed step)</pre>
+                    <pre class="doc-implementation">run_ioi ioi =
+  ioi Any (\_s -> \seed -> \step -> run_ioi_step seed step)</pre>
                 </div>
             </section>
         </div>

@@ -20,7 +20,7 @@
         <div style="max-width:800px;margin:0 auto;">
             <div class="module-header">
                 <h1>Control.IO</h1>
-                <div class="subtitle">v0.1.0 • Free IO Monad</div>
+                <div class="subtitle">v11.3.15 • Free IO Monad</div>
             </div>
 
             <p class="module-description">
@@ -36,6 +36,12 @@
                         The Church-encoded Free IO Monad. It represents a calculation that can perform effects 
                         via handles (get_line, put_line) and eventually returns a pure value.
                     </p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">forall (r: *) .
+  ((data -> r) -> r) ->
+  (data -> (() -> r) -> r) ->
+  (a -> r) ->
+  r</pre>
                 </div>
             </section>
 
@@ -81,7 +87,7 @@
                     <p class="doc-description">Abstract action that requests to display a string via handles.</p>
                     <span class="doc-label">Implementation</span>
                     <pre class="doc-implementation">io_put_line str io_r get_line_ put_line_ pure_ =
-    put_line_ str (\_ -> pure_ tt)</pre>
+  put_line_ str (\_ -> pure_ tt)</pre>
                 </div>
 
                 <div class="doc-entry">
@@ -89,7 +95,8 @@
                     <p class="doc-description">Monadic bind for sequencing IO actions.</p>
                     <span class="doc-label">Implementation</span>
                     <pre class="doc-implementation">io_bind m f io_r get_line_ put_line_ pure_ =
-    m io_r get_line_ put_line_ (\a -> f a io_r get_line_ put_line_ pure_)</pre>
+  m io_r get_line_ put_line_
+    (\a -> f a io_r get_line_ put_line_ pure_)</pre>
                 </div>
 
                 <div class="doc-entry">
@@ -99,8 +106,6 @@
                     <pre class="doc-implementation">run_io action = action Any io_get_handler io_put_handler io_pure_handler</pre>
                 </div>
 
-                <div class="doc-entry">
-                </div>
 
                 <div class="doc-entry">
                     <h3 class="doc-heading">replicate_io <span class="doc-signature">:: Nat -> IO () -> IO ()</span></h3>

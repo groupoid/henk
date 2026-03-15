@@ -390,12 +390,19 @@ section:first-of-type h2 {
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 3.5rem; /* Larger padding for a more premium, spacious feel */
+    padding: 3.5rem; /* Spacious padding from index.html cards */
     margin-bottom: 5rem;
     backdrop-filter: blur(16px);
     box-shadow: 0 20px 60px -20px rgba(255, 93, 162, 0.15);
     position: relative;
     overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.doc-entry:hover {
+    transform: translateY(-12px);
+    border-color: var(--accent);
+    box-shadow: 0 40px 80px -20px rgba(255, 93, 162, 0.3);
 }
 
 .doc-heading {
@@ -404,54 +411,55 @@ section:first-of-type h2 {
     align-items: baseline;
     flex-wrap: wrap;
     gap: 1.5rem;
-    font-size: 2.2rem;
-    font-weight: 850;
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: HotPink;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     max-width: none;
     margin-top: 0;
 }
 
 .doc-signature {
     font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--accent);
     opacity: 0.9;
 }
 
 .doc-description {
-    font-size: 1.2rem;
-    line-height: 1.7;
+    font-size: 1.25rem;
+    line-height: 1.8;
     color: var(--text-secondary);
-    margin-bottom: 3rem;
+    margin-bottom: 3.5rem;
     max-width: 100%;
     margin-top: 0;
 }
 
 .doc-label {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
     color: DarkMagenta;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
     opacity: 0.7;
 }
 
 .doc-implementation, .doc-example {
-    background: transparent; /* Remove background box */
-    border: none;             /* Remove internal border */
-    border-left: 2px solid rgba(255, 105, 180, 0.2); /* Subtle left accent only */
+    background: transparent !important; /* Force transparency to avoid card-in-card */
+    border: none !important;
+    border-left: 3px solid rgba(255, 105, 180, 0.25) !important; /* Stronger left accent */
     border-radius: 0;
-    padding: 0 0 0 1.5rem;
+    padding: 0.5rem 0 0.5rem 2.5rem;
     font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-    font-size: 1.05rem;
-    line-height: 1.6;
+    font-size: 1.1rem;
+    line-height: 1.7;
     overflow-x: auto;
     color: var(--text-primary);
-    margin-bottom: 3rem;
+    margin-bottom: 3.5rem;
     white-space: pre;
 }
 
