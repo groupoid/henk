@@ -154,7 +154,7 @@ Nat   Path  Prod  Prop  Sigma String Unit  Vector
 
 ## Reference Models
 
-The Erlang reference implementation (`src/erlang/`) and the OCaml model served
+The Erlang reference implementation (`src/erlang/`) and the OCaml (`src/ocaml/`) model served
 as the reference designs for this Elixir port. They provide a compact,
 pure-functional Morte library type checker and extractor that the Elixir
 code faithfully reproduces and extends. All models and implentations
