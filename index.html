@@ -64,9 +64,11 @@
 ((x: a) (_: Maybe.@.main a) Maybe.Just.main a x)
 (Maybe.Nothing.main a)
 
--- pure
-(a: *) (x: a) (List: *) (Cons: [head: a] [tail:
-List] List) Cons x
+-- foldr
+(a: *) (b: *) (f: [x: a] [y: b] b) (z: b)
+(xs: [List: *] [Cons: [head: a] [tail: List] List] [Nil: List] List)
+xs ([List: *] [Cons: [head: a] [tail: List] List] [Nil: List] List)
+((head: a) (tail: b) f head tail) z
 
 -- map
 (a: *) (b: *) (f: [_ : a] b) (xs: [List: *]
