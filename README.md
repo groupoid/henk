@@ -133,13 +133,13 @@ In repository `henk` you may find the following parts of core:
 * [Eraser](https://github.com/groupoid/henk/blob/main/src/elixir/extractor/om_erase.erl)
 * [Code Extractor](https://github.com/groupoid/henk/blob/main/src/elixir/extractor/om_extract.erl)
 
-Henk ships with different "modes" (spaces of types with own encodings), or "preludes", which
-you may find in `lib` directory. They are selectable with `om:mode("normal")`.
+Henk ships with different "syntaxes" (spaces of types with own encodings), or "preludes", which
+you may find in `priv` directory. They are selectable with `om:mode("aut-68")`.
 
 #### [Henk Library](https://github.com/groupoid/henk/tree/main/src/elixir/priv/Morte)
 
 ```sh
-henk.groupoid.space/src/elixir/priv/Morte
+henk.groupoid.space/priv/morte/
   ├── Bool
   ├── Cmd
   ├── Eq
