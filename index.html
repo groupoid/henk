@@ -65,20 +65,22 @@
 (Maybe.Nothing.main a)
 
 -- foldr
-(a: *) (b: *) (f: [x: a] [y: b] b) (z: b)
-(xs: [List: *] [Cons: [head: a] [tail: List] List] [Nil: List] List)
-xs ([List: *] [Cons: [head: a] [tail: List] List] [Nil: List] List)
-((head: a) (tail: b) f head tail) z
+(a: *) (b: *) (f: [x: a] [y: b] b) (z: b) (xs:
+[List: *] [Cons: [head: a] [tail: List] List]
+[Nil: List] List) xs ([List: *] [Cons: [head:
+a] [tail: List] List] [Nil: List] List) ((head:
+a) (tail: b) f head tail) z
 
 -- map
-(a: *) (b: *) (f: [_ : a] b) (xs: [List: *]
-[Cons: [head: a] [tail: List] List] [Nil: List]
-List) xs ([List: *] [Cons: [head: b] [tail: List]
-List] [Nil: List] List) ((head: a) (tail: [List: *]
-[Cons: [head: b] [tail: List] List] [Nil: List] List)
-(List: *) (Cons: [head: b] [tail: List] List) Nil:
-List) Cons (f head)(tail List Cons Nil)) ((List: *)
-(Cons: [head: b] [tail: List] List) (Nil: List) Nil)</pre>
+(a: *) (b: *) (f: [_ : a] b) (xs: [List: *] [Cons:
+[head: a] [tail: List] List] [Nil: List] List) xs
+([List: *] [Cons: [head: b] [tail: List] List]
+[Nil: List] List) ((head: a) (tail: [List: *]
+[Cons: [head: b] [tail: List] List] [Nil: List]
+List) (List: *) (Cons: [head: b] [tail: List]
+List) Nil: List) Cons (f head)(tail List Cons Nil))
+((List: *) (Cons: [head: b] [tail: List] List)
+(Nil: List) Nil)</pre>
                     <p>Minimalist, binder-driven syntax for categorical foundational proofs.</p>
                 </div>
 
