@@ -6,8 +6,13 @@
 module Data.List where
 
 import Prelude
+import Data.Maybe
 
 data List A = Nil | Cons A (List A)
+
+hd xs = case xs of
+    Nil      -> Nothing
+    Cons h t -> Just h
 
 -- foldr f z xs = xs Any z (\h ih -> f h ih)
 -- where ih = foldr f z tail (the IH, already computed by the Church fold)
@@ -25,7 +30,7 @@ append xs ys = case xs of
     Nil      -> ys
     Cons h t -> Cons h t
 
--- list_length: fold counting Succs
-list_length xs = case xs of
+-- length: fold counting Succs
+length xs = case xs of
     Nil      -> Zero
     Cons h t -> Succ t

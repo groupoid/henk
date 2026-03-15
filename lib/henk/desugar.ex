@@ -236,6 +236,33 @@ defmodule Henk.Desugar do
   def desugar_expr(%AST.Lam{name: n, domain: d, body: b}, env),
     do: %AST.Lam{name: n, domain: desugar_expr(d, env), body: desugar_expr(b, env)}
 
+  def desugar_expr(%AST.NatLiteral{value: v}, env) do
+    if v <= 0 do
+      %AST.Var{name: "Zero"}
+    else
+      %AST.App{
+        func: %AST.Var{name: "Succ"},
+        arg: desugar_expr(%AST.NatLiteral{value: v - 1}, env)
+      }
+    end
+  end
+
+  def desugar_expr(%AST.ListLiteral{values: vs}, env) do
+    case vs do
+      [] ->
+        %AST.App{func: %AST.Var{name: "Nil"}, arg: %AST.Var{name: "Any"}}
+
+      [h | t] ->
+        %AST.App{
+          func: %AST.App{
+            func: %AST.App{func: %AST.Var{name: "Cons"}, arg: %AST.Var{name: "Any"}},
+            arg: desugar_expr(h, env)
+          },
+          arg: desugar_expr(%AST.ListLiteral{values: t}, env)
+        }
+    end
+  end
+
   def desugar_expr(other, _env), do: other
 
   # ─── Helpers ──────────────────────────────────────────────────────────────

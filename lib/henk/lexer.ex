@@ -94,6 +94,13 @@ defmodule Henk.Lexer do
   end
 
 
+  # Universe (Type / *)
+  defp lex([?* | rest], line, col, acc) when hd(rest) >= ?0 and hd(rest) <= ?9 do
+    {num_chars, rest2} = take_while(rest, fn x -> x >= ?0 and x <= ?9 end)
+    num = List.to_integer(num_chars)
+    lex(rest2, line, col + 1 + length(num_chars), [{:universe, line, col, num} | acc])
+  end
+
   # Operators
   defp lex([c | rest], line, col, acc)
        when c in [?=, ?|, ?:, ?<, ?>, ?+, ?-, ?*, ?/, ?%, ?^, ?&, ?!, ?$, ?#, ?@, ??] do

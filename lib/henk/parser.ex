@@ -290,9 +290,19 @@ defmodule Henk.Parser do
   defp parse_binders(tokens, acc), do: {:ok, Enum.reverse(acc), tokens}
 
   defp parse_expr_atom([{:ident, _, _, name} | rest]), do: {:ok, %AST.Var{name: name}, rest}
-  defp parse_expr_atom([{:number, _, _, val} | rest]), do: {:ok, %AST.Universe{level: val}, rest}
+  defp parse_expr_atom([{:number, _, _, val} | rest]), do: {:ok, %AST.NatLiteral{value: val}, rest}
   defp parse_expr_atom([{:universe, _, _, val} | rest]), do: {:ok, %AST.Universe{level: val}, rest}
   defp parse_expr_atom([{:string, _, _, val} | rest]), do: {:ok, %AST.String{value: val}, rest}
+
+  defp parse_expr_atom([{:left_square, _, _} | rest]) do
+    case parse_list_elements(rest, []) do
+      {:ok, elements, [{:right_square, _, _} | rest2]} ->
+        {:ok, %AST.ListLiteral{values: elements}, rest2}
+
+      _ ->
+        {:error, :invalid_list_literal}
+    end
+  end
 
   defp parse_expr_atom([{:case, _, _} | rest]) do
     case parse_expr(rest) do
@@ -446,6 +456,17 @@ defmodule Henk.Parser do
     case parse_expr_atom(tokens) do
       {:ok, arg, rest} -> parse_expr_app_tail(%AST.App{func: f, arg: arg}, rest)
       _ -> {:ok, f, tokens}
+    end
+  end
+
+  defp parse_list_elements([{:right_square, _, _} | _] = tokens, acc),
+    do: {:ok, Enum.reverse(acc), tokens}
+
+  defp parse_list_elements(tokens, acc) do
+    case parse_expr(tokens) do
+      {:ok, e, [{:comma, _, _} | rest]} -> parse_list_elements(rest, [e | acc])
+      {:ok, e, rest} -> {:ok, Enum.reverse([e | acc]), rest}
+      err -> err
     end
   end
 end

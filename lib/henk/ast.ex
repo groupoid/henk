@@ -105,6 +105,14 @@ defmodule Henk.AST do
     defstruct [:value]
   end
 
+  defmodule NatLiteral do
+    defstruct [:value]
+  end
+
+  defmodule ListLiteral do
+    defstruct [:values]
+  end
+
   # ── Pretty Printing ───────────────────────────────────────────────────────
 
   def to_string(term) do
@@ -147,6 +155,12 @@ defmodule Henk.AST do
 
       %String{value: v} ->
         "\"#{v}\""
+
+      %NatLiteral{value: v} ->
+        "#{v}"
+
+      %ListLiteral{values: vs} ->
+        "[#{Enum.map_join(vs, ", ", &to_string/1)}]"
 
       _ ->
         inspect(term)

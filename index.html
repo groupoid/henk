@@ -49,7 +49,38 @@
         </section>
 
         <section>
-            <h2>Syntax & Semantics</h2>
+            <h2>Multilingual Core</h2>
+            <p style="text-align: center; margin-bottom: 2rem;">Henk supports multiple surface syntaxes, allowing for both higher-level mathematical modeling and low-level lambda programming.</p>
+            <div class="grid-2">
+                <div class="package-card">
+                    <h3>AUT-68 (Automath)</h3>
+                    <hr>
+                    <p><b>Original AUT-68</b> by Nikolaas Govert de Bruijn. Designed for low-level <b>Calculus of Construction</b> programming and formal mathematical verification.</p>
+                    <pre class="code-snippet" style="font-size: 0.85rem;">
+(A : *) (B : [_ : A] *)
+(n : A) (S : Sigma A B n)
+  S A ((x : A) (_ : B n) x)</pre>
+                    <p>Minimalist, binder-driven syntax for categorical foundational proofs.</p>
+                </div>
+
+                <div class="package-card">
+                    <h3>Miranda-style</h3>
+                    <hr>
+                    <p><b>Miranda</b> by David Turner. The root of Haskell-like languages, optimized for <b>higher programming purposes</b> and readability.</p>
+                    <pre class="code-snippet" style="font-size: 0.85rem;">
+module Data.List where
+
+hd (a: *) (x: List a) =
+  case x of
+    Nil  -> Nothing
+    Cons h t -> Just h</pre>
+                    <p>Familiar, expressive syntax for practical functional engineering.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Proven Semantics</h2>
             <div class="grid-2">
                 <div class="product-card">
                     <h3>Compact Formal Core</h3>
