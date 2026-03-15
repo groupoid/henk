@@ -1,0 +1,8 @@
+-- Monoid structure
+
+module Data.Monoid where
+
+import Prelude
+import Data.List
+
+data Monoid A = MkMonoid (mempty : A) (mappend : A -> A -> A)

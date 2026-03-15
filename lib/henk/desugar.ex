@@ -43,7 +43,7 @@ defmodule Henk.Desugar do
 
   # ─── Pass 1 ───────────────────────────────────────────────────────────────
 
-  defp collect_inductives(decls) do
+  def collect_inductives(decls) do
     Enum.reduce(decls, {[], %{}}, fn decl, {acc_decls, acc_map} ->
       case decl do
         %AST.DeclData{name: name, params: params, constructors: constrs} ->
@@ -83,7 +83,6 @@ defmodule Henk.Desugar do
     fold_ty = %AST.Pi{name: "R", domain: %AST.Universe{level: 0}, codomain: branch_pis}
 
     type_term = wrap_params_lam(param_names, fold_ty)
-
     type_decl = make_val(t_name, type_term)
 
     # One DeclValue per constructor

@@ -1,0 +1,5 @@
+-- Empty type
+
+module Data.Empty where
+
+data Empty =

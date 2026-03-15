@@ -1,0 +1,31 @@
+-- Henk library integration test
+
+module Test.Library where
+
+import Prelude
+import Data.Sigma
+import Data.Unit
+import Data.Empty
+import Data.String
+import Data.Monoid
+import Data.Vector
+import Data.Nat
+import Data.List
+
+-- Sigma test
+test_sigma = MkSigma 5 (\ x -> List Nat)
+
+-- Sigma projection test
+test_fst = fst (MkSigma 5 (\ x -> List Nat))
+
+-- Unit test
+test_unit = tt
+
+-- String test (List Nat)
+test_string = Cons 5 (Cons 0 Nil)
+
+-- Vector test
+test_vector = Cons 5 (Cons 0 Nil)
+
+-- Vector length test
+test_vector_len = length test_vector

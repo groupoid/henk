@@ -136,10 +136,13 @@ defmodule Henk.Compiler do
 
         with {:ok, mod} <- parse_ast(source, syntax, Keyword.put(opts, :module_name, mod_name)) do
           env_with_imports = resolve_imports(mod, env, opts)
-          desugared = Desugar.desugar(mod, env_with_imports)
+          {_, type_constrs} = Desugar.collect_inductives(mod.declarations)
+          env_with_constrs = %{env_with_imports | type_constrs: Map.merge(env_with_imports.type_constrs, type_constrs)}
+
+          desugared = Desugar.desugar(mod, env_with_constrs)
 
           loaded_env =
-            Enum.reduce(desugared.declarations, env_with_imports, fn
+            Enum.reduce(desugared.declarations, env_with_constrs, fn
               %AST.DeclValue{name: n, expr: e}, acc ->
                 ty = Henk.Typechecker.infer(acc, e)
                 qualified = "#{mod_name}.#{n}"

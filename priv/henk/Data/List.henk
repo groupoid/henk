@@ -7,6 +7,7 @@ module Data.List where
 
 import Prelude
 import Data.Maybe
+import Data.Nat
 
 data List A = Nil | Cons A (List A)
 
@@ -32,5 +33,5 @@ append xs ys = case xs of
 
 -- length: fold counting Succs
 length xs = case xs of
-    Nil      -> Zero
+    Nil      -> 0
     Cons h t -> Succ t

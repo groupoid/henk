@@ -1,0 +1,18 @@
+-- Length-indexed Vector
+-- Church-encoded by compiler (using case on data)
+
+module Data.Vector where
+
+import Prelude
+import Data.Nat
+import Data.Maybe
+
+data Vector A n = Nil | Cons A (Vector A n)
+
+head v = case v of
+    Nil -> Nil
+    Cons h t -> h
+
+length v = case v of
+    Nil      -> 0
+    Cons h t -> Succ t

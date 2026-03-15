@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data.Sigma</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Data.Sigma</h1>
+                <div class="subtitle">v11.3.15 • Dependent Pairs</div>
+            </div>
+
+            <p class="module-description">
+                Dependent pairs (Sigma types) where the type of the second component depends on the value of the first.
+            </p>
+            
+            <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Sigma <span class="doc-signature">:: (A : *) -> (B : A -> *) -> *</span></h3>
+                    <p class="doc-description">The dependent pair type.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Sigma A B = Sigma (x : A) (B x)</pre>
+                </div>
+            </section>
+
+            <section>
+                <h2>Functions</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">fst <span class="doc-signature">:: Sigma A B -> A</span></h3>
+                    <p class="doc-description">Returns the first component of a dependent pair.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">fst p = case p of
+    Sigma a b -> a</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">snd <span class="doc-signature">:: (p : Sigma A B) -> B (fst p)</span></h3>
+                    <p class="doc-description">Returns the second component of a dependent pair.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">snd p = case p of
+    Sigma a b -> b</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,5 @@
+import Prelude
+import Data.Nat
+import Data.List
+
+String = List Nat

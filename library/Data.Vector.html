@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data.Vector</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Data.Vector</h1>
+                <div class="subtitle">v11.3.15 • Indexed Vectors</div>
+            </div>
+
+            <p class="module-description">
+                Length-indexed vectors, providing static guarantees about the number of elements.
+            </p>
+            
+            <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Vector <span class="doc-signature">:: * -> Nat -> *</span></h3>
+                    <p class="doc-description">A vector of elements of type A with length n.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Vector A (n : Nat) = Nil | Cons A (Vector A n)</pre>
+                </div>
+            </section>
+
+            <section>
+                <h2>Functions</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">head <span class="doc-signature">:: Vector A (Succ n) -> A</span></h3>
+                    <p class="doc-description">Safely retrieve the first element of a non-empty vector.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">head v = case v of
+    Cons h t -> h</pre>
+                </div>
+
+                <div class="doc-entry">
+                    <h3 class="doc-heading">length <span class="doc-signature">:: Vector A n -> Nat</span></h3>
+                    <p class="doc-description">Returns the length of the vector.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">length v = case v of
+    Nil -> Zero
+    Cons h t -> Succ t</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

@@ -3,6 +3,7 @@
 --
 -- Models an infinite echo state machine using IOI (free comonad):
 --   state = Maybe Data
+import Data.Nat
 --   Nothing  → GetLine (read input, wrap in Just)
 --   Just str → PutLine str (output it, reset to Nothing)
 --

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data.Monoid</title>
+    <link rel="stylesheet" href="../index.css?v=5">
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://groupoid.space" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://avatars.githubusercontent.com/u/17128096?s=200&v=4"></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Language</a></li>
+                <li><a href="index.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div style="max-width:800px;margin:0 auto;">
+            <div class="module-header">
+                <h1>Data.Monoid</h1>
+                <div class="subtitle">v11.3.15 • Abstract Monoids</div>
+            </div>
+
+            <p class="module-description">
+                Definition of the Monoid algebraic structure.
+            </p>
+            
+            <section>
+                <h2>Types</h2>
+                
+                <div class="doc-entry">
+                    <h3 class="doc-heading">Monoid <span class="doc-signature">:: * -> *</span></h3>
+                    <p class="doc-description">The Monoid structure containing an identity element and an associative binary operation.</p>
+                    <span class="doc-label">Implementation</span>
+                    <pre class="doc-implementation">data Monoid A = Monoid (mempty : A) (mappend : A -> A -> A)</pre>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

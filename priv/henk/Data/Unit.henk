@@ -1,0 +1,5 @@
+-- Unit type (re-export/declaration)
+
+module Data.Unit where
+
+data Unit = tt

@@ -1,0 +1,14 @@
+-- Dependent Pair (Sigma Type)
+-- Church-encoded by compiler (using case on data)
+
+module Data.Sigma where
+
+import Prelude
+
+data Sigma A B = MkSigma (x:A) (B x)
+
+fst p = case p of
+    MkSigma a b -> a
+
+snd p = case p of
+    MkSigma a b -> b
