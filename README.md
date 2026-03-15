@@ -7,9 +7,7 @@ Henk: Pure Type System in Elixir
 **Henk** is an implementation of a Pure Type System (PTS) with an infinite
 universe hierarchy, written in Elixir/OTP.  It was described first by
 Erik Meijer and Simon Peyton Jones in 1997, and later inspired the Morte
-intermediate language by Gabriella Gonzalez.  The Elixir implementation
-follows the structure of the reference Erlang and OCaml models provided
-in `src/erlang/` and `src/ocaml/` of this repository.
+intermediate language by Gabriella Gonzalez.
 
 <img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg" height=400>
 
