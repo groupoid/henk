@@ -1,5 +1,5 @@
-Henk: Pure Type System in Elixir
-=================================
+Henk: Minimal Proving System in Elixir
+======================================
 
 [![Actions Status](https://github.com/groupoid/henk/workflows/ci/badge.svg)](https://github.com/groupoid/henk/actions)
 [![Hex pm](http://img.shields.io/hexpm/v/henk.svg?style=flat)](https://hex.pm/packages/henk)
@@ -8,7 +8,8 @@ Henk: Pure Type System in Elixir
 universe hierarchy, written in Elixir for Erlang/OTP. It was described first by
 Erik Meijer and Simon Peyton Jones in 1997, and later inspired the Morte
 intermediate language by Gabriella Gonzalez. Maksym Sokhatskyi wrote an implementation in 2015
-and published article in 2018 about Erlang implementation. 
+and published article in 2018 about Erlang implementation. In 2026 full rewrite
+to Elixir was made based on Erlang and OCaml models.
 
 <img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg" height=400>
 
@@ -27,7 +28,7 @@ mix deps.get
 mix henk.repl
 ```
 
-## Modules
+## Minimal Proving System
 
 ### `Henk.Lexer` — `lib/henk/lexer.ex`
 
@@ -123,9 +124,7 @@ Orchestrates the full pipeline via `compile_module/2`.  Also handles:
 * **Module search paths** — `priv/henk/`, `priv/aut-68/`, `priv/morte/`,
   `test/henk/`.
 
-## Syntax
-
-The default (Miranda-like) syntax:
+## Core Syntax
 
 ```
 <> ::= #option
@@ -136,13 +135,16 @@ The default (Miranda-like) syntax:
          | \/ ( I : O ) -> O
 ```
 
+## Front End Syntax
+
+The default front-end syntax is Miranda-like syntax.
 Alternative syntaxes (`aut-68`, `morte`) are available via the `:syntax`
 option to `Henk.Compiler.compile_module/2` or the `:syntax` REPL command.
 
-## Library (`priv/`)
+## Syntax Libraries
 
 The `priv/aut-68/` directory contains the standard prelude encoded in
-Böhm-Berarducci style:
+raw Böhm-Berarducci style (categorical encoding):
 
 ```
 Bool  Cmd   Eq    Equ   Frege IO    IOI
@@ -160,7 +162,7 @@ pure-functional Morte library type checker and extractor that the Elixir
 code faithfully reproduces and extends. All models and implentations
 are written by Maksym Sokhatskyi.
 
-## References
+## Bibliography
 
 * <a href="https://pure.tue.nl/ws/portalfiles/portal/2039924/256169.pdf">AUTOMATH, a language for mathematics</a> [Nicolaas Govert de Bruijn]
 * <a href="https://home.ttic.edu/~dreyer/course/papers/barendregt.pdf">Lambda Calculi with Types</a> [Henk Barendregt]
