@@ -18,6 +18,22 @@ one axiom and four deduction rules. The Henk language resembles Henk design and 
 This language is indended to be small, concise, easily provable, clean and be able to produce
 verifiable programs that can be distributed over the networks and compiled at target with safe linkage.
 
+# Install Prerequisites
+
+Linux, WSL:
+
+```
+$ sudo install elixir erlang
+```
+
+Mac:
+
+```
+$ brew install elixir erlang
+```
+
+## Install Henk
+
 ```
 $ mix deps.get
 $ mix henk.repl
