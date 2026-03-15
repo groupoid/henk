@@ -26,19 +26,6 @@ mix deps.get
 mix henk.repl
 ```
 
-## Pipeline
-
-```
-Source (.henk / .aut / .morte)
-  └─▶ Lexer          lib/henk/lexer.ex
-  └─▶ Layout         lib/henk/layout.ex   (indentation → virtual tokens)
-  └─▶ Parser         lib/henk/parser.ex
-  └─▶ Desugar        lib/henk/desugar.ex  (Church/Böhm-Berarducci encoding)
-  └─▶ Typechecker    lib/henk/typechecker.ex
-  └─▶ Codegen        lib/henk/codegen.ex  (Core Erlang AST)
-  └─▶ :compile       BEAM bytecode
-```
-
 ## Modules
 
 ### `Henk.Lexer` — `lib/henk/lexer.ex`
