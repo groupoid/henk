@@ -70,10 +70,18 @@
                     <pre class="code-snippet" style="font-size: 0.85rem;">
 module Data.List where
 
-head (a: *) (x: List a) =
-  case x of
+head x = case x of
     Nil  -> Nothing
-    Cons h t -> Just h</pre>
+    Cons h t -> Just h
+
+foldr f z xs = case xs of
+    Nil      -> z
+    Cons h t -> f h t
+
+map f xs = case xs of
+    Nil      -> Nil
+    Cons h t -> Cons (f h) t</pre>
+
                     <p>Familiar, expressive syntax for practical functional engineering.</p>
                 </div>
             </div>
