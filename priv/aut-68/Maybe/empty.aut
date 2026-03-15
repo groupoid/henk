@@ -1,1 +1,1 @@
- (a : *) (Maybe : *) (Just :  [_Just : a] Maybe) (Nothing : Maybe) Nothing
+(a: *) (Maybe: *) (Just: [_Just: a] Maybe) (Nothing: Maybe) Nothing

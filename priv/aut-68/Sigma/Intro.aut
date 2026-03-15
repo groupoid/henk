@@ -1,3 +1,1 @@
--- Sigma/Intro
-     (A: *) (P: A *) (x: A) (y: P x) (Exists: *) (Intro:  [x: A] P x Exists) Intro x y
-
+(A: *) (P: [_ : A] *) (x: A) (y: P x) (Exists: *) (Intro: [x: A] [_ : P x] Exists) Intro x y

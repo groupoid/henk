@@ -1,0 +1,3 @@
+    (X: Bool.@.main)   (Y: Nat.@.main)  Bool.eif.main Nat.@.main X
+   (Nat.___.main Y (Nat.Succ.main (Nat.Succ.main (Nat.Succ.main (Nat.Succ.main (Nat.Succ.main Nat.Zero.main))))))
+   (Y)

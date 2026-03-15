@@ -1,1 +1,1 @@
- (m : * *) (n : Nat.@.main ) (cmd : m Unit.@.main ) Monad.sequence_.main  m (List.replicate.main  (m Unit.@.main ) n cmd)
+(m: [_ : *] *) (n: Nat.@.main) (cmd: m Unit.@.main) Monad.sequence_.main m (List.replicate.main (m Unit.@.main)n cmd)

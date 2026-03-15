@@ -1,0 +1,3 @@
+-- Sigma/test
+Sigma.Intro.main Nat.@.main ( (n: Nat.@.main) List.@.main Nat.@.main) Nat.Five.main (List.replicate.main Nat.@.main Nat.Five.main Nat.Zero.main)
+

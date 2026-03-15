@@ -1,1 +1,1 @@
- (m : * *) (a : *) (b : *) (f : a m b) (as : List.@.main  a) Monad.sequence.main  m b (List.map.main  a (m b) f as)
+(m: [_ : *] *) (a: *) (b: *) (f: [_ : a] m b) (as: List.@.main a) Monad.sequence.main m b (List.map.main a (m b)f as)

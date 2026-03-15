@@ -1,3 +1,1 @@
--- Vector/@
-     (n: Nat.@.main) (a: *) [Vector: Nat.@.main * *] (Cons:   [m: Nat.@.main ] [b: *] b Vector m b Vector (Nat.Succ.main m) b) (Nil:   [b: *] Vector Nat.Zero.main b) Vector n a
-
+(n: Nat.@.main) (a: *) [Vector: [_ : Nat.@.main] [_ : *] *] [Cons: [m: Nat.@.main] [b: *] [_ : b] [_ : Vector m b] Vector (Nat.Succ.main m)b] [Nil: [b: *] Vector Nat.Zero.main b] Vector n a

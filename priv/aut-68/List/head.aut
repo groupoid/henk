@@ -1,1 +1,1 @@
- (a : *) (xs : List.@.main  a) xs (Maybe.@.main  a) ( (x : a) (_ : Maybe.@.main  a) Maybe.Just.main  a x) (Maybe.Nothing.main  a)
+(a: *) (xs: List.@.main a) xs (Maybe.@.main a)((x: a) (_: Maybe.@.main a) Maybe.Just.main a x)(Maybe.Nothing.main a)

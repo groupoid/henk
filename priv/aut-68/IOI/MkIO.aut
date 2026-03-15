@@ -1,2 +1,1 @@
--- IOI/MkIO
-     (r : *) (s : *) (seed : s) (step : s IOI.F.main r s) (x : *) (k :   [s : *] s (s IOI.F.main r s) x) k s seed step
+(r: *) (s: *) (seed: s) (step: [_ : s] IOI.F.main r s) (x: *) (k: [s: *] [_ : s] [_ : ([_ : s] IOI.F.main r s)] x) k s seed step

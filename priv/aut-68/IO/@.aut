@@ -1,2 +1,1 @@
--- IO/@
-     (a : *) [IO : *] [GetLine_ : (IO.data.main IO) IO] [PutLine_ : IO.data.main IO IO] [Pure_ : a IO] IO
+(a: *) [IO: *] [GetLine_: [_ : ([_ : IO.data.main] IO)] IO] [PutLine_: [_ : IO.data.main] [_ : IO] IO] [Pure_: [_ : a] IO] IO

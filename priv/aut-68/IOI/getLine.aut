@@ -1,1 +1,1 @@
-     (r : *) (s : *) (k : IOI.data.main s) (x : *) (PutLine_ : IOI.data.main s x) (GetLine_ : (IOI.data.main s) x) (Return_ : r x) GetLine_ k
+(r: *) (s: *) (k: [_ : IOI.data.main] s) (x: *) (PutLine_: [_ : IOI.data.main] [_ : s] x) (GetLine_: [_ : ([_ : IOI.data.main] s)] x) (Return_: [_ : r] x) GetLine_ k

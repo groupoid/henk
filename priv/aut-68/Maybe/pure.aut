@@ -1,1 +1,1 @@
- (a : *) (x : a) (Maybe : *) (Just :  [_Just : a] Maybe) (Nothing : Maybe) Just x
+(a: *) (x: a) (Maybe: *) (Just: [_Just: a] Maybe) (Nothing: Maybe) Just x

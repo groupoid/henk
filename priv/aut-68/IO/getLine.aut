@@ -1,1 +1,1 @@
-    (FIO : *) (GetLine_ : (IO.data.main FIO) FIO) (PutLine_ : IO.data.main FIO FIO) GetLine_
+(FIO: *) (GetLine_: [_ : ([_ : IO.data.main] FIO)] FIO) (PutLine_: [_ : IO.data.main] [_ : FIO] FIO) GetLine_

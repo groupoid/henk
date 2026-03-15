@@ -1,1 +1,1 @@
-     (r : *) (s : *) (vr : r) (x : *) (PutLine_ : IOI.data.main s x) (GetLine_ : (IOI.data.main s) x) (Return_ : r x) Return_ vr
+(r: *) (s: *) (vr: r) (x: *) (PutLine_: [_ : IOI.data.main] [_ : s] x) (GetLine_: [_ : ([_ : IOI.data.main] s)] x) (Return_: [_ : r] x) Return_ vr

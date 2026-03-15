@@ -1,1 +1,1 @@
- (m : *) List.@.main  m m
+(m: *) [_ : List.@.main m] m

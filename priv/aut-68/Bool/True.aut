@@ -1,1 +1,1 @@
- (Bool : *) (True : Bool) (False : Bool) True
+(Bool: *) (True: Bool) (False: Bool) True

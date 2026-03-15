@@ -1,1 +1,1 @@
-    (x: Prop.@.main) (t: x) t
+(x: Prop.@.main) (t: x) t

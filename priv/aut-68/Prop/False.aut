@@ -1,2 +1,1 @@
--- False.main : Prop.@.main
-  [False: Prop.@.main] False
+[False: Prop.@.main] False

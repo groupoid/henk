@@ -1,13 +1,1 @@
-    (a : *) (xs : List.@.main  a) xs (   [S : *] [Empty : S] (NonEmpty :
-           [head : a] [tail : List.@.main  a] S) S)
-       (   (x : a) (s :
-             [S : *] [Empty : S] (NonEmpty :
-               [head : a] [tail : List.@.main  a] S) S) s (  [S : *] [Empty : S] (NonEmpty :
-                  [head : a] [tail : List.@.main  a] S) S)
-          (   (S : *) (Empty : S) (NonEmpty :
-                [head : a] [tail : List.@.main a] S) NonEmpty x (  (List : *) (Cons :
-                  [head : a] [tail : List] List) (Nil : List) Nil))
-        (   (head : a) (tail : List.@.main  a) (S : *) (Empty : S) (NonEmpty :
-              [head : a] [tail : List.@.main  a] S) NonEmpty x (List.Cons.main a head tail)))
-          (   (S : *) (Empty : S) (NonEmpty :
-                [head : a] [tail : List.@.main  a] S) Empty) (Maybe.@.main (List.@.main a)) (Maybe.Nothing.main (List.@.main a)) (  (_ : a) Maybe.Just.main (List.@.main a))
+(a: *) (xs: List.@.main a) xs ([S: *] [Empty: S] [NonEmpty: [head: a] [tail: List.@.main a] S] S)((x: a) (s: [S: *] [Empty: S] [NonEmpty: [head: a] [tail: List.@.main a] S] S) s ([S: *] [Empty: S] [NonEmpty: [head: a] [tail: List.@.main a] S] S)((S: *) (Empty: S) (NonEmpty: [head: a] [tail: List.@.main a] S) NonEmpty x ((List: *) (Cons: [head: a] [tail: List] List) (Nil: List) Nil))((head: a) (tail: List.@.main a) (S: *) (Empty: S) (NonEmpty: [head: a] [tail: List.@.main a] S) NonEmpty x (List.Cons.main a head tail)))((S: *) (Empty: S) (NonEmpty: [head: a] [tail: List.@.main a] S) Empty)(Maybe.@.main (List.@.main a))(Maybe.Nothing.main (List.@.main a))((_: a) Maybe.Just.main (List.@.main a))

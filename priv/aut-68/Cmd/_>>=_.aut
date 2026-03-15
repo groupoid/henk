@@ -1,1 +1,1 @@
- (a : *) (b : *) (m : * *) (cmd : Cmd.@.main  m a) cmd (Cmd.@.main  m b) (Cmd.Bind.main  m b)
+(a: *) (b: *) (m: [_ : *] *) (cmd: Cmd.@.main m a) cmd (Cmd.@.main m b)(Cmd.Bind.main m b)

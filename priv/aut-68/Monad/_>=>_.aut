@@ -1,1 +1,1 @@
- (m : * *) (a : *) (b : *) (c : *) (monad : Monad.@.main  m) (f : a m b) (g : b m c) (x : a) monad c ( (Cmd : *) (Bind :  [b : *] m b (b Cmd) Cmd) (Pure :  [z : c] Cmd) Bind b (f x) ( (y : b) Bind c (g y) Pure))
+(m: [_ : *] *) (a: *) (b: *) (c: *) (monad: Monad.@.main m) (f: [_ : a] m b) (g: [_ : b] m c) (x: a) monad c ((Cmd: *) (Bind: [b: *] [_ : m b] [_ : ([_ : b] Cmd)] Cmd) (Pure: [z: c] Cmd) Bind b (f x)((y: b) Bind c (g y)Pure))

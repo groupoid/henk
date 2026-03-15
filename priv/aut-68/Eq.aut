@@ -1,1 +1,1 @@
- (a : *) a a Bool.@.main
+(a: *) [_ : a] [_ : a] Bool.@.main

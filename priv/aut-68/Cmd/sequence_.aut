@@ -1,1 +1,1 @@
- (m : * *) (cmds : List.@.main  (Cmd.@.main  m Unit.@.main )) cmds (Cmd.@.main  m Unit.@.main ) ( (cmd1 : Cmd.@.main  m Unit.@.main ) (cmd2 : Cmd.@.main  m Unit.@.main ) Cmd._>>=_.main  Unit.@.main  Unit.@.main  m cmd1 ( (_x : Unit.@.main ) cmd2)) (Cmd.Pure.main  m Unit.@.main  Unit.Make.main )
+(m: [_ : *] *) (cmds: List.@.main (Cmd.@.main m Unit.@.main)) cmds (Cmd.@.main m Unit.@.main)((cmd1: Cmd.@.main m Unit.@.main) (cmd2: Cmd.@.main m Unit.@.main) Cmd._>>=_.main Unit.@.main Unit.@.main m cmd1 ((_x: Unit.@.main) cmd2))(Cmd.Pure.main m Unit.@.main Unit.Make.main)

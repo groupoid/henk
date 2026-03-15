@@ -1,1 +1,1 @@
- (m : * *) [a : *] Cmd.@.main  m a m a
+(m: [_ : *] *) [a: *] [_ : Cmd.@.main m a] m a

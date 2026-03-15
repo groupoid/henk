@@ -1,2 +1,1 @@
--- Prop/Exists
-     (A: *) (P: A *) (x: A) [X: Prop.@.main] (  [x: A] P x X) X
+(A: *) (P: [_ : A] *) (x: A) [X: Prop.@.main] [_ : ([x: A] [_ : P x] X)] X

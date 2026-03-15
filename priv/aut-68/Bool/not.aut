@@ -1,1 +1,1 @@
- (x :  [Bool : *] [True : Bool] [False : Bool] Bool) x ( [Bool : *] [True : Bool] [False : Bool] Bool) ( (Bool : *) (True : Bool) (False : Bool) False) ( (Bool : *) (True : Bool) (False : Bool) True)
+(x: [Bool: *] [True: Bool] [False: Bool] Bool) x ([Bool: *] [True: Bool] [False: Bool] Bool)((Bool: *) (True: Bool) (False: Bool) False)((Bool: *) (True: Bool) (False: Bool) True)

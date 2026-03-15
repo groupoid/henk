@@ -1,2 +1,1 @@
-    (a: *) (b: *) (_1: a) (_2: b) (Prod2: *) (Make:
-      [x: a] [y: b] Prod2) Make _1 _2
+(a: *) (b: *) (_1: a) (_2: b) (Prod2: *) (Make: [x: a] [y: b] Prod2) Make _1 _2

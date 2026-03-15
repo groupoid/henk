@@ -1,3 +1,1 @@
--- IOI/@
-   (r : *) (x : *) (  [s : *] s (s IOI.F.main r s) x) x
-
+(r: *) [x: *] [_ : ([s: *] [_ : s] [_ : ([_ : s] IOI.F.main r s)] x)] x

@@ -1,5 +1,1 @@
--- IO/replicateM
-     (n: Nat.@.main) (io: IO.@.main Unit.@.main) Nat.fold.main n (IO.@.main Unit.@.main)
-               (IO._>>_.main io)
-               (IO.pure.main Unit.@.main Unit.Make.main)
-
+(n: Nat.@.main) (io: IO.@.main Unit.@.main) Nat.fold.main n (IO.@.main Unit.@.main)(IO._>>_.main io)(IO.pure.main Unit.@.main Unit.Make.main)

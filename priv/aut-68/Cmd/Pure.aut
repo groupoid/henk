@@ -1,1 +1,1 @@
- (f : * *) (a : *) (r : a) (Cmd : *) (Bind :  [b : *] f b (b Cmd) Cmd) (Pure :  [r : a] Cmd) Pure r
+(f: [_ : *] *) (a: *) (r: a) (Cmd: *) (Bind: [b: *] [_ : f b] [_ : ([_ : b] Cmd)] Cmd) (Pure: [r: a] Cmd) Pure r

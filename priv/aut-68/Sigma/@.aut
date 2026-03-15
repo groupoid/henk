@@ -1,3 +1,1 @@
--- Sigma/@
-     (A: *) (P: A *) (n: A) [Exists: *] [Intro: A P n Exists] Exists
-
+(A: *) (P: [_ : A] *) (n: A) [Exists: *] [Intro: [_ : A] [_ : P n] Exists] Exists

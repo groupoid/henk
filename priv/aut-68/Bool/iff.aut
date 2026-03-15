@@ -1,10 +1,1 @@
-      (X: Bool.@.main) (Y: List.@.main Nat.@.main) Bool.if.main Nat.@.main X
-   (  (l: Unit.@.main) List.length.main Nat.@.main
-   (List.Cons.main Nat.@.main Nat.Zero.main
-   (List.Cons.main Nat.@.main Nat.Zero.main
-   (List.Cons.main Nat.@.main Nat.Zero.main
-   (List.Cons.main Nat.@.main Nat.Zero.main
-   (List.Cons.main Nat.@.main Nat.Zero.main
-   (List.Cons.main Nat.@.main Nat.Zero.main
-   (List.Cons.main Nat.@.main (Nat.Succ.main Nat.Zero.main) Y))))))))
-   (  (p: Unit.@.main) List.length.main Nat.@.main Y)
+(X: Bool.@.main) (Y: List.@.main Nat.@.main) Bool.if.main Nat.@.main X ((l: Unit.@.main) List.length.main Nat.@.main (List.Cons.main Nat.@.main Nat.Zero.main (List.Cons.main Nat.@.main Nat.Zero.main (List.Cons.main Nat.@.main Nat.Zero.main (List.Cons.main Nat.@.main Nat.Zero.main (List.Cons.main Nat.@.main Nat.Zero.main (List.Cons.main Nat.@.main Nat.Zero.main (List.Cons.main Nat.@.main (Nat.Succ.main Nat.Zero.main)Y))))))))((p: Unit.@.main) List.length.main Nat.@.main Y)

@@ -1,3 +1,1 @@
--- Equ/@
-    (A: *) (x: A) (y: A) [Equ: A A *] (Refl:   [z: A] Equ z z) Equ x y
-
+(A: *) (x: A) (y: A) [Equ: [_ : A] [_ : A] *] [Refl: [z: A] Equ z z] Equ x y

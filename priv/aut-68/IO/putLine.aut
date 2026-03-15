@@ -1,1 +1,1 @@
-    (str      : IO.data.main             ) (IO       : *                    ) (GetLine_ : (IO.data.main IO) IO ) (PutLine_ : IO.data.main IO IO   ) (Pure_    : Unit.@.main IO         ) PutLine_ str (Pure_ Unit.Make.main     )
+(str: IO.data.main) (IO: *) (GetLine_: [_ : ([_ : IO.data.main] IO)] IO) (PutLine_: [_ : IO.data.main] [_ : IO] IO) (Pure_: [_ : Unit.@.main] IO) PutLine_ str (Pure_ Unit.Make.main)

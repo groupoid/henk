@@ -1,1 +1,1 @@
-    (a: *) (force: Unit.@.main a) a
+(a: *) (force: [_ : Unit.@.main] a) a

@@ -1,1 +1,1 @@
- (a : *) (List : *) (Cons :  [head : a] [tail : List] List) (Nil : List) Nil
+(a: *) (List: *) (Cons: [head: a] [tail: List] List) (Nil: List) Nil

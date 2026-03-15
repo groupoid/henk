@@ -1,5 +1,1 @@
--- List/match
-     (A: *) (value: List.@.main A) (ret: *) (cons_branch: ret) (nil_branch: ret) List.cond.main A value ret
-              ( (_:A) (_:ret) cons_branch)
-              nil_branch
-
+(A: *) (value: List.@.main A) (ret: *) (cons_branch: ret) (nil_branch: ret) List.cond.main A value ret ((_: A) (_: ret) cons_branch)nil_branch

@@ -1,1 +1,1 @@
- (f : * *) (a : *) (cmd : Cmd.@.main  (Cmd.@.main  f) a) (Cmd : *) (Bind :  [b : *] f b (b Cmd) Cmd) cmd Cmd ( (b : *) (x : Cmd.@.main  f b) x Cmd Bind)
+(f: [_ : *] *) (a: *) (cmd: Cmd.@.main (Cmd.@.main f)a) (Cmd: *) (Bind: [b: *] [_ : f b] [_ : ([_ : b] Cmd)] Cmd) cmd Cmd ((b: *) (x: Cmd.@.main f b) x Cmd Bind)

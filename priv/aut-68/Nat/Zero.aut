@@ -1,1 +1,1 @@
- (Nat : *) (Succ : Nat Nat) (Zero : Nat) Zero
+(Nat: *) (Succ: [_ : Nat] Nat) (Zero: Nat) Zero

@@ -1,1 +1,1 @@
- (a : *) (_1 : a) (Prod1 : *) (Make :  [_1 : a] Prod1) Make _1
+(a: *) (_1: a) (Prod1: *) (Make: [_1: a] Prod1) Make _1

@@ -1,1 +1,1 @@
- (f : * *) (g : * *) (k :  [a : *] f a Cmd.@.main  g a) (a : *) (x : Cmd.@.main  f a) (Cmd : *) (Bind :  [b : *] g b (b Cmd) Cmd) x Cmd ( (b : *) (m : f b) k b m Cmd Bind)
+(f: [_ : *] *) (g: [_ : *] *) (k: [a: *] [_ : f a] Cmd.@.main g a) (a: *) (x: Cmd.@.main f a) (Cmd: *) (Bind: [b: *] [_ : g b] [_ : ([_ : b] Cmd)] Cmd) x Cmd ((b: *) (m: f b) k b m Cmd Bind)
