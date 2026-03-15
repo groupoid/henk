@@ -5,9 +5,10 @@ Henk: Pure Type System in Elixir
 [![Hex pm](http://img.shields.io/hexpm/v/henk.svg?style=flat)](https://hex.pm/packages/henk)
 
 **Henk** is an implementation of a Pure Type System (PTS) with an infinite
-universe hierarchy, written in Elixir/OTP.  It was described first by
+universe hierarchy, written in Elixir for Erlang/OTP. It was described first by
 Erik Meijer and Simon Peyton Jones in 1997, and later inspired the Morte
-intermediate language by Gabriella Gonzalez.
+intermediate language by Gabriella Gonzalez. Maksym Sokhatskyi wrote an implementation in 2015
+and published article in 2018 about Erlang implementation. 
 
 <img src="https://henk.groupoid.space/img/Henk%20Barendregt.jpg" height=400>
 
@@ -95,7 +96,7 @@ All state is passed explicitly as `%Henk.Typechecker.Env{}`:
 | `in_progress` | `MapSet` for cycle detection |
 | `deadline` | Monotonic-ms normalisation timeout |
 
-Key operations:
+Key operations according to Maksym's article:
 
 * **`infer/2`** — type inference for universes, variables, Π-types, λ-terms, applications.
 * **`normalize/2`** — full beta-reduction with fuel (50 000 steps) and deadline.
@@ -104,8 +105,8 @@ Key operations:
 
 ### `Henk.Codegen` — `lib/henk/codegen.ex`
 
-Translates desugared CoC terms into Core Erlang abstract-syntax forms
-(`:cerl`), which are then compiled to BEAM bytecode via `:compile.forms/2`.
+Translates desugared CoC terms into Core Erlang abstract-syntax forms,
+which are then compiled to BEAM bytecode via `:compile.forms/2`.
 `foreign` declarations are mapped directly to calls into existing Erlang
 modules, letting pure Henk functions interoperate with the OTP ecosystem.
 
@@ -131,8 +132,8 @@ The default (Miranda-like) syntax:
  I ::= #identifier
  U ::= * <#number>
  O ::= U | I | ( O ) | O O
-         | \ ( I : O ) -> O     -- lambda
-         | forall ( I : O ) -> O -- pi / forall
+         | \ ( I : O ) -> O 
+         | \/ ( I : O ) -> O
 ```
 
 Alternative syntaxes (`aut-68`, `morte`) are available via the `:syntax`
@@ -153,10 +154,11 @@ Nat   Path  Prod  Prop  Sigma String Unit  Vector
 
 ## Reference Models
 
-The Erlang implementation (`src/erlang/`) and the OCaml model (if present
-under `src/ocaml/`) served as the reference designs for this Elixir port.
-They provide a compact, pure-functional Morte library type checker and
-extractor that the Elixir code faithfully reproduces and extends.
+The Erlang reference implementation (`src/erlang/`) and the OCaml (`src/ocaml/`) model served
+as the reference designs for this Elixir port. They provide a compact,
+pure-functional Morte library type checker and extractor that the Elixir
+code faithfully reproduces and extends. All models and implentations
+are written by Maksym Sokhatskyi.
 
 ## References
 
@@ -168,6 +170,6 @@ extractor that the Elixir code faithfully reproduces and extends.
 * <a href="https://www.haskellforall.com/2014/09/morte-intermediate-language-for-super.html">Morte: an intermediate language for super-optimizing functional programs</a> [Gabriella Gonzalez]
 * <a href="https://henk.groupoid.space/doc/henk.pdf">Henk: Pure Type System for Erlang</a> [Maksym Sokhatskyi]
 
-## Credits
+## Author
 
 * <a itemprop="sameAs" content="https://orcid.org/0000-0001-7127-8796" href="https://orcid.org/0000-0001-7127-8796" target="orcid.widget" rel="me noopener noreferrer">Maksym Sokhatskyi <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png"> 🇺🇦</a>

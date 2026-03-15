@@ -144,10 +144,10 @@ Lambda Calculus: Its Syntax and Semantics, 1992, p. 568), which type upholds by 
 
 In repository `henk` you may find the following parts of core:
 
-* [Parser](https://github.com/groupoid/henk/blob/main/src/erlang/syntax/om_parse.erl)
-* [Type Checker](https://github.com/groupoid/henk/blob/main/src/erlang/typechecker/om_type.erl)
-* [Eraser](https://github.com/groupoid/henk/blob/main/src/erlang/extractor/om_erase.erl)
-* [Code Extractor](https://github.com/groupoid/henk/blob/main/src/erlang/extractor/om_extract.erl)
+* [Parser](https://github.com/groupoid/henk/blob/main/src/erlang/src/core/om_parse.erl)
+* [Type Checker](https://github.com/groupoid/henk/blob/main/src/erlang/src/core/om_type.erl)
+* [Eraser](https://github.com/groupoid/henk/blob/main/src/erlang/src/core/om_erase.erl)
+* [Code Extractor](https://github.com/groupoid/henk/blob/main/src/erlang/src/core/om_extract.erl)
 
 Henk ships with different "syntaxes" (spaces of types with own encodings), or "preludes", which
 you may find in `priv` directory. They are selectable with `om:mode("aut-68")`.

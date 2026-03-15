@@ -41,7 +41,11 @@ erlc +debug_info -o ebin/ \
 | `repl/om_state.erl` | Pure `#state{}` record + cache maps |
 | `repl/om_repl.erl` | Entry points: `start`, `scan`, `parse`, `name` |
 
-## Console Session (rebar3 om repl --root=../../)
+## Console Session
+
+```
+$ rebar3 om repl --root=../../
+```
 
 ### Setup
 
