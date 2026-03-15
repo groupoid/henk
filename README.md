@@ -95,7 +95,7 @@ All state is passed explicitly as `%Henk.Typechecker.Env{}`:
 | `in_progress` | `MapSet` for cycle detection |
 | `deadline` | Monotonic-ms normalisation timeout |
 
-Key operations:
+Key operations according to Maksym's article:
 
 * **`infer/2`** — type inference for universes, variables, Π-types, λ-terms, applications.
 * **`normalize/2`** — full beta-reduction with fuel (50 000 steps) and deadline.
