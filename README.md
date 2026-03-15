@@ -152,7 +152,8 @@ Lazy  List  Maybe Mon   Monad Monoid Morte
 Nat   Path  Prod  Prop  Sigma String Unit  Vector
 ```
 
-`priv/henk/` holds the same prelude rewritten in Miranda syntax.
+Folder `priv/henk/` holds the same prelude rewritten in Miranda syntax.
+Originall base library by Gabriella Gongalez is placed to `priv\morte`.
 
 ## Reference Models
 
