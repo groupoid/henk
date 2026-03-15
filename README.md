@@ -30,6 +30,12 @@ mix henk.repl
 
 ## Minimal Proving System
 
+Model and implementation sizes:
+
+* OCaml model is 150 LOC.
+* Erlang model is 300 LOC.
+* Elixir production-ready kernel of Henk is 2000 LOC.
+
 ### `Henk.Lexer` — `lib/henk/lexer.ex`
 
 Recursive-descent character scanner.  Produces a flat token list with
