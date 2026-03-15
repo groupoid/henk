@@ -1,5 +1,5 @@
-Henk Barendregt: Pure Type System
----------------------------------
+Henk: AUTOMATH in Elixir for Erlang/OTP
+---------------------------------------
 
 [![Actions Status](https://github.com/groupoid/henk/workflows/ci/badge.svg)](https://github.com/groupoid/henk/actions)
 [![Hex pm](http://img.shields.io/hexpm/v/henk.svg?style=flat)](https://hex.pm/packages/henk)
