@@ -17,11 +17,7 @@ defmodule Mix.Tasks.Henk.Repl do
       _ -> :miranda
     end
 
-    IO.puts(
-      "🧊 Henk Programming Language version 0.3.11 [#{syntax_arg} syntax]\n" <>
-        "Copyright (c) 2015-2026 Groupoid Infinity\n" <>
-        "https://groupoid.github.io/henk/\n"
-    )
+    print_banner(syntax_arg)
 
     # Add ebin subfolders to code path
     :code.add_pathz(~c"ebin/miranda")
@@ -120,6 +116,10 @@ defmodule Mix.Tasks.Henk.Repl do
           loop(env, syntax, syntax_name)
         end
 
+      ":banner\n" ->
+        print_banner(syntax_name)
+        loop(env, syntax, syntax_name)
+
       "import " <> rest ->
         mod_name = String.trim(rest)
         case Henk.Compiler.load_module_to_env(mod_name, env) do
@@ -163,6 +163,15 @@ defmodule Mix.Tasks.Henk.Repl do
             loop(env, syntax, syntax_name)
         end
     end
+  end
+
+  defp print_banner(syntax_name) do
+    vsn = Application.spec(:henk, :vsn) || "unknown"
+    IO.puts(
+      "🧊 Henk Programming Language version #{vsn} [#{syntax_name} syntax]\n" <>
+        "Copyright (c) 2015-2026 Groupoid Infinity\n" <>
+        "https://groupoid.github.io/henk/\n"
+    )
   end
 
   defp handle_introspection(input, mode, env, syntax) do
