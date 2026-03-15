@@ -1,7 +1,7 @@
 Henk Barendregt: Pure Type System
 ---------------------------------
 
-[![Actions Status](https://github.com/groupoid/henk/workflows/mix/badge.svg)](https://github.com/groupoid/henk/actions)
+[![Actions Status](https://github.com/groupoid/henk/workflows/ci/badge.svg)](https://github.com/groupoid/henk/actions)
 [![Hex pm](http://img.shields.io/hexpm/v/henk.svg?style=flat)](https://hex.pm/packages/henk)
 
 This photo provided exclusively for The **Henk** Programming Language.
