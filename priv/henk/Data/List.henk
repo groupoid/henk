@@ -11,7 +11,7 @@ import Data.Nat
 
 data List A = Nil | Cons A (List A)
 
-hd xs = case xs of
+head xs = case xs of
     Nil      -> Nothing
     Cons h t -> Just h
 

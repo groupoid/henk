@@ -40,13 +40,14 @@
 
             <section>
                 <h2>Functions</h2>
-                
+
                 <div class="doc-entry">
-                    <h3 class="doc-heading">head <span class="doc-signature">:: Vector A (Succ n) -> A</span></h3>
-                    <p class="doc-description">Safely retrieve the first element of a non-empty vector.</p>
+                    <h3 class="doc-heading">head <span class="doc-signature">:: Vector A n -> Maybe A</span></h3>
+                    <p class="doc-description">Safely retrieve the head of a list.</p>
                     <span class="doc-label">Implementation</span>
-                    <pre class="doc-implementation">head v = case v of
-    Cons h t -> h</pre>
+                    <pre class="doc-implementation">hd xs = case xs of
+    Nil      -> Nothing
+    Cons h t -> Just h</pre>
                 </div>
 
                 <div class="doc-entry">
