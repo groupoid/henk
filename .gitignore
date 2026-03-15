@@ -4,6 +4,11 @@ doc/*
 deps/*
 ebin/*
 mix.lock
+rebar.lock
 .elixir_ls/*
 node_modules/*
 package-lock.json
+src/erlang-original/
+_checkouts/*
+erl_crash.dump
+rebar3.crashdump
