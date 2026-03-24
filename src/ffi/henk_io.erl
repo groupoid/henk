@@ -9,6 +9,6 @@ get_line() ->
     Line = io:get_line(""),
     unicode:characters_to_binary(string:trim(Line, trailing, "\n")).
 
-put_line(Str) when is_binary(Str) -> io:format("~s~n", [Str]);
-put_line(Str) when is_list(Str)   -> io:format("~s~n", [Str]);
-put_line(Str)                     -> io:format("~p~n", [Str]).
+put_line(Str) when is_binary(Str) -> io:format("~ts~n", [Str]);
+put_line(Str) when is_list(Str)   -> io:format("~ts~n", [Str]);
+put_line(Str)                     -> io:format("~tp~n", [Str]).
